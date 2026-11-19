@@ -30,8 +30,8 @@ const KIDS = [
   { id: 'aaranya', name: 'Aaranya', em: '🦄', age: 8 },
 ];
 const RANKS = [['Pawn', 0], ['Knight', 200], ['Bishop', 500], ['Rook', 1000], ['Queen', 2000], ['King', 3500], ['Grandmaster', 6000]];
-const SPRINT_BENCH = { 1: 30, 2: 25, 3: 18, 4: 15 };
-const SPRINT_NAME = { 1: 'Starter', 2: 'Explorer', 3: 'Olympiad', 4: 'Champion' };
+const SPRINT_BENCH = { 1: 20, 2: 25, 3: 18, 4: 15 };
+const SPRINT_NAME = { 1: 'Class 3', 2: 'Explorer', 3: 'Olympiad', 4: 'Champion' };
 const TIPS = {
   'Maths & Logic': 'a daily Math Sprint plus Maths and Reasoning rounds in Quiz Master',
   'Science': 'a Physics, Chemistry or Biology round a few times a week',
