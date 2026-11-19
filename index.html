@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quest Club">
+<meta name="theme-color" content="#7b5cff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
+<title>Quest Club</title>
+<style>
+  :root{--bg:#fff8ee;--ink:#2d2a4a;--accent:#7b5cff;--accent2:#ff7eb6;--gold:#ffc83d;
+    --light:#f3e7cf;--dark:#b98a5e;--frame:#6b4a2f;--sel:#ffe066;--move:rgba(123,92,255,.5)}
+  body.t-ocean{--light:#dff3ff;--dark:#4f9fd6;--frame:#1f5f8b}
+  body.t-candy{--light:#ffe3f1;--dark:#f28dbd;--frame:#b84a86}
+  body.t-forest{--light:#eaf5dc;--dark:#6fa864;--frame:#3e6b35}
+  body.t-galaxy{--light:#c9c3ff;--dark:#4b3fa6;--frame:#1e1650}
+  body.t-gold{--light:#fff3c4;--dark:#d4a017;--frame:#8a6400}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
+  header{background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;padding:10px 14px 10px}
+  .htop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  header h1{margin:0;font-size:1.25rem}
+  .chips{display:flex;gap:6px;align-items:center}
+  .chip{background:rgba(255,255,255,.22);border-radius:999px;padding:3px 9px;font-weight:700;font-size:.9rem;white-space:nowrap}
+  .chip.btn0{border:0;color:#fff;cursor:pointer;font-size:1rem}
+  .rankline{display:flex;align-items:center;gap:8px;margin-top:7px;font-weight:700;font-size:.92rem}
+  .bar{flex:1;height:12px;background:rgba(255,255,255,.3);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--gold);border-radius:99px;transition:width .6s}
+  nav{display:flex;justify-content:center;gap:5px;padding:8px 6px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.06);position:sticky;top:0;z-index:5}
+  nav button{flex:1;max-width:120px;border:0;border-radius:14px;padding:9px 2px;font-size:.8rem;font-weight:700;background:#efeaff;color:var(--accent);cursor:pointer}
+  nav button.on{background:var(--accent);color:#fff}
+  main{max-width:560px;margin:0 auto;padding:12px}
+  .card{background:#fff;border-radius:18px;padding:14px;box-shadow:0 3px 10px rgba(0,0,0,.06);margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .tile{border:0;border-radius:16px;padding:12px 10px;text-align:left;background:#f6f2ff;color:var(--ink);cursor:pointer;font-size:.92rem;min-height:70px}
+  .tile b{display:block;font-size:1rem;margin-bottom:3px}
+  .tile.done{background:#e6f8ee}
+  .tile.today{background:#fff1c9;box-shadow:0 0 0 3px var(--gold)}
+  .tile .badge{float:right;font-size:1.15rem}
+  .big{display:block;width:100%;border:0;border-radius:16px;padding:14px;font-size:1.05rem;font-weight:800;color:#fff;cursor:pointer;margin:8px 0;text-align:left}
+  .big small{display:block;font-weight:600;opacity:.92;font-size:.85rem;margin-top:2px}
+  .g1{background:linear-gradient(120deg,#ffb020,#ff6f61)} .g2{background:linear-gradient(120deg,#2fbf71,#1fa2a8)} .g3{background:linear-gradient(120deg,#7b5cff,#c05cff)}
+  .mission{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed #eee}
+  .mission:last-child{border-bottom:0}
+  .mission .ic{font-size:1.5rem}
+  .mission .tx{flex:1;font-weight:600}
+  .mission .mb{height:8px;background:#eee;border-radius:9px;overflow:hidden;margin-top:4px}
+  .mission .mb i{display:block;height:100%;background:var(--accent)}
+  .mission.done .tx{color:#1d7a49}
+  .badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .bdg{text-align:center;font-size:.72rem;font-weight:700;padding:8px 2px;border-radius:12px;background:#f6f2ff}
+  .bdg span{display:block;font-size:1.7rem}
+  .bdg.locked{filter:grayscale(1);opacity:.4}
+  .shop{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .theme{border:3px solid transparent;border-radius:14px;padding:6px;background:#faf8ff;cursor:pointer;text-align:center;font-weight:700;font-size:.8rem;color:var(--ink)}
+  .theme.cur{border-color:var(--accent)}
+  .sw{display:grid;grid-template-columns:repeat(4,1fr);height:34px;border-radius:8px;overflow:hidden;margin-bottom:4px}
+  .board-wrap{position:relative;width:min(94vw,480px);margin:0 auto}
+  .board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border-radius:10px;overflow:hidden;border:4px solid var(--frame);aspect-ratio:1/1;user-select:none}
+  .sq{position:relative;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .sq.l{background:var(--light)} .sq.d{background:var(--dark)}
+  .sq.sel{background:var(--sel)!important}
+  .sq.last{box-shadow:inset 0 0 0 999px rgba(255,214,0,.3)}
+  .sq.chk{background:radial-gradient(circle,#ff6b6b 0%,#ff6b6b55 55%,transparent 75%)!important}
+  .sq.hint{box-shadow:inset 0 0 0 4px #2fbf71}
+  .sq .dot{position:absolute;width:30%;height:30%;border-radius:50%;background:var(--move)}
+  .sq .ring{position:absolute;inset:6%;border-radius:50%;border:5px solid var(--move)}
+  .sq .coord{position:absolute;font-size:9px;opacity:.75;font-weight:700}
+  .sq .coord.f{bottom:1px;right:3px} .sq .coord.r{top:1px;left:3px}
+  .pc{font-size:min(9.4vw,50px);line-height:1;z-index:2;pointer-events:none}
+  .pc.w{color:#fff;text-shadow:0 0 2px #000,0 0 2px #000,0 1px 2px #000}
+  .pc.b{color:#1f1b2e;text-shadow:0 0 1px #fff}
+  .star{font-size:min(7vw,36px);z-index:1;pointer-events:none;animation:bob 1.3s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-3px) scale(1.08)}}
+  .msg{min-height:46px;text-align:center;font-size:1.03rem;font-weight:700;margin:10px 4px;padding:8px;border-radius:12px}
+  .msg.ok{background:#e6f8ee;color:#1d7a49} .msg.bad{background:#ffecec;color:#b33} .msg.info{background:#f2efff;color:var(--accent)}
+  .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+  .btn{border:0;border-radius:12px;padding:10px 15px;font-size:.96rem;font-weight:700;background:var(--accent);color:#fff;cursor:pointer}
+  .btn.alt{background:#efeaff;color:var(--accent)}
+  h2{margin:4px 0 8px;font-size:1.2rem}
+  h3{margin:2px 0 8px;font-size:1.05rem}
+  p{margin:6px 0;line-height:1.45}
+  .tip{background:#fff6dc;border-radius:12px;padding:8px 10px;font-size:.93rem}
+  .seg{display:flex;gap:6px;justify-content:center;margin:6px 0}
+  .seg button{border:2px solid var(--accent);background:#fff;color:var(--accent);border-radius:12px;padding:7px 10px;font-weight:700;cursor:pointer}
+  .seg button.on{background:var(--accent);color:#fff}
+  .score{display:flex;justify-content:space-around;text-align:center;font-weight:700}
+  .score div span{display:block;font-size:1.35rem;color:var(--accent)}
+  .hidden{display:none!important}
+  .confetti{position:fixed;top:-40px;font-size:28px;z-index:60;pointer-events:none;animation:fall 2.2s linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.8}}
+  #toasts{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:70;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+  .toast{background:#2d2a4a;color:#fff;font-weight:800;padding:8px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25);animation:pop 2.4s ease forwards;white-space:nowrap}
+  .toast.xp{background:linear-gradient(120deg,#ffb020,#ff6f61)}
+  @keyframes pop{0%{transform:translateY(-10px) scale(.7);opacity:0}10%{transform:none;opacity:1}80%{opacity:1}100%{transform:translateY(-20px);opacity:0}}
+  .modal{position:fixed;inset:0;background:rgba(30,20,60,.55);display:flex;align-items:center;justify-content:center;z-index:65}
+  .modal .box{background:#fff;border-radius:22px;padding:22px;text-align:center;max-width:320px;width:86%;animation:pop2 .4s ease}
+  .modal .box .em{font-size:4rem}
+  @keyframes pop2{from{transform:scale(.6);opacity:0}}
+  .timer{text-align:center;font-weight:800;font-size:1.1rem;color:var(--accent)}
+  .pick{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:20px;padding:16px;margin:10px 0;cursor:pointer;color:#fff;text-align:left;font-family:inherit}
+  .pick .av{font-size:3rem}
+  .pick b{font-size:1.4rem;display:block}
+  .pick small{font-size:.9rem;opacity:.95}
+  .p-aaranya{background:linear-gradient(120deg,#ff7eb6,#ffb020)} .p-avanya{background:linear-gradient(120deg,#7b5cff,#1fa2a8)}
+  .lb{width:100%;border-collapse:collapse;font-weight:700}
+  .lb td{padding:8px 4px;border-bottom:1px solid #eee}
+  .lb td:last-child{text-align:right;color:var(--accent)}
+  .qbig{font-size:5.2rem;text-align:center;line-height:1.1;margin:6px 0}
+  .qtext{font-size:1.25rem;font-weight:800;text-align:center;margin:8px 0 12px;line-height:1.35}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .opt{border:0;border-radius:14px;padding:14px 8px;font-size:1rem;font-weight:700;background:#f2efff;color:var(--ink);cursor:pointer;min-height:58px;font-family:inherit}
+  .opt.right{background:#2fbf71;color:#fff} .opt.wrong{background:#ff5d5d;color:#fff}
+  .qbar{display:flex;justify-content:space-between;font-weight:800;color:var(--accent);margin-bottom:6px}
+  .explain{margin-top:10px}
+  .sprintq{font-size:2.3rem;font-weight:800;text-align:center;margin:10px 0 4px}
+  .sprinta{font-size:2rem;font-weight:800;text-align:center;min-height:52px;border-radius:14px;background:#f2efff;margin:6px auto;max-width:220px;padding:4px}
+  .sprinta.bad{background:#ffd6d6} .sprinta.good{background:#c9f2db}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:330px;margin:8px auto}
+  .key{border:0;border-radius:14px;padding:16px 0;font-size:1.5rem;font-weight:800;background:#fff;box-shadow:0 2px 0 #ddd;cursor:pointer;color:var(--ink);font-family:inherit}
+  .key:active{transform:translateY(2px);box-shadow:none}
+  .mgrid{display:grid;gap:8px;width:min(90vw,380px);margin:10px auto}
+  .mcell{aspect-ratio:1/1;border-radius:12px;background:#e9e4ff;border:0;cursor:pointer;transition:background .15s}
+  .mcell.lit{background:var(--gold)} .mcell.ok{background:#2fbf71} .mcell.no{background:#ff5d5d}
+  .cards{display:grid;gap:8px;width:min(94vw,440px);margin:10px auto}
+  .mcard{aspect-ratio:3/4;border-radius:12px;border:0;cursor:pointer;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-family:inherit}
+  .mcard.up{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  .mcard.up.fl{font-size:2.6rem}
+  .mcard.gone{opacity:.25;cursor:default}
+  .lv{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0}
+  .lv button{border:2px solid var(--accent);background:#fff;color:var(--accent);border-radius:12px;padding:7px 10px;font-weight:700;cursor:pointer;font-family:inherit}
+  .lv button.on{background:var(--accent);color:#fff}
+  .g4{background:linear-gradient(120deg,#ff7eb6,#ff9a5c)} .g5{background:linear-gradient(120deg,#1fa2a8,#4f7cff)}
+</style>
+</head>
+<body>
+<div id="toasts"></div>
+<header>
+  <div class="htop">
+    <h1 id="hTitle">♞ Quest Club</h1>
+    <div class="chips">
+      <span class="chip" id="hStreak">🔥 1</span>
+      <span class="chip" id="hCoins">🪙 0</span>
+      <button class="chip btn0" id="hSound">🔊</button>
+      <button class="chip btn0" id="hWho">👤</button>
+    </div>
+  </div>
+  <div class="rankline" id="hRankLine"><span id="hRank">♟ Pawn</span><div class="bar"><i id="hBar" style="width:0"></i></div><span id="hXp">0 XP</span></div>
+</header>
+<nav id="nav">
+  <button id="tabHome" class="on">🏠 Home</button>
+  <button id="tabChess">♞ Chess</button>
+  <button id="tabBrain">🧠 Brain</button>
+  <button id="tabRobo">🤖 Robo</button>
+  <button id="tabTrophy">🏆 Prizes</button>
+</nav>
+<main>
+  <!-- PROFILE PICKER -->
+  <section id="pickView" class="hidden">
+    <div class="card"><h2>Who's playing? 👀</h2>
+      <button class="pick p-aaranya" data-p="aaranya"><span class="av">🦄</span><span><b>Aaranya</b><small id="pkA"></small></span></button>
+      <button class="pick p-avanya" data-p="avanya"><span class="av">🦋</span><span><b>Avanya</b><small id="pkV"></small></span></button>
+    </div>
+    <div class="card"><h3>🏆 Family leaderboard</h3><table class="lb" id="lbTable"></table>
+      <p class="tip" style="margin-top:10px">Each player has her own points, streak, badges and missions on this device.</p>
+      <button class="big g3" id="goParent" style="margin-top:12px">👨‍👩‍👧 Parent board<small>For Papa and Mumma — PIN protected</small></button></div>
+  </section>
+
+  <!-- HOME -->
+  <section id="homeView" class="hidden">
+    <div class="card">
+      <h2 id="hello"></h2>
+      <p id="nextRank"></p>
+      <div id="quick"></div>
+    </div>
+    <div class="card">
+      <h3>🎯 Today's missions <span id="chestState" style="float:right"></span></h3>
+      <div id="missions"></div>
+    </div>
+    <div class="card" id="vsCard"></div>
+  </section>
+
+  <!-- CHESS HUB -->
+  <section id="chessView" class="hidden">
+    <div class="card"><h2>Chess ♞</h2>
+      <button class="big g3" id="goLessons">📚 Lessons<small id="lesSub"></small></button>
+      <button class="big g1" id="goPuzzles">🧩 Puzzles<small id="puzSub"></small></button>
+      <button class="big g2" id="goPlay">🤖 Play Robo-Knight<small>Easy, Medium or Hard. Beat him for big XP!</small></button>
+      <button class="big g4" id="goHunt">⭐ Star Hunt<small>Race the clock to collect stars with a chess piece</small></button>
+    </div>
+  </section>
+  <section id="learnList" class="hidden">
+    <div class="card"><h2>Lessons 📚</h2><p>Tap a piece, then tap where it should go. Purple dots show where it can move.</p></div>
+    <div class="grid" id="lessonGrid"></div>
+  </section>
+  <section id="puzzleList" class="hidden">
+    <div class="card"><h2>Puzzle Land 🧩</h2><p>You are White and it's your move. Look for <b>checks, captures and threats</b>! The golden puzzle is today's double-XP puzzle.</p></div>
+    <div class="grid" id="puzzleGrid"></div>
+  </section>
+
+  <!-- BRAIN HUB -->
+  <section id="brainView" class="hidden">
+    <div class="card"><h2>Brain Games 🧠</h2>
+      <button class="big g1" data-g="sprint">⚡ Math Sprint<small>How many sums can you solve in 60 seconds?</small></button>
+      <button class="big g2" data-g="world">🌍 World Explorer<small>Flags, capitals and continents</small></button>
+      <button class="big g3" data-g="oly">🏅 Quiz Master<small>India, History, Space, Animals, Physics, Chemistry, Biology, Maths and more</small></button>
+      <button class="big g4" data-g="mem">🧩 Memory Grid<small>Remember the glowing squares</small></button>
+      <button class="big g5" data-g="match">🃏 Flag Match<small>Flip cards to match each flag with its country</small></button>
+    </div>
+  </section>
+
+  <!-- MATH SPRINT -->
+  <section id="sprintView" class="hidden">
+    <div class="card" id="sprintSetup">
+      <h2>⚡ Math Sprint</h2><p>Solve as many as you can in 60 seconds. Type the answer — it checks by itself!</p>
+      <div class="lv" id="sprintLv"><button data-l="1">🌱 Starter</button><button data-l="2">🚀 Explorer</button><button data-l="3">🏅 Olympiad</button></div>
+      <p class="tip" id="sprintBest"></p>
+      <div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="sprintGo">▶ Start!</button></div>
+    </div>
+    <div id="sprintRun" class="hidden">
+      <div class="qbar"><span id="spTime">⏱ 60</span><span id="spScore">✅ 0</span></div>
+      <div class="sprintq" id="spQ"></div>
+      <div class="sprinta" id="spA"></div>
+      <div class="keypad" id="keypad"></div>
+      <div class="row"><button class="btn alt" id="spSkip">⏭ Skip</button></div>
+    </div>
+  </section>
+
+  <!-- QUIZ (World Explorer / Olympiad) -->
+  <section id="quizView" class="hidden">
+    <div class="card" id="quizSetup"></div>
+    <div class="card hidden" id="quizRun">
+      <div class="qbar"><span id="qNum"></span><span id="qScore"></span></div>
+      <div class="qbig" id="qBig"></div>
+      <div class="qtext" id="qText"></div>
+      <div class="opts" id="qOpts"></div>
+      <p class="tip explain hidden" id="qExplain"></p>
+      <div class="row"><button class="btn alt" id="qQuit">⬅ Quit</button><button class="btn hidden" id="qNext">Next ➡</button></div>
+    </div>
+  </section>
+
+  <!-- MEMORY GRID -->
+  <section id="memView" class="hidden">
+    <div class="card"><h2>🧩 Memory Grid</h2><div class="qbar"><span id="memLevel"></span><span id="memLives"></span></div>
+      <p class="tip" id="memMsg"></p></div>
+    <div class="mgrid" id="mgrid"></div>
+    <div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="memGo">▶ Start</button></div>
+  </section>
+
+  <!-- FLAG MATCH -->
+  <section id="matchView" class="hidden">
+    <div class="card"><h2>🃏 Flag Match</h2><div class="qbar"><span id="mtMoves"></span><span id="mtPairs"></span></div>
+      <p class="tip" id="mtMsg">Flip two cards. Match each flag with its country name!</p></div>
+    <div class="cards" id="cards"></div>
+    <div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="mtNew">🔄 New game</button></div>
+  </section>
+
+  <!-- ROBO LAB -->
+  <section id="roboView" class="hidden">
+    <div class="card"><h2>🤖 Robo Lab</h2><p>Robots and AI are tools that people build and control. Here <b>you</b> are the boss of the robot!</p>
+      <button class="big g2" id="goBot">🕹️ Code-a-Bot<small>Give Robo step-by-step commands to reach the battery</small></button>
+      <button class="big g3" id="goTeach">🧑‍🏫 Teach the Robot<small>Train a mini AI with examples and watch it learn</small></button>
+      <button class="big g1" id="goCards">📖 AI Story Cards<small>How AI and robots help people — plus Myth or Fact?</small></button>
+    </div>
+  </section>
+  <section id="botView" class="hidden">
+    <div class="card"><h2 id="botTitle"></h2><p id="botText"></p></div>
+    <div class="mgrid" id="botGrid"></div>
+    <div class="card">
+      <div class="qbar"><span>Your program</span><span id="botCount"></span></div>
+      <div id="botProg" style="min-height:44px;font-size:1.7rem;letter-spacing:2px;text-align:center;background:#f2efff;border-radius:12px;padding:6px;word-break:break-all"></div>
+      <div class="lv" id="botRepeat"></div>
+      <div class="row">
+        <button class="key" data-cmd="U" style="padding:12px 18px">⬆️</button>
+        <button class="key" data-cmd="L" style="padding:12px 18px">⬅️</button>
+        <button class="key" data-cmd="D" style="padding:12px 18px">⬇️</button>
+        <button class="key" data-cmd="R" style="padding:12px 18px">➡️</button>
+      </div>
+      <div class="msg info" id="botMsg"></div>
+      <div class="row"><button class="btn alt" data-back="robo">⬅ Back</button><button class="btn alt" id="botDel">⌫ Undo</button><button class="btn alt" id="botClear">🧹 Clear</button><button class="btn" id="botRun">▶ Run</button><button class="btn hidden" id="botNext">Next level ➡</button></div>
+    </div>
+  </section>
+  <section id="teachView" class="hidden">
+    <div class="card" id="teachTop"></div>
+    <div class="card" id="teachBody"></div>
+  </section>
+  <section id="cardsView" class="hidden">
+    <div class="card" style="text-align:center">
+      <div class="qbar"><span id="cardNum"></span><span id="cardKind"></span></div>
+      <div class="qbig" id="cardEm"></div>
+      <h2 id="cardTitle"></h2>
+      <p id="cardText" style="font-size:1.05rem"></p>
+      <div id="cardFlip"></div>
+      <div class="row"><button class="btn alt" id="cardPrev">⬅</button><button class="btn alt" data-back="robo">🏠 Lab</button><button class="btn" id="cardNext">➡</button></div>
+    </div>
+  </section>
+
+  <!-- TROPHIES -->
+  <section id="trophyView" class="hidden">
+    <div class="card"><h3>🏅 Badges <span id="badgeCount" style="float:right;font-size:.9rem"></span></h3><div class="badges" id="badgeGrid"></div></div>
+    <div class="card"><h3>📤 Send my progress to Papa</h3><p>Tap the button, then paste the message into WhatsApp for Papa.</p>
+      <div class="row"><button class="btn" id="sendReport">📋 Copy my progress report</button></div>
+      <textarea id="reportBox" class="hidden" readonly style="width:100%;height:150px;margin-top:10px;border-radius:12px;border:2px solid #e3dcff;padding:8px;font-size:.8rem"></textarea></div>
+    <div class="card"><h3>🎨 Board shop <span style="float:right;font-size:.9rem">Spend your 🪙 coins</span></h3><div class="shop" id="shop"></div></div>
+    <div class="card"><h3>💰 How to earn XP and coins</h3>
+      <p class="tip">Chess lesson +50 · Chess puzzle +30 (+20 first try) · Puzzle of the Day +60 · Beat Robo: +60 / +150 / +300 · Math Sprint: XP for every right answer, +15 for a new best · World Explorer & Olympiad: +3 per right answer, +20 for 10/10 · Memory games: more XP for higher levels and fewer moves · Each mission +30 · All 3 missions = treasure chest +50 · Come back daily for a 🔥 streak bonus!</p></div>
+  </section>
+
+  <!-- PARENT BOARD -->
+  <section id="parentView" class="hidden">
+    <div class="card" id="pinCard"></div>
+    <div id="pBoard" class="hidden">
+      <div class="card"><h2>👨‍👩‍👧 Parent board</h2><p id="pIntro" class="tip"></p>
+        <h3>Add a report from the girls</h3>
+        <textarea id="pPaste" placeholder="Paste the WhatsApp report here" style="width:100%;height:80px;border-radius:12px;border:2px solid #e3dcff;padding:8px;font-size:.85rem"></textarea>
+        <div class="row"><button class="btn" id="pImport">➕ Add report</button><button class="btn alt" id="pBack">⬅ Back</button></div></div>
+      <div id="pKids"></div>
+    </div>
+  </section>
+
+  <!-- CHESS TASK -->
+  <section id="taskView" class="hidden">
+    <div class="card">
+      <h2 id="taskTitle"></h2>
+      <p id="taskText"></p>
+      <p class="tip" id="taskTip"></p>
+      <div class="timer hidden" id="huntTimer"></div>
+    </div>
+    <div class="board-wrap"><div class="board" id="taskBoard"></div></div>
+    <div class="msg info" id="taskMsg"></div>
+    <div class="row">
+      <button class="btn alt" id="taskBack">⬅ Back</button>
+      <button class="btn alt" id="taskReset">🔄 Try again</button>
+      <button class="btn alt" id="taskHint">💡 Hint</button>
+      <button class="btn hidden" id="taskNext">Next ➡</button>
+    </div>
+  </section>
+
+  <!-- CHESS PLAY -->
+  <section id="playView" class="hidden">
+    <div class="card">
+      <h2>Play against Robo-Knight 🤖</h2>
+      <div class="seg" id="levelSeg">
+        <button data-l="1" class="on">🐣 Easy</button>
+        <button data-l="2">🦊 Medium</button>
+        <button data-l="3">🦁 Hard</button>
+      </div>
+      <div class="score">
+        <div>You won<span id="sW">0</span></div>
+        <div>Draws<span id="sD">0</span></div>
+        <div>Robo won<span id="sL">0</span></div>
+      </div>
+    </div>
+    <div class="board-wrap"><div class="board" id="playBoard"></div></div>
+    <div class="msg info" id="playMsg">You are White. Make the first move!</div>
+    <div class="row">
+      <button class="btn alt" data-back="chess">⬅ Back</button>
+      <button class="btn" id="newGame">✨ New game</button>
+      <button class="btn alt" id="undo">↩ Undo</button>
+      <button class="btn alt" id="playHint">💡 Hint</button>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <p class="tip"><b>STOP before every move:</b> <b>S</b>ee what Robo just did · <b>T</b>hreats to my pieces? · <b>O</b>ptions: checks, captures, threats · <b>P</b>ick the safest good move.</p>
+    </div>
+  </section>
+</main>
+<div class="modal hidden" id="modal"><div class="box"><div class="em" id="mEm"></div><h2 id="mTitle"></h2><p id="mText"></p><button class="btn" id="mOk">Yay! 🎉</button></div></div>
+
+<script>
+//ENGINE START
+
+const GLYPH={K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟'};
+const VAL={P:100,N:310,B:320,R:500,Q:900,K:0};
+const isW=p=>p&&p===p.toUpperCase();
+const colorOf=p=>p?(isW(p)?'w':'b'):null;
+const sqName=i=>'abcdefgh'[i%8]+(8-Math.floor(i/8));
+const sqIdx=s=>(8-parseInt(s[1]))*8+'abcdefgh'.indexOf(s[0]);
+
+function parseFEN(fen){
+  const [pos,turn,cast,ep]=fen.split(' ');
+  const board=[];
+  for(const ch of pos){ if(ch==='/')continue; if(/\d/.test(ch)){for(let k=0;k<+ch;k++)board.push(null)} else board.push(ch); }
+  return {board,turn:turn||'w',castle:{K:(cast||'').includes('K'),Q:(cast||'').includes('Q'),k:(cast||'').includes('k'),q:(cast||'').includes('q')},
+    ep:(ep&&ep!=='-')?sqIdx(ep):-1,half:0};
+}
+function clone(s){return {board:s.board.slice(),turn:s.turn,castle:{...s.castle},ep:s.ep,half:s.half}}
+
+const KN=[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+const KG=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const DIAG=[[-1,-1],[-1,1],[1,-1],[1,1]], ORTH=[[-1,0],[1,0],[0,-1],[0,1]];
+const on=(r,c)=>r>=0&&r<8&&c>=0&&c<8;
+
+function attacked(board,sq,by){
+  const r=Math.floor(sq/8),c=sq%8;
+  const own=p=>p&&colorOf(p)===by;
+  // pawns
+  const pr=by==='w'?r+1:r-1;
+  for(const dc of[-1,1]){if(on(pr,c+dc)){const p=board[pr*8+c+dc];if(own(p)&&p.toUpperCase()==='P')return true}}
+  for(const[dr,dc]of KN){if(on(r+dr,c+dc)){const p=board[(r+dr)*8+c+dc];if(own(p)&&p.toUpperCase()==='N')return true}}
+  for(const[dr,dc]of KG){if(on(r+dr,c+dc)){const p=board[(r+dr)*8+c+dc];if(own(p)&&p.toUpperCase()==='K')return true}}
+  for(const[dirs,types]of[[DIAG,'BQ'],[ORTH,'RQ']]){
+    for(const[dr,dc]of dirs){let rr=r+dr,cc=c+dc;
+      while(on(rr,cc)){const p=board[rr*8+cc];if(p){if(own(p)&&types.includes(p.toUpperCase()))return true;break}rr+=dr;cc+=dc}}
+  }
+  return false;
+}
+function kingSq(board,col){const k=col==='w'?'K':'k';return board.indexOf(k)}
+function inCheck(s,col){const k=kingSq(s.board,col);return k>=0&&attacked(s.board,k,col==='w'?'b':'w')}
+
+function pseudo(s){
+  const mv=[],b=s.board,me=s.turn,opp=me==='w'?'b':'w';
+  for(let i=0;i<64;i++){
+    const p=b[i]; if(!p||colorOf(p)!==me)continue;
+    const r=Math.floor(i/8),c=i%8,t=p.toUpperCase();
+    const add=(to,extra)=>mv.push(Object.assign({from:i,to},extra||{}));
+    if(t==='P'){
+      const d=me==='w'?-1:1,start=me==='w'?6:1,last=me==='w'?0:7;
+      const f=(r+d)*8+c;
+      if(on(r+d,c)&&!b[f]){ add(f,(r+d)===last?{promo:'Q'}:null);
+        if(r===start&&!b[(r+2*d)*8+c])add((r+2*d)*8+c,{dbl:true}); }
+      for(const dc of[-1,1]){ if(!on(r+d,c+dc))continue; const to=(r+d)*8+c+dc;
+        if(b[to]&&colorOf(b[to])===opp)add(to,(r+d)===last?{promo:'Q'}:null);
+        else if(to===s.ep)add(to,{ep:true}); }
+    } else if(t==='N'||t==='K'){
+      for(const[dr,dc]of(t==='N'?KN:KG)){ if(!on(r+dr,c+dc))continue; const to=(r+dr)*8+c+dc;
+        if(!b[to]||colorOf(b[to])===opp)add(to); }
+      if(t==='K'){
+        const home=me==='w'?60:4;
+        if(i===home&&!attacked(b,i,opp)){
+          const rk=me==='w'?'R':'r';
+          if(s.castle[me==='w'?'K':'k']&&b[home+3]===rk&&!b[home+1]&&!b[home+2]&&!attacked(b,home+1,opp)&&!attacked(b,home+2,opp))add(home+2,{castle:'K'});
+          if(s.castle[me==='w'?'Q':'q']&&b[home-4]===rk&&!b[home-1]&&!b[home-2]&&!b[home-3]&&!attacked(b,home-1,opp)&&!attacked(b,home-2,opp))add(home-2,{castle:'Q'});
+        }
+      }
+    } else {
+      const dirs=t==='B'?DIAG:t==='R'?ORTH:DIAG.concat(ORTH);
+      for(const[dr,dc]of dirs){let rr=r+dr,cc=c+dc;
+        while(on(rr,cc)){const to=rr*8+cc;if(b[to]){if(colorOf(b[to])===opp)add(to);break}add(to);rr+=dr;cc+=dc}}
+    }
+  }
+  return mv;
+}
+function make(s,m){
+  const n=clone(s),b=n.board,p=b[m.from],me=s.turn;
+  n.half=(p.toUpperCase()==='P'||b[m.to])?0:s.half+1;
+  b[m.to]=m.promo?(me==='w'?m.promo:m.promo.toLowerCase()):p; b[m.from]=null;
+  if(m.ep){b[m.to+(me==='w'?8:-8)]=null}
+  if(m.castle==='K'){b[m.to-1]=b[m.to+1];b[m.to+1]=null}
+  if(m.castle==='Q'){b[m.to+1]=b[m.to-2];b[m.to-2]=null}
+  n.ep=m.dbl?(m.from+m.to)/2:-1;
+  if(p==='K'){n.castle.K=n.castle.Q=false} if(p==='k'){n.castle.k=n.castle.q=false}
+  for(const sq of[m.from,m.to]){if(sq===63)n.castle.K=false;if(sq===56)n.castle.Q=false;if(sq===7)n.castle.k=false;if(sq===0)n.castle.q=false}
+  n.turn=me==='w'?'b':'w';
+  return n;
+}
+function legal(s){
+  const me=s.turn;
+  return pseudo(s).filter(m=>{const n=make(s,m);const k=kingSq(n.board,me);return k<0||!attacked(n.board,k,n.turn)});
+}
+function status(s){
+  const moves=legal(s);
+  if(!moves.length)return inCheck(s,s.turn)?'mate':'stalemate';
+  const rest=s.board.filter(p=>p&&p.toUpperCase()!=='K');
+  if(!rest.length||(rest.length===1&&'NB'.includes(rest[0].toUpperCase())))return 'insufficient';
+  if(s.half>=100)return 'fifty';
+  return null;
+}
+// evaluation (positive = good for White)
+const CENTER=[0,1,2,3,3,2,1,0];
+function evaluate(s){
+  let e=0;
+  for(let i=0;i<64;i++){const p=s.board[i];if(!p)continue;
+    const t=p.toUpperCase(),r=Math.floor(i/8),c=i%8,sg=isW(p)?1:-1;
+    let v=VAL[t];
+    if(t==='N'||t==='B')v+=(CENTER[r]+CENTER[c])*6;
+    if(t==='P'){v+=(isW(p)?(6-r):(r-1))*8+(c>=2&&c<=5?(isW(p)?(6-r):(r-1))*4:0)}
+    if(t==='K'){v+=(isW(p)?(r===7?15:-10):(r===0?15:-10))}
+    e+=sg*v;}
+  return e;
+}
+function search(s,depth,alpha,beta){
+  const moves=legal(s);
+  if(!moves.length)return inCheck(s,s.turn)?-100000-depth:0;
+  if(depth===0)return (s.turn==='w'?1:-1)*evaluate(s);
+  moves.sort((a,b)=>(s.board[b.to]?VAL[s.board[b.to].toUpperCase()]:0)-(s.board[a.to]?VAL[s.board[a.to].toUpperCase()]:0));
+  for(const m of moves){const v=-search(make(s,m),depth-1,-beta,-alpha);if(v>=beta)return v;if(v>alpha)alpha=v}
+  return alpha;
+}
+function bestMove(s,depth){
+  const moves=legal(s);let best=null,bv=-Infinity;
+  moves.sort(()=>Math.random()-.5);
+  for(const m of moves){const v=-search(make(s,m),depth-1,-Infinity,-bv);if(v>bv){bv=v;best=m}}
+  return best;
+}
+function aiMove(s,level){
+  const moves=legal(s); if(!moves.length)return null;
+  if(level===1){
+    // Easy: mostly random, sometimes grabs a capture
+    const caps=moves.filter(m=>s.board[m.to]);
+    if(caps.length&&Math.random()<0.4)return caps[Math.floor(Math.random()*caps.length)];
+    return moves[Math.floor(Math.random()*moves.length)];
+  }
+  if(level===2)return Math.random()<0.15?moves[Math.floor(Math.random()*moves.length)]:bestMove(s,2);
+  return bestMove(s,3);
+}
+//ENGINE END
+const LESSONS=[
+ {title:'1. Rocky the Rook',fen:'8/8/8/8/8/8/8/R7 w - - 0 1',goal:'stars',stars:['a6','f6','f2'],
+  text:'The chessboard has 64 squares. The rook is a castle tower 🏰. It slides in straight lines — up, down and sideways — as far as it likes. Collect all the stars!',
+  tip:'Board rule: the bottom-right corner square is always light. "White on the right!"',hint:'a1'},
+ {title:'2. Rook Bulldozer',fen:'8/8/3p3p/8/8/8/7p/3R4 w - - 0 1',goal:'stars',stars:['d6','h6','h2'],
+  text:'Pieces capture by landing on an enemy piece. Use your rook to capture all three black pawns!',
+  tip:'A rook can never jump over other pieces.',hint:'d1'},
+ {title:'3. Bishop the Skier',fen:'8/8/8/8/8/8/8/2B5 w - - 0 1',goal:'stars',stars:['h6','f8','a3'],
+  text:'The bishop skis diagonally ⛷️ as far as it likes. Collect the stars!',
+  tip:'A bishop stays on the same colour forever. This one lives on dark squares.',hint:'c1'},
+ {title:'4. Queen Power',fen:'8/8/8/8/3Q4/8/8/8 w - - 0 1',goal:'stars',stars:['h8','a1','b6','g3'],
+  text:'The queen 👑 moves like a rook AND a bishop. She is the strongest piece! Collect the stars.',
+  tip:'Queen = rook + bishop. Worth 9 points!',hint:'d4'},
+ {title:'5. Knight Hops',fen:'8/8/8/8/8/8/8/1N6 w - - 0 1',goal:'stars',stars:['c3','e4','f6','h7'],
+  text:'The knight 🐴 moves in an L: two squares one way, then one square to the side. It is the only piece that can jump!',
+  tip:'A knight always lands on the opposite colour from where it started.',hint:'b1'},
+ {title:'6. King Steps',fen:'8/8/8/8/8/8/8/4K3 w - - 0 1',goal:'stars',stars:['e4','g5','c3'],
+  text:'The king 🤴 is the most important piece, but he walks slowly: just one square in any direction.',
+  tip:'In a real game, the king can never move to a square where he could be captured.',hint:'e1'},
+ {title:'7. Pawn Power',fen:'8/8/8/3p4/8/8/4P3/8 w - - 0 1',goal:'stars',stars:['d5','d8'],
+  text:'Pawns walk straight forward (two squares on their first move) but capture diagonally. Capture the black pawn, then march to the end to become a queen!',
+  tip:'A pawn that reaches the last row is promoted — it turns into a queen.',hint:'e2'},
+ {title:'8. Check!',fen:'4k3/8/8/8/8/8/8/R3K3 w - - 0 1',goal:'check',
+  text:'When a piece attacks the king, it is called CHECK. Give check to the black king with one move!',
+  tip:'The king must get out of check: move away, block, or capture the attacker.',hint:'a1'},
+ {title:'9. Checkmate!',fen:'6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1',goal:'mate',
+  text:'CHECKMATE means the king is in check and cannot escape. That wins the game! Find the checkmate in one move.',
+  tip:'The black king is trapped behind his own pawns.',hint:'e1'},
+ {title:'10. Castling',fen:'4k3/8/8/8/8/8/8/4K2R w K - 0 1',goal:'castle',
+  text:'Castling keeps your king safe 🏰. Move the king TWO squares toward the rook — the rook jumps over to the other side. Try it!',
+  tip:'You can only castle if the king and rook have not moved, nothing is between them, and the king is not in check.',hint:'e1'},
+];
+const PUZZLES=[
+ {title:'1. Free Queen!',fen:'4k3/8/8/3q4/8/8/8/3RK3 w - - 0 1',goal:'capture',target:'d5',text:'Black left the queen with no protection. Take it!',tip:'Queen = 9 points. Rook = 5. Great trade!',hint:'d1'},
+ {title:'2. Bishop Snack',fen:'4k3/8/2n5/8/4B3/8/8/4K3 w - - 0 1',goal:'capture',target:'c6',text:'Which black piece can your bishop capture for free?',tip:'Follow the diagonals from your bishop.',hint:'e4'},
+ {title:'3. Knight Snack',fen:'4k3/8/8/8/8/2r5/8/1N2K3 w - - 0 1',goal:'capture',target:'c3',text:'A black rook is in danger. Can your knight grab it?',tip:'Knight = 3, Rook = 5.',hint:'b1'},
+ {title:'4. Long-Range Bishop',fen:'4k3/8/8/1r6/8/8/8/4KB2 w - - 0 1',goal:'capture',target:'b5',text:'Your bishop can see far away. Win the rook!',tip:'Bishops can travel the whole board in one move.',hint:'f1'},
+ {title:'5. Back-Rank Mate',fen:'6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1',goal:'mate',text:'Checkmate in one move!',tip:'The king\'s own pawns are blocking his escape.',hint:'a1'},
+ {title:'6. Queen Kiss',fen:'k7/7Q/1K6/8/8/8/8/8 w - - 0 1',goal:'mate',text:'Checkmate in one! Your king can help the queen.',tip:'Put the queen right next to the black king where your king protects her.',hint:'h7'},
+ {title:'7. The Ladder',fen:'7k/R7/8/8/8/8/8/1R4K1 w - - 0 1',goal:'mate',text:'Two rooks working together. Checkmate in one!',tip:'One rook guards the 7th row. The other gives check on the 8th.',hint:'b1'},
+ {title:'8. Smothered!',fen:'6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1',goal:'mate',text:'The black king is stuck in a corner. Checkmate in one!',tip:'Only one piece can jump over everything…',hint:'g5'},
+ {title:'9. Rook + Knight Team',fen:'7k/7p/5N2/8/8/8/8/6RK w - - 0 1',goal:'mate',text:'Checkmate in one with teamwork!',tip:'The knight protects one very important square.',hint:'g1'},
+ {title:'10. Scholar\'s Mate',fen:'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4',goal:'mate',text:'A famous trap! Queen and bishop both aim at one weak square. Checkmate in one!',tip:'Look at the square f7 — who is guarding it?',hint:'h5'},
+ {title:'11. Knight Grab',fen:'4k3/8/8/8/5q2/8/4N3/4K3 w - - 0 1',goal:'capture',target:'f4',text:'The black queen wandered too close to your knight. Catch her!',tip:'Knights move in an L shape.',hint:'e2'},
+ {title:'12. Pawn Pounce',fen:'4k3/8/8/3r4/4P3/8/8/4K3 w - - 0 1',goal:'capture',target:'d5',text:'Even a little pawn can win a big rook!',tip:'Pawns capture diagonally forward.',hint:'e4'},
+ {title:'13. Corner Trap',fen:'k7/pp6/8/8/8/8/8/K6R w - - 0 1',goal:'mate',text:'The black king is hiding behind his pawns. Checkmate in one!',tip:'Which row can the king not escape from?',hint:'h1'},
+ {title:'14. Queen Takes',fen:'5rk1/5p1p/6pQ/6N1/8/8/8/6K1 w - - 0 1',goal:'mate',text:'Your queen and knight are a dream team. Checkmate in one!',tip:'The knight protects h7.',hint:'h6'},
+ {title:'15. King Helps',fen:'3k4/8/3K4/8/8/8/8/7Q w - - 0 1',goal:'mate',text:'Your king is guarding the escape squares. Checkmate in one!',tip:'The queen can attack the whole 8th row.',hint:'h1'},
+ {title:'16. Long Queen',fen:'6k1/5ppp/8/8/8/8/8/2Q3K1 w - - 0 1',goal:'mate',text:'Checkmate in one with a long queen move!',tip:'Another back-rank trick.',hint:'c1'},
+ {title:'17. Corner Queen',fen:'7k/5Q2/6K1/8/8/8/8/8 w - - 0 1',goal:'mate',text:'The king is cornered. Checkmate in one!',tip:'Find a square next to the king that your king protects.',hint:'f7'},
+ {title:'18. Rook Sweep',fen:'1k6/ppp5/8/8/8/8/8/3R2K1 w - - 0 1',goal:'mate',text:'Checkmate in one with your rook!',tip:'The black pawns are a wall.',hint:'d1'},
+ {title:'19. Epaulettes',fen:'3rkr2/8/8/8/8/8/Q7/6K1 w - - 0 1',goal:'mate',text:'Black\'s own rooks are blocking the king, like shoulder pads! Checkmate in one!',tip:'Check the king from straight in front.',hint:'a2'},
+ {title:'20. King + Rook',fen:'5k2/8/5K2/8/8/8/8/R7 w - - 0 1',goal:'mate',text:'Kings face each other. Your rook finishes the job. Checkmate in one!',tip:'The rook attacks the whole 8th row.',hint:'a1'},
+];
+// name|capital (blank = flag-only, capital disputed or complex)|ISO code|continent
+const COUNTRY_RAW=`Algeria|Algiers|DZ|Africa
+Egypt|Cairo|EG|Africa
+Ethiopia|Addis Ababa|ET|Africa
+Ghana|Accra|GH|Africa
+Kenya|Nairobi|KE|Africa
+Morocco|Rabat|MA|Africa
+Nigeria|Abuja|NG|Africa
+Senegal|Dakar|SN|Africa
+Tanzania|Dodoma|TZ|Africa
+Uganda|Kampala|UG|Africa
+Zimbabwe|Harare|ZW|Africa
+Zambia|Lusaka|ZM|Africa
+Tunisia|Tunis|TN|Africa
+Libya|Tripoli|LY|Africa
+Sudan|Khartoum|SD|Africa
+Angola|Luanda|AO|Africa
+Cameroon|Yaoundé|CM|Africa
+Madagascar|Antananarivo|MG|Africa
+Rwanda|Kigali|RW|Africa
+Botswana|Gaborone|BW|Africa
+Namibia|Windhoek|NA|Africa
+Mozambique|Maputo|MZ|Africa
+Mali|Bamako|ML|Africa
+Somalia|Mogadishu|SO|Africa
+South Africa||ZA|Africa
+India|New Delhi|IN|Asia
+China|Beijing|CN|Asia
+Japan|Tokyo|JP|Asia
+South Korea|Seoul|KR|Asia
+North Korea|Pyongyang|KP|Asia
+Pakistan|Islamabad|PK|Asia
+Bangladesh|Dhaka|BD|Asia
+Nepal|Kathmandu|NP|Asia
+Bhutan|Thimphu|BT|Asia
+Afghanistan|Kabul|AF|Asia
+Iran|Tehran|IR|Asia
+Iraq|Baghdad|IQ|Asia
+Saudi Arabia|Riyadh|SA|Asia
+United Arab Emirates|Abu Dhabi|AE|Asia
+Qatar|Doha|QA|Asia
+Thailand|Bangkok|TH|Asia
+Vietnam|Hanoi|VN|Asia
+Malaysia|Kuala Lumpur|MY|Asia
+Singapore|Singapore|SG|Asia
+Philippines|Manila|PH|Asia
+Indonesia||ID|Asia
+Myanmar|Naypyidaw|MM|Asia
+Sri Lanka||LK|Asia
+Maldives|Malé|MV|Asia
+Mongolia|Ulaanbaatar|MN|Asia
+Kazakhstan|Astana|KZ|Asia
+Uzbekistan|Tashkent|UZ|Asia
+Oman|Muscat|OM|Asia
+Kuwait|Kuwait City|KW|Asia
+Jordan|Amman|JO|Asia
+Lebanon|Beirut|LB|Asia
+Syria|Damascus|SY|Asia
+Cambodia|Phnom Penh|KH|Asia
+Laos|Vientiane|LA|Asia
+United Kingdom|London|GB|Europe
+France|Paris|FR|Europe
+Germany|Berlin|DE|Europe
+Italy|Rome|IT|Europe
+Spain|Madrid|ES|Europe
+Portugal|Lisbon|PT|Europe
+Netherlands|Amsterdam|NL|Europe
+Belgium|Brussels|BE|Europe
+Switzerland|Bern|CH|Europe
+Austria|Vienna|AT|Europe
+Sweden|Stockholm|SE|Europe
+Norway|Oslo|NO|Europe
+Denmark|Copenhagen|DK|Europe
+Finland|Helsinki|FI|Europe
+Iceland|Reykjavík|IS|Europe
+Ireland|Dublin|IE|Europe
+Poland|Warsaw|PL|Europe
+Greece|Athens|GR|Europe
+Russia|Moscow|RU|Europe
+Ukraine|Kyiv|UA|Europe
+Czechia|Prague|CZ|Europe
+Hungary|Budapest|HU|Europe
+Romania|Bucharest|RO|Europe
+Croatia|Zagreb|HR|Europe
+Serbia|Belgrade|RS|Europe
+Bulgaria|Sofia|BG|Europe
+United States|Washington, D.C.|US|North America
+Canada|Ottawa|CA|North America
+Mexico|Mexico City|MX|North America
+Cuba|Havana|CU|North America
+Jamaica|Kingston|JM|North America
+Panama|Panama City|PA|North America
+Costa Rica|San José|CR|North America
+Guatemala|Guatemala City|GT|North America
+Brazil|Brasília|BR|South America
+Argentina|Buenos Aires|AR|South America
+Chile|Santiago|CL|South America
+Peru|Lima|PE|South America
+Colombia|Bogotá|CO|South America
+Venezuela|Caracas|VE|South America
+Ecuador|Quito|EC|South America
+Uruguay|Montevideo|UY|South America
+Paraguay|Asunción|PY|South America
+Bolivia||BO|South America
+Australia|Canberra|AU|Oceania
+New Zealand|Wellington|NZ|Oceania
+Fiji|Suva|FJ|Oceania
+Papua New Guinea|Port Moresby|PG|Oceania`;
+const flagOf=c=>String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0)));
+const COUNTRIES=COUNTRY_RAW.split('\n').map(l=>{const[n,cap,code,cont]=l.split('|');return{n,cap,code,cont,f:flagOf(code)}});
+// Easier, well-known countries for younger players
+const FAMOUS=['India','China','Japan','United States','United Kingdom','France','Germany','Italy','Spain','Brazil','Canada','Australia','Russia','Mexico','Egypt','South Africa','Nepal','Sri Lanka','Bangladesh','Pakistan','Saudi Arabia','United Arab Emirates','Singapore','Thailand','Argentina','Kenya','Nigeria','South Korea','New Zealand','Switzerland','Greece','Turkey','Netherlands','Sweden','Norway','Portugal','Ireland','Indonesia','Malaysia','Bhutan'];
+
+// Olympiad-style questions: q, options, answer index, explanation
+const OLY=[
+ {c:'Maths',q:'What comes next? 2, 6, 12, 20, 30, ?',o:['36','40','42','44'],a:2,e:'The gaps grow by 2: +4, +6, +8, +10, +12. So 30 + 12 = 42.'},
+ {c:'Maths',q:'What comes next? 1, 1, 2, 3, 5, 8, ?',o:['11','12','13','15'],a:2,e:'Each number is the sum of the two before it: 5 + 8 = 13 (the Fibonacci sequence).'},
+ {c:'Maths',q:'How many minutes are there in 3½ hours?',o:['180','200','210','230'],a:2,e:'3 hours = 180 minutes, plus half an hour = 30 minutes. 180 + 30 = 210.'},
+ {c:'Maths',q:'5 pencils cost ₹40. How much do 8 pencils cost?',o:['₹56','₹60','₹64','₹72'],a:2,e:'One pencil costs ₹40 ÷ 5 = ₹8. So 8 pencils cost 8 × 8 = ₹64.'},
+ {c:'Maths',q:'What is the smallest prime number?',o:['0','1','2','3'],a:2,e:'A prime has exactly two factors. 2 (factors 1 and 2) is the smallest — and the only even prime.'},
+ {c:'Maths',q:'What is 25% of 240?',o:['40','48','60','80'],a:2,e:'25% is one quarter. 240 ÷ 4 = 60.'},
+ {c:'Maths',q:'A square has a perimeter of 36 cm. What is its area?',o:['36 cm²','72 cm²','81 cm²','144 cm²'],a:2,e:'Each side is 36 ÷ 4 = 9 cm. Area = 9 × 9 = 81 cm².'},
+ {c:'Maths',q:'3 × 3 + 3 ÷ 3 − 3 = ?',o:['1','3','5','7'],a:3,e:'Multiply and divide first: 9 + 1 − 3 = 7.'},
+ {c:'Maths',q:'What is the angle between the clock hands at 3:00?',o:['45°','60°','90°','120°'],a:2,e:'The hands point at 12 and 3: a quarter of a full turn, 360° ÷ 4 = 90°.'},
+ {c:'Maths',q:'Which fraction is the largest?',o:['2/3','3/5','5/8','7/12'],a:0,e:'As decimals: 2/3 ≈ 0.667, 3/5 = 0.6, 5/8 = 0.625, 7/12 ≈ 0.583. So 2/3 is largest.'},
+ {c:'Maths',q:'Today is Wednesday. What day will it be 10 days from now?',o:['Friday','Saturday','Sunday','Monday'],a:1,e:'10 days = 1 week + 3 days. Wednesday + 3 days = Saturday.'},
+ {c:'Maths',q:'Which is the odd one out? 9, 16, 25, 30, 36',o:['9','16','30','36'],a:2,e:'9, 16, 25 and 36 are square numbers (3², 4², 5², 6²). 30 is not.'},
+ {c:'Maths',q:'What is the LCM of 4 and 6?',o:['2','12','18','24'],a:1,e:'Multiples of 4: 4, 8, 12… Multiples of 6: 6, 12… The lowest common one is 12.'},
+ {c:'Maths',q:'A train goes 60 km in 45 minutes. What is its speed in km per hour?',o:['60','75','80','90'],a:2,e:'45 minutes is ¾ of an hour. 60 ÷ ¾ = 80 km per hour.'},
+ {c:'Maths',q:'How many edges does a cube have?',o:['6','8','12','24'],a:2,e:'A cube has 6 faces, 8 corners (vertices) and 12 edges.'},
+ {c:'Maths',q:'What number is XLIV in Roman numerals?',o:['44','46','64','54'],a:0,e:'XL = 40 (50 − 10) and IV = 4 (5 − 1). 40 + 4 = 44.'},
+ {c:'Maths',q:'0.5 × 0.4 = ?',o:['2','0.2','0.02','0.9'],a:1,e:'5 × 4 = 20, and there are two decimal places in total, so 0.20 = 0.2.'},
+ {c:'Maths',q:'How many squares of all sizes are there in a 3 × 3 grid?',o:['9','10','13','14'],a:3,e:'9 small (1×1) + 4 medium (2×2) + 1 big (3×3) = 14.'},
+ {c:'Maths',q:'What is 15²?',o:['150','215','225','255'],a:2,e:'15 × 15 = 225.'},
+ {c:'Maths',q:'What is the sum of the angles of a triangle?',o:['90°','180°','270°','360°'],a:1,e:'The three angles of any triangle always add up to 180°.'},
+ {c:'Maths',q:'A shape with 8 sides is called a…',o:['Hexagon','Heptagon','Octagon','Decagon'],a:2,e:'Octa means eight — like an octopus with 8 arms.'},
+ {c:'Reasoning',q:'If CAT is written as DBU, how is DOG written?',o:['EPH','DPH','EOH','FQI'],a:0,e:'Each letter moves one step forward: D→E, O→P, G→H.'},
+ {c:'Reasoning',q:'Rahul is taller than Priya. Priya is taller than Sam. Who is the shortest?',o:['Rahul','Priya','Sam','Cannot tell'],a:2,e:'Rahul > Priya > Sam, so Sam is the shortest.'},
+ {c:'Reasoning',q:'Book is to reading as fork is to…',o:['Drawing','Writing','Eating','Stirring'],a:2,e:'We use a book for reading and a fork for eating.'},
+ {c:'Reasoning',q:'Which word does NOT belong? Apple, Mango, Carrot, Banana',o:['Apple','Mango','Carrot','Banana'],a:2,e:'Carrot is a vegetable; the others are fruits.'},
+ {c:'Reasoning',q:'If you face north and turn right twice, which way are you facing?',o:['North','East','South','West'],a:2,e:'Right once → East. Right again → South.'},
+ {c:'Space',q:'Which planet is known as the Red Planet?',o:['Venus','Mars','Jupiter','Mercury'],a:1,e:'Mars looks red because of iron oxide (rust) in its soil.'},
+ {c:'Biology',q:'Which gas do plants take in to make their food?',o:['Oxygen','Nitrogen','Carbon dioxide','Helium'],a:2,e:'In photosynthesis, plants use carbon dioxide, water and sunlight, and give out oxygen.'},
+ {c:'Physics',q:'At what temperature does water boil at sea level?',o:['50°C','90°C','100°C','120°C'],a:2,e:'Pure water boils at 100°C at sea level.'},
+ {c:'Space',q:'Which is the largest planet in our solar system?',o:['Saturn','Earth','Jupiter','Neptune'],a:2,e:'Jupiter is so big that all the other planets could fit inside it.'},
+ {c:'Chemistry',q:'Which is the hardest natural substance?',o:['Gold','Iron','Diamond','Quartz'],a:2,e:'Diamond, made of carbon, is the hardest natural material.'},
+ {c:'Biology',q:'How many bones are there in an adult human body?',o:['106','186','206','306'],a:2,e:'Adults have 206 bones. Babies are born with more, which join together as they grow.'},
+ {c:'Chemistry',q:'What is the chemical symbol for gold?',o:['Go','Gd','Au','Ag'],a:2,e:'Au comes from the Latin word "aurum". (Ag is silver.)'},
+ {c:'Animals',q:'Which is the fastest land animal?',o:['Lion','Cheetah','Horse','Leopard'],a:1,e:'A cheetah can sprint at about 100 km per hour for short bursts.'},
+ {c:'Biology',q:'Which part of a plant makes its food?',o:['Root','Stem','Leaf','Flower'],a:2,e:'Leaves contain chlorophyll, which captures sunlight for photosynthesis.'},
+ {c:'World',q:'Which is the largest ocean on Earth?',o:['Atlantic','Indian','Arctic','Pacific'],a:3,e:'The Pacific Ocean is the largest and deepest ocean.'},
+ {c:'World',q:'Which is the largest continent by area?',o:['Africa','Asia','North America','Europe'],a:1,e:'Asia is the largest continent, and has the most people too.'},
+ {c:'World',q:'Which is the smallest country in the world?',o:['Monaco','Maldives','Vatican City','San Marino'],a:2,e:'Vatican City, inside Rome, is less than half a square kilometre.'},
+ {c:'World',q:'Which is the highest mountain above sea level?',o:['K2','Kangchenjunga','Mount Everest','Kilimanjaro'],a:2,e:'Mount Everest, on the Nepal–China border, is about 8,849 metres high.'},
+ {c:'World',q:'Which is the largest hot desert in the world?',o:['Thar','Gobi','Sahara','Kalahari'],a:2,e:'The Sahara in North Africa is the largest hot desert.'},
+ {c:'India',q:'How many states does India have?',o:['26','28','29','30'],a:1,e:'India has 28 states and 8 union territories.'},
+ {c:'India',q:'What is the national aquatic animal of India?',o:['Blue whale','Ganges river dolphin','Olive ridley turtle','Crocodile'],a:1,e:'The Ganges river dolphin was declared India\'s national aquatic animal in 2009.'},
+ {c:'India',q:'Who wrote India\'s national anthem, "Jana Gana Mana"?',o:['Bankim Chandra Chattopadhyay','Rabindranath Tagore','Sarojini Naidu','Mahatma Gandhi'],a:1,e:'Rabindranath Tagore wrote it. Bankim Chandra wrote "Vande Mataram", the national song.'},
+ {c:'World',q:'What is the currency of Japan?',o:['Yuan','Won','Yen','Ringgit'],a:2,e:'Japan uses the yen. China uses the yuan and Korea the won.'},
+ {c:'World',q:'How many players does a cricket team have on the field?',o:['9','10','11','12'],a:2,e:'Each cricket team fields 11 players.'},
+];
+OLY.push(
+ // ---------- INDIA ----------
+ {c:'India',q:'What is the national animal of India?',o:['Asiatic lion','Bengal tiger','Indian elephant','Snow leopard'],a:1,e:'The Bengal tiger is India\'s national animal.'},
+ {c:'India',q:'What is the national bird of India?',o:['Indian peafowl (peacock)','Sarus crane','Great Indian bustard','Parrot'],a:0,e:'The Indian peafowl — the peacock — is the national bird.'},
+ {c:'India',q:'What is the national flower of India?',o:['Rose','Marigold','Lotus','Jasmine'],a:2,e:'The lotus is India\'s national flower.'},
+ {c:'India',q:'What is the national tree of India?',o:['Peepal','Neem','Banyan','Mango'],a:2,e:'The banyan tree is the national tree. Its branches send down roots that become new trunks.'},
+ {c:'India',q:'What is the national heritage animal of India?',o:['Tiger','Elephant','Lion','Cow'],a:1,e:'The elephant was declared the national heritage animal in 2010.'},
+ {c:'India',q:'Who was the first Prime Minister of India?',o:['Sardar Patel','Jawaharlal Nehru','Lal Bahadur Shastri','Indira Gandhi'],a:1,e:'Jawaharlal Nehru became Prime Minister in 1947.'},
+ {c:'India',q:'Who was the first President of India?',o:['Dr S. Radhakrishnan','Dr Rajendra Prasad','Dr Zakir Husain','Dr A. P. J. Abdul Kalam'],a:1,e:'Dr Rajendra Prasad was President from 1950 to 1962.'},
+ {c:'India',q:'On which date did India\'s Constitution come into effect?',o:['15 August 1947','26 January 1950','2 October 1949','26 November 1949'],a:1,e:'It came into effect on 26 January 1950 — celebrated as Republic Day. (It was adopted on 26 November 1949.)'},
+ {c:'India',q:'Who chaired the committee that drafted India\'s Constitution?',o:['Mahatma Gandhi','Dr B. R. Ambedkar','Jawaharlal Nehru','Dr Rajendra Prasad'],a:1,e:'Dr B. R. Ambedkar chaired the Drafting Committee and is called the chief architect of the Constitution.'},
+ {c:'India',q:'Which is the largest Indian state by area?',o:['Madhya Pradesh','Maharashtra','Rajasthan','Uttar Pradesh'],a:2,e:'Rajasthan is the largest state by area.'},
+ {c:'India',q:'Which Indian state has the most people?',o:['Maharashtra','Bihar','Uttar Pradesh','West Bengal'],a:2,e:'Uttar Pradesh has the largest population of any state.'},
+ {c:'India',q:'Which is the smallest Indian state by area?',o:['Sikkim','Goa','Tripura','Manipur'],a:1,e:'Goa is the smallest state by area.'},
+ {c:'India',q:'How many spokes does the Ashoka Chakra on India\'s flag have?',o:['12','16','24','32'],a:2,e:'The navy-blue Ashoka Chakra has 24 spokes.'},
+ {c:'India',q:'Who built the Taj Mahal?',o:['Akbar','Shah Jahan','Humayun','Aurangzeb'],a:1,e:'Emperor Shah Jahan built it in Agra in memory of his wife Mumtaz Mahal.'},
+ {c:'India',q:'In 2023, Chandrayaan-3 landed near which part of the Moon?',o:['North pole','Equator','South pole','Far side centre'],a:2,e:'India became the first country to land near the Moon\'s south pole.'},
+ {c:'India',q:'Which Indian mission reached Mars orbit on its very first attempt in 2014?',o:['Chandrayaan-1','Mangalyaan','Aditya-L1','Gaganyaan'],a:1,e:'Mangalyaan, the Mars Orbiter Mission, made India the first country to reach Mars orbit on its first try.'},
+ {c:'India',q:'What does ISRO stand for?',o:['Indian Space Research Organisation','Indian Science and Rocket Office','International Space Research Organisation','Indian Satellite Research Office'],a:0,e:'ISRO is the Indian Space Research Organisation, headquartered in Bengaluru.'},
+ {c:'India',q:'Who is known as the "Missile Man of India"?',o:['Vikram Sarabhai','Homi Bhabha','A. P. J. Abdul Kalam','C. V. Raman'],a:2,e:'Dr A. P. J. Abdul Kalam led India\'s missile programme and later became President.'},
+ {c:'India',q:'Kathakali is a classical dance from which state?',o:['Tamil Nadu','Kerala','Odisha','Manipur'],a:1,e:'Kathakali comes from Kerala and is famous for its colourful face make-up.'},
+ {c:'India',q:'Bharatanatyam is a classical dance from which state?',o:['Tamil Nadu','Andhra Pradesh','Karnataka','Kerala'],a:0,e:'Bharatanatyam comes from Tamil Nadu.'},
+ {c:'India',q:'What is the southernmost tip of mainland India?',o:['Rameswaram','Kanyakumari','Chennai','Kochi'],a:1,e:'Kanyakumari is the southern tip of the mainland. (Indira Point in the Nicobar Islands is India\'s southernmost point overall.)'},
+ {c:'India',q:'How many union territories does India have?',o:['6','7','8','9'],a:2,e:'India has 8 union territories, including Delhi, Ladakh and Lakshadweep.'},
+ {c:'India',q:'The Statue of Unity, the world\'s tallest statue, honours whom?',o:['Mahatma Gandhi','Sardar Vallabhbhai Patel','Subhas Chandra Bose','Bhagat Singh'],a:1,e:'It honours Sardar Vallabhbhai Patel and stands in Gujarat.'},
+ {c:'India',q:'Which state is called the "Land of Five Rivers"?',o:['Punjab','Assam','Bihar','Haryana'],a:0,e:'Punjab means "five waters" in Persian.'},
+ {c:'India',q:'Which is the largest desert in India?',o:['Rann of Kutch','Thar','Ladakh cold desert','Deccan'],a:1,e:'The Thar Desert lies mostly in Rajasthan.'},
+ {c:'India',q:'In which city is the Gateway of India?',o:['Delhi','Mumbai','Kolkata','Chennai'],a:1,e:'The Gateway of India stands on the waterfront in Mumbai.'},
+ {c:'India',q:'Who was the first Indian to travel to space?',o:['Kalpana Chawla','Rakesh Sharma','Sunita Williams','Shubhanshu Shukla'],a:1,e:'Rakesh Sharma flew to space in 1984 aboard a Soviet spacecraft.'},
+ {c:'India',q:'Who was the first Indian to win a Nobel Prize?',o:['C. V. Raman','Rabindranath Tagore','Mother Teresa','Amartya Sen'],a:1,e:'Rabindranath Tagore won the Nobel Prize in Literature in 1913.'},
+ // ---------- NATURE ----------
+ {c:'Nature',q:'When water vapour cools and turns into tiny water droplets, it is called…',o:['Evaporation','Condensation','Melting','Freezing'],a:1,e:'Condensation is how clouds form and why a cold glass gets wet on the outside.'},
+ {c:'Nature',q:'Which gas makes up most of Earth\'s air?',o:['Oxygen','Carbon dioxide','Nitrogen','Hydrogen'],a:2,e:'Air is about 78% nitrogen and 21% oxygen.'},
+ {c:'Nature',q:'Which is the largest rainforest in the world?',o:['Congo','Amazon','Daintree','Sundarbans'],a:1,e:'The Amazon rainforest in South America is the largest.'},
+ {c:'Nature',q:'Which layer of the atmosphere protects us from harmful UV rays?',o:['Ozone layer','Troposphere','Clouds','Ionosphere'],a:0,e:'The ozone layer absorbs most of the Sun\'s harmful ultraviolet rays.'},
+ {c:'Nature',q:'Rocks formed when lava cools down are called…',o:['Sedimentary','Metamorphic','Igneous','Fossil'],a:2,e:'Igneous rocks, like basalt and granite, form from cooled molten rock.'},
+ {c:'Nature',q:'What do honeybees collect from flowers to make honey?',o:['Pollen','Nectar','Sap','Dew'],a:1,e:'Bees turn sweet nectar into honey. They also carry pollen, which helps plants make seeds.'},
+ {c:'Nature',q:'Silkworms feed on the leaves of which tree?',o:['Neem','Mulberry','Banana','Teak'],a:1,e:'Silkworms eat mulberry leaves and then spin silk cocoons.'},
+ {c:'Nature',q:'Trees that shed all their leaves every year are called…',o:['Evergreen','Deciduous','Coniferous','Succulent'],a:1,e:'Deciduous trees drop their leaves in one season, usually autumn or the dry season.'},
+ {c:'Nature',q:'Which is the world\'s largest coral reef?',o:['Great Barrier Reef','Red Sea Reef','Belize Reef','Lakshadweep Reef'],a:0,e:'The Great Barrier Reef off Australia can even be seen from space.'},
+ {c:'Nature',q:'Which of these is a renewable energy source?',o:['Coal','Petrol','Solar','Natural gas'],a:2,e:'Sunlight never runs out, so solar energy is renewable. The others are fossil fuels.'},
+ {c:'Nature',q:'What instrument records earthquakes?',o:['Barometer','Seismograph','Thermometer','Anemometer'],a:1,e:'A seismograph records how the ground shakes.'},
+ {c:'Nature',q:'What is the main cause of rain?',o:['Wind blowing on oceans','Water vapour condensing in clouds','Trees giving out water','The Moon\'s pull'],a:1,e:'Water evaporates, rises, cools and condenses into clouds. When droplets get heavy, they fall as rain.'},
+ {c:'Nature',q:'Mangrove forests grow where?',o:['On snowy mountains','In deserts','Along salty coasts and river mouths','In grasslands'],a:2,e:'Mangroves grow in salty coastal water — like the Sundarbans in West Bengal.'},
+ // ---------- ANIMALS ----------
+ {c:'Animals',q:'Which is the largest animal that has ever lived?',o:['African elephant','Blue whale','Megalodon','T. rex'],a:1,e:'The blue whale can be about 30 metres long — bigger than any dinosaur.'},
+ {c:'Animals',q:'Which is the tallest animal?',o:['Elephant','Giraffe','Camel','Ostrich'],a:1,e:'Giraffes can be over 5 metres tall.'},
+ {c:'Animals',q:'Which is the only mammal that can truly fly?',o:['Flying squirrel','Bat','Sugar glider','Flying fish'],a:1,e:'Bats truly fly. Flying squirrels only glide.'},
+ {c:'Animals',q:'How many hearts does an octopus have?',o:['1','2','3','8'],a:2,e:'An octopus has three hearts — and blue blood!'},
+ {c:'Animals',q:'Which mammal lays eggs?',o:['Kangaroo','Platypus','Dolphin','Bat'],a:1,e:'The platypus (and the echidna) are mammals that lay eggs.'},
+ {c:'Animals',q:'Which animal can change its skin colour?',o:['Iguana','Chameleon','Gecko','Tortoise'],a:1,e:'Chameleons change colour to communicate and control temperature.'},
+ {c:'Animals',q:'Which is the largest bird?',o:['Emu','Albatross','Ostrich','Eagle'],a:2,e:'The ostrich is the largest bird — it cannot fly, but it can run very fast.'},
+ {c:'Animals',q:'Which animal is called the "ship of the desert"?',o:['Horse','Camel','Donkey','Yak'],a:1,e:'Camels can go many days without water and walk easily on sand.'},
+ {c:'Animals',q:'How many legs does a spider have?',o:['6','8','10','12'],a:1,e:'Spiders have 8 legs, so they are arachnids, not insects.'},
+ {c:'Animals',q:'How many legs does an insect have?',o:['4','6','8','10'],a:1,e:'All insects have 6 legs and 3 body parts.'},
+ {c:'Animals',q:'What is a baby kangaroo called?',o:['Cub','Kid','Joey','Calf'],a:2,e:'A baby kangaroo is a joey. It lives in its mother\'s pouch.'},
+ {c:'Animals',q:'What is a group of lions called?',o:['Pack','Herd','Pride','Flock'],a:2,e:'Lions live in groups called prides.'},
+ {c:'Animals',q:'Which bird is the fastest when diving?',o:['Eagle','Peregrine falcon','Swift','Hummingbird'],a:1,e:'A diving peregrine falcon can reach over 300 km per hour.'},
+ {c:'Animals',q:'What do giant pandas mostly eat?',o:['Fish','Bamboo','Fruit','Insects'],a:1,e:'Bamboo makes up almost all of a giant panda\'s diet.'},
+ {c:'Animals',q:'An animal that eats only plants is called a…',o:['Carnivore','Herbivore','Omnivore','Predator'],a:1,e:'Herbivores eat plants; carnivores eat meat; omnivores eat both.'},
+ {c:'Animals',q:'What is a baby frog called?',o:['Tadpole','Froglet only','Larva','Fry'],a:0,e:'Frogs hatch as tadpoles that live in water and breathe with gills.'},
+ {c:'Animals',q:'Which is the largest land animal?',o:['Rhinoceros','Hippopotamus','African elephant','Giraffe'],a:2,e:'The African elephant is the heaviest animal on land.'},
+ {c:'Animals',q:'Where do most penguins live?',o:['Arctic','Southern Hemisphere','Sahara','Himalayas'],a:1,e:'Almost all penguins live in the Southern Hemisphere, many in and around Antarctica.'},
+ // ---------- SPACE ----------
+ {c:'Space',q:'Which planet is closest to the Sun?',o:['Venus','Mercury','Earth','Mars'],a:1,e:'Mercury is the closest and smallest planet.'},
+ {c:'Space',q:'Which is the hottest planet?',o:['Mercury','Venus','Mars','Jupiter'],a:1,e:'Venus is hottest because its thick clouds trap heat — even hotter than Mercury.'},
+ {c:'Space',q:'Which planet is famous for its bright rings?',o:['Jupiter','Saturn','Uranus','Neptune'],a:1,e:'Saturn\'s rings are made of ice and rock.'},
+ {c:'Space',q:'How many planets are in our solar system?',o:['7','8','9','10'],a:1,e:'There are 8 planets. Pluto was reclassified as a dwarf planet in 2006.'},
+ {c:'Space',q:'About how long does sunlight take to reach Earth?',o:['8 seconds','8 minutes','8 hours','8 days'],a:1,e:'Light from the Sun takes about 8 minutes to reach us.'},
+ {c:'Space',q:'Who was the first person to walk on the Moon?',o:['Buzz Aldrin','Yuri Gagarin','Neil Armstrong','Michael Collins'],a:2,e:'Neil Armstrong stepped on the Moon in July 1969.'},
+ {c:'Space',q:'Who was the first human in space?',o:['Neil Armstrong','Yuri Gagarin','Valentina Tereshkova','Alan Shepard'],a:1,e:'Yuri Gagarin orbited Earth in 1961.'},
+ {c:'Space',q:'What is the name of our galaxy?',o:['Andromeda','Milky Way','Whirlpool','Sombrero'],a:1,e:'We live in the Milky Way galaxy.'},
+ {c:'Space',q:'What causes day and night on Earth?',o:['Earth going around the Sun','Earth spinning on its axis','The Moon blocking the Sun','Clouds'],a:1,e:'Earth rotates once about every 24 hours, so each side faces the Sun, then turns away.'},
+ {c:'Space',q:'What causes the seasons on Earth?',o:['Distance from the Sun','The tilt of Earth\'s axis','The Moon','Solar flares'],a:1,e:'Earth is tilted, so each hemisphere gets more direct sunlight at different times of the year.'},
+ {c:'Space',q:'During a lunar eclipse, what is between the Sun and the Moon?',o:['Mars','Earth','Venus','Nothing'],a:1,e:'Earth blocks sunlight, and its shadow falls on the Moon.'},
+ {c:'Space',q:'Which planet has the Great Red Spot, a giant storm?',o:['Mars','Jupiter','Saturn','Neptune'],a:1,e:'Jupiter\'s Great Red Spot is a storm bigger than Earth.'},
+ {c:'Space',q:'How long does Earth take to go around the Sun once?',o:['About 24 hours','About 30 days','About 365¼ days','About 100 years'],a:2,e:'That extra ¼ day is why we add a leap day every 4 years.'},
+ {c:'Space',q:'Which planet spins tipped over on its side?',o:['Uranus','Neptune','Venus','Mercury'],a:0,e:'Uranus is tilted by about 98°, so it rolls around the Sun on its side.'},
+ {c:'Space',q:'What is a shooting star really?',o:['A falling star','A meteor burning up in our atmosphere','A comet\'s tail','A satellite'],a:1,e:'It is a small space rock burning up as it rushes through the air.'},
+ {c:'Space',q:'Which planet is known as Earth\'s "twin" because of its similar size?',o:['Mars','Venus','Mercury','Neptune'],a:1,e:'Venus is almost the same size as Earth, but far hotter.'},
+ // ---------- WORLD ----------
+ {c:'World',q:'Which is the largest country by area?',o:['Canada','China','Russia','USA'],a:2,e:'Russia is the largest country, stretching across Europe and Asia.'},
+ {c:'World',q:'Which country is called the "Land of the Rising Sun"?',o:['China','Japan','Korea','Thailand'],a:1,e:'Japan\'s name in Japanese, Nippon, means "origin of the sun".'},
+ {c:'World',q:'In which country is Machu Picchu?',o:['Mexico','Peru','Chile','Brazil'],a:1,e:'Machu Picchu is an ancient Inca city high in the Andes of Peru.'},
+ {c:'World',q:'In which country are the Pyramids of Giza?',o:['Egypt','Iraq','Mexico','Sudan'],a:0,e:'The Pyramids of Giza stand near Cairo, Egypt.'},
+ {c:'World',q:'In which city is the Eiffel Tower?',o:['London','Rome','Paris','Madrid'],a:2,e:'The Eiffel Tower was built in Paris in 1889.'},
+ {c:'World',q:'In which city is the Colosseum?',o:['Athens','Rome','Istanbul','Paris'],a:1,e:'The Colosseum is an ancient Roman arena in Rome, Italy.'},
+ {c:'World',q:'How often are the Summer Olympic Games held?',o:['Every 2 years','Every 3 years','Every 4 years','Every 5 years'],a:2,e:'The Summer Olympics are held every 4 years.'},
+ {c:'World',q:'Where is the headquarters of the United Nations?',o:['Geneva','New York','Paris','London'],a:1,e:'The UN headquarters is in New York City.'},
+ {c:'World',q:'How many continents are there?',o:['5','6','7','8'],a:2,e:'Asia, Africa, North America, South America, Antarctica, Europe and Australia (Oceania).'},
+ {c:'World',q:'Which country is shaped like a boot?',o:['Spain','Greece','Italy','Portugal'],a:2,e:'Italy looks like a boot kicking the island of Sicily.'},
+ {c:'World',q:'Which imaginary line divides Earth into Northern and Southern Hemispheres?',o:['Prime Meridian','Equator','Tropic of Cancer','International Date Line'],a:1,e:'The Equator runs around the middle of the Earth.'},
+ {c:'World',q:'The Great Wall is in which country?',o:['Japan','Mongolia','China','Korea'],a:2,e:'The Great Wall of China stretches thousands of kilometres.'},
+ {c:'World',q:'Which is the coldest continent?',o:['Europe','Asia','Antarctica','North America'],a:2,e:'Antarctica is the coldest, windiest and driest continent.'},
+ {c:'World',q:'The Tropic of Cancer passes through India. True or false?',o:['True','False','Only through islands','Only in winter'],a:0,e:'True — it crosses 8 Indian states, including Gujarat, Madhya Pradesh and West Bengal.'},
+ // ---------- MORE SCIENCE ----------
+ {c:'Chemistry',q:'What is the chemical formula of water?',o:['CO₂','H₂O','O₂','NaCl'],a:1,e:'Each water molecule has 2 hydrogen atoms and 1 oxygen atom.'},
+ {c:'Biology',q:'Which vitamin does our skin make in sunlight?',o:['Vitamin A','Vitamin B','Vitamin C','Vitamin D'],a:3,e:'Sunlight helps the skin make vitamin D, which keeps bones strong.'},
+ {c:'Biology',q:'What is the largest organ of the human body?',o:['Liver','Brain','Skin','Lungs'],a:2,e:'Skin is the largest organ — it covers and protects your whole body.'},
+ {c:'Physics',q:'Sound travels fastest through…',o:['Air','Water','Steel','Empty space'],a:2,e:'Sound moves fastest through solids like steel. It cannot travel through empty space at all.'},
+ {c:'Physics',q:'What is the unit of force?',o:['Watt','Newton','Joule','Metre'],a:1,e:'Force is measured in newtons, named after Isaac Newton.'},
+ {c:'Biology',q:'What do red blood cells carry around the body?',o:['Food','Oxygen','Water only','Germs'],a:1,e:'Red blood cells carry oxygen from the lungs to every part of the body.'},
+ {c:'Physics',q:'A magnet will pick up which of these?',o:['A plastic spoon','An iron nail','A wooden stick','A glass marble'],a:1,e:'Magnets attract iron (and nickel and cobalt).'},
+ {c:'Physics',q:'What do we call a material that lets electricity flow easily?',o:['Insulator','Conductor','Resistor','Magnet'],a:1,e:'Metals like copper are good conductors. Rubber and plastic are insulators.'},
+ // ---------- MORE MATHS ----------
+ {c:'Maths',q:'How many prime numbers are there between 1 and 20?',o:['6','7','8','9'],a:2,e:'2, 3, 5, 7, 11, 13, 17 and 19 — that is 8.'},
+ {c:'Maths',q:'What is the average of 4, 8 and 12?',o:['6','8','10','12'],a:1,e:'(4 + 8 + 12) ÷ 3 = 24 ÷ 3 = 8.'},
+ {c:'Maths',q:'If 3x + 5 = 20, what is x?',o:['3','4','5','6'],a:2,e:'3x = 20 − 5 = 15, so x = 15 ÷ 3 = 5.'},
+ {c:'Maths',q:'What comes next? 3, 9, 27, ?',o:['36','54','81','90'],a:2,e:'Each number is multiplied by 3: 27 × 3 = 81.'},
+ {c:'Maths',q:'What is half of a quarter?',o:['1/2','1/6','1/8','1/16'],a:2,e:'½ × ¼ = 1/8.'},
+ {c:'Maths',q:'What is the HCF of 18 and 24?',o:['3','6','9','12'],a:1,e:'Factors of 18: 1, 2, 3, 6, 9, 18. Factors of 24: 1, 2, 3, 4, 6, 8, 12, 24. Highest common = 6.'},
+ {c:'Maths',q:'How many diagonals does a pentagon have?',o:['3','4','5','10'],a:2,e:'From each of 5 corners you can draw 2 diagonals: 5 × 2 ÷ 2 = 5 (each is counted twice).'},
+ {c:'Maths',q:'A rectangle is 7 cm long and 6 cm wide. What is its area?',o:['13 cm²','26 cm²','42 cm²','48 cm²'],a:2,e:'Area = length × width = 7 × 6 = 42 cm².'},
+ {c:'Maths',q:'How many metres are there in 2.5 kilometres?',o:['25','250','2,500','25,000'],a:2,e:'1 km = 1,000 m, so 2.5 km = 2,500 m.'},
+ // ---------- MORE REASONING ----------
+ {c:'Reasoning',q:'If 2 → 6, 3 → 12 and 4 → 20, then 5 → ?',o:['25','28','30','35'],a:2,e:'The rule is n × (n + 1): 5 × 6 = 30.'},
+ {c:'Reasoning',q:'A is the father of B. B is the sister of C. How is A related to C?',o:['Uncle','Brother','Father','Grandfather'],a:2,e:'B and C are siblings, so A is the father of both.'},
+ {c:'Reasoning',q:'What comes next? A, C, E, G, ?',o:['H','I','J','K'],a:1,e:'Skip one letter each time: A (b) C (d) E (f) G (h) I.'},
+ {c:'Reasoning',q:'How many months have 28 days?',o:['1','2','6','All 12'],a:3,e:'Trick question! Every month has at least 28 days.'},
+ {c:'Reasoning',q:'What number is missing? 4, 9, 16, ?, 36',o:['20','24','25','30'],a:2,e:'These are squares: 2², 3², 4², 5², 6². So the missing one is 25.'},
+ {c:'Reasoning',q:'If yesterday was Monday, what day is the day after tomorrow?',o:['Wednesday','Thursday','Friday','Tuesday'],a:1,e:'Today is Tuesday, tomorrow is Wednesday, and the day after is Thursday.'},
+ {c:'Reasoning',q:'Pen is to writer as brush is to…',o:['Painter','Teacher','Barber','Cleaner'],a:0,e:'A writer uses a pen; a painter uses a brush.'}
+);
+OLY.push(
+ // ---------- PHYSICS ----------
+ {c:'Physics',q:'What is the SI unit of energy?',o:['Watt','Newton','Joule','Volt'],a:2,e:'Energy is measured in joules. (Watt is power, newton is force, volt is electrical push.)'},
+ {c:'Physics',q:'About how fast does light travel?',o:['300 km per second','3,000 km per second','300,000 km per second','3 million km per second'],a:2,e:'Light travels about 3 lakh (300,000) km every second — fast enough to circle Earth 7 times.'},
+ {c:'Physics',q:'Which scientist explained gravity — inspired, the story goes, by a falling apple?',o:['Albert Einstein','Isaac Newton','Galileo Galilei','Archimedes'],a:1,e:'Isaac Newton described the law of universal gravitation in 1687.'},
+ {c:'Physics',q:'Splitting white light into its colours, as in a rainbow, is called…',o:['Reflection','Dispersion','Absorption','Magnetism'],a:1,e:'A prism or raindrops bend each colour by a different amount, spreading white light into a spectrum.'},
+ {c:'Physics',q:'How many colours are there in a rainbow?',o:['5','6','7','8'],a:2,e:'VIBGYOR: violet, indigo, blue, green, yellow, orange, red.'},
+ {c:'Physics',q:'What kind of mirror is used for a car\'s rear-view side mirror?',o:['Plane','Concave','Convex','No mirror'],a:2,e:'Convex mirrors curve outward and show a wider view of the road.'},
+ {c:'Physics',q:'What is the unit of electric current?',o:['Volt','Ampere','Ohm','Watt'],a:1,e:'Current is measured in amperes (amps).'},
+ {c:'Physics',q:'Which instrument measures air pressure?',o:['Thermometer','Barometer','Hygrometer','Speedometer'],a:1,e:'A barometer measures air pressure and helps forecast weather.'},
+ {c:'Physics',q:'Which force slows down a ball rolling on the grass?',o:['Magnetism','Friction','Gravity pushing up','Electricity'],a:1,e:'Friction acts between surfaces that rub, slowing moving things.'},
+ {c:'Physics',q:'A moving car has which kind of energy?',o:['Kinetic','Potential only','Chemical only','Nuclear'],a:0,e:'Kinetic energy is the energy of movement.'},
+ {c:'Physics',q:'A see-saw is an example of which simple machine?',o:['Pulley','Lever','Wheel and axle','Screw'],a:1,e:'A see-saw is a lever balanced on a pivot (fulcrum).'},
+ {c:'Physics',q:'Why can we see a shadow?',o:['Light bends around objects','Light travels in straight lines and is blocked','Objects give out darkness','Air turns dark'],a:1,e:'Light travels in straight lines, so an object in its way leaves a dark area behind it.'},
+ {c:'Physics',q:'At what temperature does pure water freeze?',o:['0°C','4°C','−10°C','32°C'],a:0,e:'Water freezes at 0°C (which is 32°F).'},
+ // ---------- CHEMISTRY ----------
+ {c:'Chemistry',q:'What is the chemical symbol for iron?',o:['Ir','In','Fe','I'],a:2,e:'Fe comes from the Latin word "ferrum".'},
+ {c:'Chemistry',q:'What is the chemical symbol for sodium?',o:['So','Sd','Na','S'],a:2,e:'Na comes from the Latin "natrium".'},
+ {c:'Chemistry',q:'What is the chemical symbol for silver?',o:['Si','Ag','Sv','Au'],a:1,e:'Ag comes from the Latin "argentum". (Au is gold, Si is silicon.)'},
+ {c:'Chemistry',q:'What is the chemical name of common table salt?',o:['Sodium chloride','Calcium carbonate','Sodium bicarbonate','Potassium nitrate'],a:0,e:'Table salt is sodium chloride, NaCl.'},
+ {c:'Chemistry',q:'A pH of 7 means a liquid is…',o:['Acidic','Neutral','Basic','Boiling'],a:1,e:'pH 7 is neutral, like pure water. Below 7 is acidic, above 7 is basic.'},
+ {c:'Chemistry',q:'Lemon juice is…',o:['Acidic','Basic','Neutral','Salty'],a:0,e:'Lemons contain citric acid, which makes them sour.'},
+ {c:'Chemistry',q:'Which gas makes party balloons float?',o:['Oxygen','Helium','Carbon dioxide','Nitrogen'],a:1,e:'Helium is lighter than air, so helium balloons float up.'},
+ {c:'Chemistry',q:'Which is the lightest element?',o:['Helium','Oxygen','Hydrogen','Carbon'],a:2,e:'Hydrogen is the lightest and most common element in the universe.'},
+ {c:'Chemistry',q:'Iron rusts when it is exposed to…',o:['Only sunlight','Water and oxygen','Only heat','Darkness'],a:1,e:'Rust forms when iron reacts with oxygen in the presence of water.'},
+ {c:'Chemistry',q:'Camphor turning straight from solid to gas is called…',o:['Melting','Evaporation','Sublimation','Condensation'],a:2,e:'Sublimation skips the liquid stage. Dry ice does this too.'},
+ {c:'Chemistry',q:'Baking soda + vinegar fizzes. Which gas makes the bubbles?',o:['Oxygen','Hydrogen','Carbon dioxide','Helium'],a:2,e:'The reaction releases carbon dioxide gas — the same gas in fizzy drinks.'},
+ {c:'Chemistry',q:'Who created the first widely used periodic table?',o:['Marie Curie','Dmitri Mendeleev','John Dalton','Antoine Lavoisier'],a:1,e:'Dmitri Mendeleev arranged the elements in 1869 and even predicted elements not yet discovered.'},
+ {c:'Chemistry',q:'Which of these is NOT a state of matter?',o:['Solid','Liquid','Gas','Energy'],a:3,e:'Solid, liquid and gas (and plasma) are states of matter. Energy is not matter.'},
+ {c:'Chemistry',q:'Which scientist won Nobel Prizes in both Physics and Chemistry?',o:['Marie Curie','Albert Einstein','C. V. Raman','Isaac Newton'],a:0,e:'Marie Curie won in Physics (1903) and Chemistry (1911) for her work on radioactivity.'},
+ // ---------- BIOLOGY ----------
+ {c:'Biology',q:'What is the basic unit of life?',o:['Atom','Cell','Organ','Tissue'],a:1,e:'All living things are made of cells.'},
+ {c:'Biology',q:'Which part of a cell is called its "powerhouse"?',o:['Nucleus','Mitochondria','Cell wall','Ribosome'],a:1,e:'Mitochondria release energy from food for the cell to use.'},
+ {c:'Biology',q:'What is the green pigment in leaves called?',o:['Haemoglobin','Chlorophyll','Melanin','Keratin'],a:1,e:'Chlorophyll captures sunlight for photosynthesis.'},
+ {c:'Biology',q:'How many chambers does the human heart have?',o:['2','3','4','6'],a:2,e:'Two atria on top and two ventricles below.'},
+ {c:'Biology',q:'How many teeth does an adult human usually have?',o:['20','28','32','36'],a:2,e:'Adults have 32 permanent teeth, including 4 wisdom teeth. Children have 20 milk teeth.'},
+ {c:'Biology',q:'Which blood cells fight germs?',o:['Red blood cells','White blood cells','Platelets','Plasma'],a:1,e:'White blood cells are the body\'s defenders against infection.'},
+ {c:'Biology',q:'Lack of vitamin C causes which disease?',o:['Rickets','Scurvy','Night blindness','Beriberi'],a:1,e:'Scurvy causes bleeding gums. Citrus fruits like amla and oranges prevent it.'},
+ {c:'Biology',q:'Which organ makes insulin to control blood sugar?',o:['Liver','Kidney','Pancreas','Stomach'],a:2,e:'The pancreas makes insulin.'},
+ {c:'Biology',q:'What does DNA stand for?',o:['Deoxyribonucleic acid','Dinitrogen acid','Double nucleus acid','Dynamic natural acid'],a:0,e:'DNA, deoxyribonucleic acid, carries the instructions for how living things grow.'},
+ {c:'Biology',q:'Animals with a backbone are called…',o:['Invertebrates','Vertebrates','Amphibians only','Arthropods'],a:1,e:'Fish, amphibians, reptiles, birds and mammals are all vertebrates.'},
+ {c:'Biology',q:'Which organ cleans our blood and makes urine?',o:['Heart','Lungs','Kidneys','Stomach'],a:2,e:'The two kidneys filter waste out of the blood.'},
+ {c:'Biology',q:'Through which tiny openings do leaves breathe?',o:['Roots','Stomata','Petals','Xylem'],a:1,e:'Stomata are tiny pores, mostly under the leaf, that let gases in and out.'},
+ {c:'Biology',q:'Which part of the brain helps us balance?',o:['Cerebrum','Cerebellum','Spinal cord','Skull'],a:1,e:'The cerebellum, at the back of the brain, controls balance and coordination.'},
+ // ---------- HISTORY ----------
+ {c:'History',q:'Harappa and Mohenjo-daro were cities of which ancient civilisation?',o:['Vedic','Indus Valley','Maurya','Gupta'],a:1,e:'The Indus Valley (Harappan) Civilisation flourished over 4,000 years ago.'},
+ {c:'History',q:'Which emperor turned to Buddhism after the Kalinga war?',o:['Chandragupta Maurya','Ashoka','Akbar','Harsha'],a:1,e:'Ashoka was so saddened by the war that he chose peace and spread Buddhism.'},
+ {c:'History',q:'Who was the first Mughal emperor?',o:['Akbar','Humayun','Babur','Shah Jahan'],a:2,e:'Babur founded the Mughal Empire after the First Battle of Panipat in 1526.'},
+ {c:'History',q:'In which year did India gain independence?',o:['1942','1947','1950','1952'],a:1,e:'India became independent on 15 August 1947.'},
+ {c:'History',q:'Who led the Salt March (Dandi March) in 1930?',o:['Jawaharlal Nehru','Mahatma Gandhi','Subhas Chandra Bose','Bhagat Singh'],a:1,e:'Gandhiji walked about 390 km to Dandi to protest the British salt tax.'},
+ {c:'History',q:'In which year did the Quit India Movement begin?',o:['1919','1930','1942','1947'],a:2,e:'Gandhiji launched it in August 1942 with the call "Do or Die".'},
+ {c:'History',q:'The Jallianwala Bagh tragedy of 1919 happened in which city?',o:['Lahore','Amritsar','Delhi','Lucknow'],a:1,e:'It happened in Amritsar, Punjab, on 13 April 1919.'},
+ {c:'History',q:'Who founded the Maratha Empire?',o:['Shivaji Maharaj','Bajirao I','Tipu Sultan','Rana Pratap'],a:0,e:'Chhatrapati Shivaji Maharaj founded the Maratha kingdom in the 17th century.'},
+ {c:'History',q:'Who wrote the Arthashastra, an ancient book on government?',o:['Kalidasa','Chanakya (Kautilya)','Aryabhata','Valmiki'],a:1,e:'Chanakya, adviser to Chandragupta Maurya, wrote the Arthashastra.'},
+ {c:'History',q:'Rani Lakshmibai of Jhansi fought in which uprising?',o:['1857 revolt','Quit India','Non-Cooperation','Battle of Plassey'],a:0,e:'She was a leading figure of the Revolt of 1857.'},
+ {c:'History',q:'Who reached India by sea from Europe in 1498?',o:['Christopher Columbus','Vasco da Gama','Ferdinand Magellan','Marco Polo'],a:1,e:'Vasco da Gama landed at Calicut (Kozhikode) in Kerala.'},
+ {c:'History',q:'In which year did World War II end?',o:['1918','1939','1945','1950'],a:2,e:'World War II lasted from 1939 to 1945.'},
+ {c:'History',q:'Who made the first powered aeroplane flight in 1903?',o:['The Wright brothers','Leonardo da Vinci','Amelia Earhart','J. R. D. Tata'],a:0,e:'Orville and Wilbur Wright flew at Kitty Hawk, USA.'},
+ {c:'History',q:'Who flew India\'s first commercial airmail flight in 1932?',o:['J. R. D. Tata','Rakesh Sharma','Kalpana Chawla','Homi Bhabha'],a:0,e:'J. R. D. Tata flew from Karachi to Bombay — the start of Tata Airlines, later Air India.'},
+ {c:'History',q:'Who invented the printing press with movable metal type around 1440?',o:['Galileo','Johannes Gutenberg','Thomas Edison','James Watt'],a:1,e:'Gutenberg\'s press made books much cheaper and spread learning across Europe.'},
+ {c:'History',q:'Who wrote the Ramayana in Sanskrit?',o:['Ved Vyasa','Valmiki','Tulsidas','Kalidasa'],a:1,e:'Maharishi Valmiki wrote the Sanskrit Ramayana. (Tulsidas later wrote the Ramcharitmanas.)'},
+ {c:'History',q:'Nalanda in ancient India was a famous…',o:['Fort','University','Port','Temple only'],a:1,e:'Nalanda in Bihar was one of the world\'s earliest great universities.'},
+ {c:'History',q:'India\'s first satellite, launched in 1975, was named after which ancient mathematician?',o:['Aryabhata','Brahmagupta','Bhaskara','Varahamihira'],a:0,e:'Aryabhata (born 476 CE) worked on zero, π and the Earth\'s rotation. The satellite carried his name.'},
+ {c:'History',q:'Why were the Egyptian pyramids built?',o:['As palaces','As tombs for pharaohs','As markets','As forts'],a:1,e:'They were giant tombs for Egyptian kings, the pharaohs.'}
+);
+// ---------- Code-a-Bot levels: S start, B battery, # rock, * star to collect first ----------
+const BOT_LEVELS=[
+ {t:'Level 1: First steps',x:'Robo needs his battery 🔋. Tap the arrows to build a program, then press Run.',max:6,map:['.....','.....','.....','.....','S..B.']},
+ {t:'Level 2: Up and over',x:'Robots follow commands in order — exactly as you give them.',max:8,map:['.....','..B..','.....','.....','S....']},
+ {t:'Level 3: Watch out, rock!',x:'Robo can\'t drive through rocks 🪨. Plan a way around.',max:8,map:['.....','.....','S.#.B','.....','.....']},
+ {t:'Level 4: Zigzag',x:'Real robots plan their path before they move, just like you.',max:10,map:['..#B.','..#..','.....','.#...','S#...']},
+ {t:'Level 5: Star first',x:'Pick up the ⭐ before the battery. Order matters!',max:14,map:['*....','.###.','.....','.###.','S...B']},
+ {t:'Level 6: Maze',x:'Engineers test programs and fix bugs. If Robo crashes, debug and try again!',max:12,map:['S.#..','#.#.#','..#..','.##.#','....B']},
+ {t:'Level 7: Loops!',x:'You only have 2 blocks. Use Repeat to run your program again and again — that is called a loop.',max:2,loop:true,map:['....B','.....','.....','.....','S....']},
+ {t:'Level 8: Mars rover',x:'Rovers on Mars follow programs from Earth. Collect the ⭐ sample, then reach base!',max:30,map:['S..#..','.#.#*.','.#...#','.####.','......','#####B']},
+];
+// ---------- Teach the Robot: animals with body features the robot can "see" ----------
+// features: fur, fins, feathers, scales, legs(0-8), big, flies
+const CREATURES=[
+ {e:'🐟',n:'Fish',f:[0,1,0,1,0,0,0],w:1},{e:'🐠',n:'Tropical fish',f:[0,1,0,1,0,0,0],w:1},{e:'🐡',n:'Pufferfish',f:[0,1,0,1,0,0,0],w:1},
+ {e:'🐬',n:'Dolphin',f:[0,1,0,0,0,1,0],w:1},{e:'🦈',n:'Shark',f:[0,1,0,1,0,1,0],w:1},{e:'🐳',n:'Whale',f:[0,1,0,0,0,1,0],w:1},
+ {e:'🐙',n:'Octopus',f:[0,0,0,0,8,0,0],w:1},{e:'🦀',n:'Crab',f:[0,0,0,0,8,0,0],w:1},{e:'🦭',n:'Seal',f:[1,1,0,0,0,1,0],w:1},
+ {e:'🐶',n:'Dog',f:[1,0,0,0,4,0,0],w:0},{e:'🐱',n:'Cat',f:[1,0,0,0,4,0,0],w:0},{e:'🐘',n:'Elephant',f:[0,0,0,0,4,1,0],w:0},
+ {e:'🦒',n:'Giraffe',f:[1,0,0,0,4,1,0],w:0},{e:'🐄',n:'Cow',f:[1,0,0,0,4,1,0],w:0},{e:'🐎',n:'Horse',f:[1,0,0,0,4,1,0],w:0},
+ {e:'🦁',n:'Lion',f:[1,0,0,0,4,1,0],w:0},{e:'🐒',n:'Monkey',f:[1,0,0,0,4,0,0],w:0},{e:'🐿️',n:'Squirrel',f:[1,0,0,0,4,0,0],w:0},
+ {e:'🐍',n:'Snake',f:[0,0,0,1,0,0,0],w:0},{e:'🦎',n:'Lizard',f:[0,0,0,1,4,0,0],w:0},{e:'🐜',n:'Ant',f:[0,0,0,0,6,0,0],w:0},
+ {e:'🐦',n:'Bird',f:[0,0,1,0,2,0,1],w:-1},{e:'🦜',n:'Parrot',f:[0,0,1,0,2,0,1],w:-1},{e:'🦉',n:'Owl',f:[0,0,1,0,2,0,1],w:-1},
+ {e:'🐧',n:'Penguin',f:[0,0,1,0,2,0,0],w:-1},{e:'🦆',n:'Duck',f:[0,0,1,0,2,0,1],w:-1},{e:'🦋',n:'Butterfly',f:[0,0,0,0,6,0,1],w:-1},
+ {e:'🐝',n:'Bee',f:[0,0,0,0,6,0,1],w:-1},{e:'🐊',n:'Crocodile',f:[0,0,0,1,4,1,0],w:-1},{e:'🐢',n:'Turtle',f:[0,0,0,1,4,0,0],w:-1},
+ {e:'🐸',n:'Frog',f:[0,0,0,0,4,0,0],w:-1},{e:'🐞',n:'Ladybird',f:[0,0,0,0,6,0,1],w:-1},
+];
+// ---------- AI story cards ----------
+const AI_CARDS=[
+ {e:'🤖',t:'What is AI?',x:'AI means artificial intelligence. It is a computer program that learns from lots of examples to spot patterns — a bit like how you learned what a cat looks like after seeing many cats.'},
+ {e:'📚',t:'How does AI learn?',x:'AI looks at millions of examples and notices patterns. It does not understand things the way you do. Try "Teach the Robot" — you will see that it only knows what it was taught!'},
+ {e:'🩺',t:'AI helps doctors',x:'AI can look at X-rays and eye scans and point out things a doctor should check. The doctor always makes the final decision.'},
+ {e:'🌾',t:'AI helps farmers',x:'A farmer can photograph a sick leaf and an app suggests what might be wrong. Weather predictions help farmers decide when to sow and water.'},
+ {e:'🐯',t:'AI helps protect wildlife',x:'Camera traps in forests take thousands of photos. Computer programs help scientists sort them and count animals like tigers much faster.'},
+ {e:'🚀',t:'Robots in space',x:'NASA\'s Perseverance rover drives itself around rocks on Mars. ISRO built Vyommitra, a robot "astronaut", to test the Gaganyaan spacecraft before Indian astronauts fly in it.'},
+ {e:'🦾',t:'Robots do tough jobs',x:'Robots help build cars, clean solar panels, explore deep oceans and go into places that are too dangerous for people.'},
+ {e:'🧸',t:'AI is not alive',x:'AI has no feelings, wishes or secret plans. It is a tool — like a very clever calculator — and people decide how it is used.'},
+ {e:'🙈',t:'AI can make mistakes',x:'AI can sound very sure and still be wrong! That is why people always check its answers — just like you check your maths.'},
+ {e:'🔐',t:'Stay smart and safe',x:'Never share your full name, school or address with an app or chatbot. Always ask Mum or Dad before trying a new AI app.'},
+ {e:'👩‍💻',t:'People build AI',x:'Engineers, scientists and designers — many of them in India — build AI and robots. Kids who love maths, puzzles and asking "why?" grow up to build them!'},
+ {e:'🌟',t:'Your superpower',x:'Curiosity, kindness, imagination and good judgement come from people. The best future uses both: thoughtful people and helpful tools.'},
+];
+const MYTHS=[
+ {s:'Real robots are just like the scary robots in movies.',f:false,x:'Myth! Most real robots do one job — like a robot vacuum cleaner or a factory arm that paints cars.'},
+ {s:'AI learns from examples.',f:true,x:'Fact! It finds patterns in lots of examples — you saw this in Teach the Robot.'},
+ {s:'AI has feelings and can get angry.',f:false,x:'Myth! AI does not feel anything. It is a program running on a computer.'},
+ {s:'AI can make mistakes.',f:true,x:'Fact! That is why people check its work and stay in charge.'},
+ {s:'AI can secretly read your mind.',f:false,x:'Myth! AI only works with the information people type, say or show it.'},
+ {s:'A self-driving car uses cameras and sensors to "see" the road.',f:true,x:'Fact! Cameras, radar and other sensors help it notice lanes, signals and people.'},
+ {s:'Once AI is here, people won\'t need to learn anything.',f:false,x:'Myth! AI changes how we work and creates new jobs. People who learn well, think clearly and ask good questions are needed more than ever.'},
+ {s:'AI can help you learn, like a patient tutor.',f:true,x:'Fact! With a grown-up\'s OK, AI can explain things in different ways — but always double-check important facts.'},
+];
+
+// ================= PROFILES & PROGRESS =================
+const PROFILES={
+  aaranya:{name:'Aaranya',em:'🦄',key:'chessQuest',lvl:1},
+  avanya:{name:'Avanya',em:'🦋',key:'quest_avanya',lvl:2},
+};
+const RANKS=[{n:'Pawn',e:'♟',xp:0},{n:'Knight',e:'♞',xp:200},{n:'Bishop',e:'♝',xp:500},{n:'Rook',e:'♜',xp:1000},{n:'Queen',e:'♛',xp:2000},{n:'King',e:'♚',xp:3500},{n:'Grandmaster',e:'🏆',xp:6000}];
+const THEMES=[{id:'classic',n:'Classic',c:0,l:'#f3e7cf',d:'#b98a5e'},{id:'ocean',n:'Ocean',c:150,l:'#dff3ff',d:'#4f9fd6'},{id:'candy',n:'Candy',c:250,l:'#ffe3f1',d:'#f28dbd'},
+ {id:'forest',n:'Forest',c:350,l:'#eaf5dc',d:'#6fa864'},{id:'galaxy',n:'Galaxy',c:500,l:'#c9c3ff',d:'#4b3fa6'},{id:'gold',n:'Royal Gold',c:800,l:'#fff3c4',d:'#d4a017'}];
+const BADGES=[
+ {id:'l1',e:'👣',n:'First Steps',t:'Finish a chess lesson'},
+ {id:'l10',e:'🎓',n:'Chess Graduate',t:'Finish all 10 chess lessons'},
+ {id:'p1',e:'🧩',n:'Puzzler',t:'Solve a chess puzzle'},
+ {id:'p10',e:'🧠',n:'Puzzle Pro',t:'Solve 10 chess puzzles'},
+ {id:'p20',e:'🦉',n:'Puzzle Master',t:'Solve all 20 chess puzzles'},
+ {id:'w1',e:'🏆',n:'First Victory',t:'Beat Robo-Knight'},
+ {id:'w2',e:'🦊',n:'Fox Tamer',t:'Beat Robo-Knight on Medium'},
+ {id:'w3',e:'🦁',n:'Lion Heart',t:'Beat Robo-Knight on Hard'},
+ {id:'cas',e:'🏰',n:'Castle Builder',t:'Castle in a game'},
+ {id:'pro',e:'👑',n:'Queen Maker',t:'Promote a pawn in a game'},
+ {id:'h10',e:'⭐',n:'Star Hunter',t:'Finish 10 Star Hunts'},
+ {id:'ms1',e:'⚡',n:'Math Sprinter',t:'Finish a Math Sprint'},
+ {id:'ms20',e:'🧮',n:'Lightning Brain',t:'Score 20+ in one Math Sprint'},
+ {id:'wx1',e:'🌍',n:'World Traveller',t:'Finish a World Explorer round'},
+ {id:'wxp',e:'🗺️',n:'Perfect Explorer',t:'Score 10/10 in World Explorer'},
+ {id:'q1',e:'🏅',n:'Quiz Starter',t:'Finish a Quiz Master round'},
+ {id:'q100',e:'🎖️',n:'Quiz Champion',t:'Answer 100 quiz questions correctly'},
+ {id:'qall',e:'📚',n:'All-Rounder',t:'Play every Quiz Master topic'},
+ {id:'mem6',e:'🧠',n:'Memory Master',t:'Reach level 6 in Memory Grid'},
+ {id:'match',e:'🃏',n:'Flag Matcher',t:'Finish a Flag Match'},
+ {id:'bot1',e:'🕹️',n:'Robot Coder',t:'Finish Code-a-Bot level 1'},
+ {id:'bot8',e:'🛰️',n:'Mars Engineer',t:'Finish all 8 Code-a-Bot levels'},
+ {id:'teach',e:'🧑‍🏫',n:'AI Trainer',t:'Train the robot in Teach the Robot'},
+ {id:'cards',e:'📖',n:'AI Explorer',t:'Read all the AI story cards'},
+ {id:'s3',e:'🔥',n:'On Fire',t:'3-day streak'},
+ {id:'s7',e:'🌈',n:'Week Warrior',t:'7-day streak'},
+ {id:'chest',e:'🎁',n:'Treasure!',t:'Open a daily chest'},
+ {id:'shop',e:'🎨',n:'Decorator',t:'Buy a board theme'},
+];
+const MISSIONS={
+ aaranya:[
+  {k:'puzzles',n:2,e:'🧩',t:'Solve 2 chess puzzles'},{k:'lessons',n:1,e:'📚',t:'Finish (or replay) a chess lesson'},
+  {k:'games',n:1,e:'🤖',t:'Finish a game against Robo-Knight'},{k:'hunts',n:2,e:'⭐',t:'Complete 2 Star Hunts'},
+  {k:'checks',n:3,e:'⚡',t:'Give 3 checks in chess games'},{k:'daily',n:1,e:'✨',t:'Solve the chess Puzzle of the Day'},
+  {k:'sprints',n:1,e:'➕',t:'Finish a Math Sprint'},{k:'match',n:1,e:'🃏',t:'Finish a Flag Match'},
+  {k:'mem',n:1,e:'🧠',t:'Play Memory Grid'},{k:'robo',n:1,e:'🤖',t:'Do an activity in Robo Lab'},{k:'world',n:1,e:'🌍',t:'Finish a World Explorer round'}],
+ avanya:[
+  {k:'sprints',n:2,e:'⚡',t:'Finish 2 Math Sprints'},{k:'quiz',n:1,e:'🏅',t:'Finish a Quiz Master round'},
+  {k:'correct',n:15,e:'✅',t:'Answer 15 quiz questions correctly'},{k:'world',n:1,e:'🌍',t:'Finish a World Explorer round'},
+  {k:'mem',n:1,e:'🧠',t:'Play Memory Grid'},{k:'match',n:1,e:'🃏',t:'Finish a Flag Match'},
+  {k:'robo',n:1,e:'🤖',t:'Do an activity in Robo Lab'},{k:'puzzles',n:2,e:'🧩',t:'Solve 2 chess puzzles'},
+  {k:'games',n:1,e:'♞',t:'Finish a chess game against Robo-Knight'},{k:'daily',n:1,e:'✨',t:'Solve the chess Puzzle of the Day'}],
+};
+const QCATS=['India','History','World','Nature','Animals','Space','Physics','Chemistry','Biology','Maths','Reasoning'];
+const QICON={India:'🇮🇳',History:'🏛️',World:'🌍',Nature:'🌿',Animals:'🐾',Space:'🪐',Physics:'⚛️',Chemistry:'🧪',Biology:'🧬',Maths:'➗',Reasoning:'🧩'};
+
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const dayNum=s=>Math.round(Date.parse(s+'T00:00:00Z')/864e5);
+function newProg(){return{lessons:{},puzzles:{},score:{w:0,d:0,l:0},xp:0,coins:0,streak:0,lastDay:null,badges:{},themes:{classic:1},theme:'classic',
+  hunts:0,best:{},stats:{checks:0,caps:0,castles:0,promos:0},day:null,sound:true,
+  sprintBest:{},memBest:0,qstats:{},seen:{},correctTotal:0,bot:{},cardsSeen:{},dxp:{},mins:{},rounds:{world:0,quiz:0,sprint:0,mem:0,match:0}}}
+function loadProg(id){
+  const p=newProg();
+  try{const raw=localStorage.getItem(PROFILES[id].key);if(raw){const o=JSON.parse(raw);for(const k in o)if(o[k]!==null&&o[k]!==undefined)p[k]=o[k]}}catch(e){}
+  const d=newProg();for(const k in d)if(p[k]===undefined)p[k]=d[k];
+  return p;
+}
+let WHO=null,prog=newProg();
+try{WHO=localStorage.getItem('quest_who')}catch(e){}
+if(!PROFILES[WHO])WHO=null;
+// ---- cloud sync (Google Sheet via Apps Script). Empty URL = sync off. ----
+const SYNC_URL='https://script.google.com/macros/s/AKfycbxjEXOXGA3J3LiXrQq7vZKp4TkhmeJzGsxuot80QoXtogAlkc0_cLSzV2C7MyLiZkQn/exec';
+const FAMILY_KEY='qc-modani-7319';
+function save(){if(!WHO)return;prog.updated=Date.now();try{localStorage.setItem(PROFILES[WHO].key,JSON.stringify(prog))}catch(e){}pushSoon()}
+let pushT=null,syncOK=null,CLOUD=null,CLOUD_AT=0,READY=null;
+function pushSoon(ms){if(!SYNC_URL||!WHO||READY!==WHO)return;clearTimeout(pushT);pushT=setTimeout(pushNow,ms===undefined?6000:ms)}
+function pushNow(){
+  if(!SYNC_URL||!WHO||READY!==WHO)return;clearTimeout(pushT);
+  const r=RANKS[rankOf(prog.xp)];
+  const body=JSON.stringify({key:FAMILY_KEY,id:WHO,updated:prog.updated||Date.now(),summary:r.n+' · '+prog.xp+' XP · streak '+(prog.streak||0)+' · last played '+(prog.lastDay||''),data:prog});
+  try{fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:body.length<60000}).then(()=>{syncOK=true},()=>{syncOK=false})}catch(e){syncOK=false}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pushNow()});
+async function pullAll(){
+  if(!SYNC_URL)return null;
+  try{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),10000);
+    const r=await fetch(SYNC_URL,{signal:ctl.signal});clearTimeout(t);const j=await r.json();syncOK=!!j.ok;
+    if(j.ok){CLOUD=j.kids||{};CLOUD_AT=Date.now()}return j.ok?CLOUD:null}catch(e){syncOK=false;return null}
+}
+async function syncDown(id){
+  // Adopt the cloud copy if it has more progress. XP only goes up, so it is the safest measure.
+  const kids=await pullAll();if(!kids||!kids[id]||!kids[id].data)return false;const c=kids[id],local=loadProg(id);
+  const cx=c.data.xp||0,lx=local.xp||0;
+  if(cx>lx||(cx===lx&&(c.updated||0)>(local.updated||0))){
+    try{localStorage.setItem(PROFILES[id].key,JSON.stringify(c.data))}catch(e){}return true}
+  return false;
+}
+function ago(ts){const m=Math.round((Date.now()-ts)/60000);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'}
+const ME=()=>PROFILES[WHO];
+
+function rankOf(xp){let r=0;for(let i=0;i<RANKS.length;i++)if(xp>=RANKS[i].xp)r=i;return r}
+function seeded(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647}
+function todaysMissions(){
+  const rnd=seeded(dayNum(today())*7+(WHO==='avanya'?11:3));const pool=MISSIONS[WHO].slice();const out=[];const used={};
+  while(out.length<3&&pool.length){const m=pool.splice(Math.floor(rnd()*pool.length),1)[0];if(used[m.k])continue;used[m.k]=1;out.push(m)}
+  return out;
+}
+const dailyIdx=()=>dayNum(today())%PUZZLES.length;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+
+// ================= SOUND =================
+let AC=null;
+function tone(freqs,dur,type){
+  if(!prog.sound)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.value=f;
+      const t=AC.currentTime+i*dur;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.18,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+dur*1.6);
+      o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur*1.7)})}catch(e){}
+}
+const SND={move:()=>tone([520],.06,'triangle'),cap:()=>tone([330,220],.07,'square'),win:()=>tone([523,659,784,1047],.11,'triangle'),
+  bad:()=>tone([300,220],.12,'sawtooth'),coin:()=>tone([988,1319],.07,'square'),level:()=>tone([523,659,784,1047,1319,1568],.1,'triangle'),
+  star:()=>tone([880,1175],.06,'sine'),ok:()=>tone([660,880],.07,'sine'),tick:()=>tone([700],.03,'sine')};
+
+// ================= UI HELPERS =================
+const $=id=>document.getElementById(id);
+function toast(txt,cls){const t=document.createElement('div');t.className='toast '+(cls||'');t.textContent=txt;$('toasts').appendChild(t);setTimeout(()=>t.remove(),2500)}
+function confetti(){
+  const set=['⭐','🎉','✨','🏆','🌟','🪙','🎈'];
+  for(let k=0;k<26;k++){const e=document.createElement('div');e.className='confetti';e.textContent=set[k%set.length];
+    e.style.left=Math.random()*100+'vw';e.style.animationDelay=(Math.random()*.6)+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),3200)}
+}
+const modalQ=[];let modalOpen=false;
+function modal(em,title,text){modalQ.push([em,title,text]);if(!modalOpen)nextModal()}
+function nextModal(){const m=modalQ.shift();if(!m){modalOpen=false;$('modal').classList.add('hidden');return}
+  modalOpen=true;$('mEm').textContent=m[0];$('mTitle').textContent=m[1];$('mText').textContent=m[2];$('modal').classList.remove('hidden')}
+$('mOk').onclick=nextModal;
+function setMsg(id,cls,txt){const m=$(id);m.className='msg '+cls;m.textContent=txt}
+const PRAISE=['Amazing! 🎉','Super star! ⭐','Brilliant! 🌟','You got it! 🏆','Fantastic! 🚀','Genius move! 🧠'];
+const praise=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
+
+let XPP=0,XPT=null;
+function addXP(n,why){
+  if(n<=0||!WHO)return;
+  const before=rankOf(prog.xp);prog.xp+=n;prog.coins+=n;const td=today();prog.dxp[td]=(prog.dxp[td]||0)+n;save();
+  if(n<5&&!why){XPP+=n;clearTimeout(XPT);XPT=setTimeout(()=>{toast('+'+XPP+' XP','xp');XPP=0},700)}
+  else{toast('+'+n+' XP  '+(why||''),'xp');SND.coin()}
+  const after=rankOf(prog.xp);
+  if(after>before){SND.level();confetti();modal(RANKS[after].e,'Level up!','You are now a '+RANKS[after].n+'! Amazing work, '+ME().name+'!')}
+  refreshHeader();
+}
+function refreshHeader(){
+  if(!WHO){$('hTitle').textContent='♞ Quest Club';$('hRankLine').classList.add('hidden');['hStreak','hCoins','hSound'].forEach(i=>$(i).classList.add('hidden'));$('hWho').textContent='👤';return}
+  $('hRankLine').classList.remove('hidden');['hStreak','hCoins','hSound'].forEach(i=>$(i).classList.remove('hidden'));
+  const r=rankOf(prog.xp),cur=RANKS[r],nx=RANKS[r+1];
+  $('hTitle').textContent=ME().em+' '+ME().name+'\'s Quest';
+  $('hRank').textContent=cur.e+' '+cur.n;
+  $('hXp').textContent=prog.xp+' XP';
+  $('hBar').style.width=nx?Math.round((prog.xp-cur.xp)/(nx.xp-cur.xp)*100)+'%':'100%';
+  $('hCoins').textContent='🪙 '+prog.coins;
+  $('hStreak').textContent='🔥 '+(prog.streak||1);
+  $('hSound').textContent=prog.sound?'🔊':'🔇';
+  $('hWho').textContent='🔄';
+}
+$('hSound').onclick=()=>{prog.sound=!prog.sound;save();refreshHeader();SND.move()};
+$('hWho').onclick=()=>{stopAll();showPicker()};
+
+function earnBadge(id){
+  if(prog.badges[id])return;const b=BADGES.find(x=>x.id===id);if(!b)return;
+  prog.badges[id]=today();save();SND.win();confetti();modal(b.e,'New badge: '+b.n+'!',b.t+' — done!');
+}
+function checkBadges(){
+  const L=Object.keys(prog.lessons).length,P=Object.keys(prog.puzzles).length,s=prog.stats;
+  if(L>=1)earnBadge('l1');if(L>=10)earnBadge('l10');
+  if(P>=1)earnBadge('p1');if(P>=10)earnBadge('p10');if(P>=20)earnBadge('p20');
+  if(prog.score.w>=1)earnBadge('w1');
+  if((prog.streak||0)>=3)earnBadge('s3');if((prog.streak||0)>=7)earnBadge('s7');
+  if(prog.hunts>=10)earnBadge('h10');if(s.castles>=1)earnBadge('cas');if(s.promos>=1)earnBadge('pro');
+  if(prog.correctTotal>=100)earnBadge('q100');
+  if(QCATS.every(c=>prog.qstats[c]&&prog.qstats[c].t>0))earnBadge('qall');
+  if(prog.memBest>=6)earnBadge('mem6');
+  if(prog.bot[0])earnBadge('bot1');if(BOT_LEVELS.every((_,i)=>prog.bot[i]))earnBadge('bot8');
+  if(AI_CARDS.every((_,i)=>prog.cardsSeen[i]))earnBadge('cards');
+}
+function ensureDay(){
+  const t=today();
+  if(!prog.day||prog.day.date!==t){prog.day={date:t,c:{},claimed:{},chest:false}}
+  if(prog.lastDay!==t){
+    const gap=prog.lastDay?dayNum(t)-dayNum(prog.lastDay):99;
+    prog.streak=gap===1?(prog.streak||0)+1:1;
+    const first=!prog.lastDay;prog.lastDay=t;save();
+    const bonus=10*Math.min(prog.streak,5);
+    setTimeout(()=>{
+      if(first)modal(ME().em,'Welcome, '+ME().name+'!','Play games to earn XP, coins and badges. Come back every day to grow your 🔥 streak!');
+      else modal('🔥','Day '+prog.streak+' streak!',prog.streak>1?'You came back! Here is your streak bonus.':'Welcome back! Play every day to build a streak.');
+      addXP(bonus,'daily bonus');checkBadges();
+    },300);
+  }
+}
+function bump(k,n){
+  if(!WHO)return;ensureDay();prog.day.c[k]=(prog.day.c[k]||0)+(n||1);
+  todaysMissions().forEach((m,i)=>{
+    if(!prog.day.claimed[i]&&(prog.day.c[m.k]||0)>=m.n){prog.day.claimed[i]=1;toast('🎯 Mission done: '+m.t);addXP(30,'mission')}
+  });
+  if(!prog.day.chest&&Object.keys(prog.day.claimed).length===3){
+    prog.day.chest=true;save();earnBadge('chest');confetti();modal('🎁','Treasure chest!','You finished all 3 missions today! +50 bonus XP. New missions tomorrow!');addXP(50,'chest');
+  }
+  save();
+}
+
+// ================= NAVIGATION =================
+const VIEWS=['parentView','pickView','homeView','chessView','learnList','puzzleList','brainView','sprintView','quizView','memView','matchView','roboView','botView','teachView','cardsView','trophyView','taskView','playView'];
+function show(id){for(const v of VIEWS)$(v).classList.toggle('hidden',v!==id);$('nav').classList.toggle('hidden',id==='pickView'||id==='parentView');window.scrollTo(0,0)}
+function stopAll(){stopTimer();stopSprint();memStop()}
+function tab(name){
+  stopAll();
+  for(const[b,n]of[['tabHome','home'],['tabChess','chess'],['tabBrain','brain'],['tabRobo','robo'],['tabTrophy','trophy']])$(b).classList.toggle('on',n===name);
+  if(name==='home'){renderHome();show('homeView')}
+  if(name==='chess'){renderChessHub();show('chessView')}
+  if(name==='brain')show('brainView');
+  if(name==='robo')show('roboView');
+  if(name==='trophy'){renderTrophies();show('trophyView')}
+  if(name==='learn'){buildLists();show('learnList')}
+  if(name==='puzzle'){buildLists();show('puzzleList')}
+  if(name==='play'){show('playView');drawPlay()}
+}
+$('tabHome').onclick=()=>tab('home');$('tabChess').onclick=()=>tab('chess');$('tabBrain').onclick=()=>tab('brain');$('tabRobo').onclick=()=>tab('robo');$('tabTrophy').onclick=()=>tab('trophy');
+document.addEventListener('click',e=>{const b=e.target.closest('[data-back]');if(b){tab(b.dataset.back)}});
+
+// ================= PICKER =================
+function showPicker(){
+  WHO=null;try{localStorage.removeItem('quest_who')}catch(e){}
+  prog=newProg();applyTheme();refreshHeader();
+  const rows=Object.entries(PROFILES).map(([id,p])=>{let g=loadProg(id);const c=CLOUD&&CLOUD[id];if(c&&c.data&&(c.updated||0)>(g.updated||0))g=Object.assign(newProg(),c.data);return{id,p,g}}).sort((a,b)=>b.g.xp-a.g.xp);
+  if(SYNC_URL&&Date.now()-CLOUD_AT>20000)pullAll().then(k=>{if(k&&!$('pickView').classList.contains('hidden'))showPicker()});
+  $('lbTable').innerHTML=rows.map((r,i)=>'<tr><td>'+(i===0&&r.g.xp>0?'👑 ':'')+r.p.em+' '+r.p.name+'</td><td>'+RANKS[rankOf(r.g.xp)].e+' '+RANKS[rankOf(r.g.xp)].n+'</td><td>🔥 '+(r.g.streak||0)+'</td><td>'+r.g.xp+' XP</td></tr>').join('');
+  for(const r of rows){$(r.id==='aaranya'?'pkA':'pkV').textContent=RANKS[rankOf(r.g.xp)].e+' '+RANKS[rankOf(r.g.xp)].n+' · '+r.g.xp+' XP · '+Object.keys(r.g.badges||{}).length+' badges'}
+  show('pickView');
+}
+document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>choose(b.dataset.p));
+async function choose(id){
+  WHO=id;SP.picked=0;READY=null;try{localStorage.setItem('quest_who',id)}catch(e){}
+  prog=loadProg(id);applyTheme();G.level=1;refreshHeader();
+  if(SYNC_URL){show('homeView');$('hello').textContent='Loading '+PROFILES[id].name+'\'s progress… ☁️';$('quick').innerHTML='';$('missions').innerHTML='';$('vsCard').innerHTML='';
+    let ch=false;try{ch=await Promise.race([syncDown(id),new Promise(r=>setTimeout(()=>r(false),6000))])}catch(e){}
+    if(WHO!==id)return;if(ch){prog=loadProg(id);applyTheme();toast('☁️ Progress loaded')}}
+  READY=id;ensureDay();refreshHeader();tab('home');pushSoon(1500);
+}
+// ================= HOME =================
+function quickBtn(cls,title,sub,fn){const b=document.createElement('button');b.className='big '+cls;b.innerHTML=title+'<small>'+sub+'</small>';b.onclick=fn;$('quick').appendChild(b)}
+function renderHome(){
+  ensureDay();refreshHeader();
+  const r=rankOf(prog.xp),nx=RANKS[r+1];
+  $('hello').textContent='Hi '+ME().name+'! '+ME().em;
+  $('nextRank').textContent=nx?('Only '+(nx.xp-prog.xp)+' XP until you become a '+nx.e+' '+nx.n+'!'):'You reached the top rank. Grandmaster '+ME().name+'! 🏆';
+  $('quick').innerHTML='';
+  const di=dailyIdx(),dSub=PUZZLES[di].title.replace(/^\d+\.\s*/,'')+(prog.day.c.daily?' — solved today ✅':' — double XP today!');
+  const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);
+  if(WHO==='aaranya'){
+    quickBtn('g1','✨ Chess Puzzle of the Day',dSub,()=>openTask('puzzle',di));
+    quickBtn('g3','📚 Continue chess lessons',nl>=0?'Next: '+LESSONS[nl].title:'All lessons done! Try puzzles.',()=>{if(nl>=0)openTask('lesson',nl);else tab('puzzle')});
+    quickBtn('g2','⭐ Star Hunt','Race the clock to collect stars',()=>openHunt());
+    quickBtn('g5','🃏 Flag Match','Match flags with their countries',()=>openMatch());
+    quickBtn('g4','🤖 Robo Lab','Code a robot and teach a mini AI',()=>tab('robo'));
+  } else {
+    quickBtn('g1','⚡ Math Sprint','Best (Olympiad): '+(prog.sprintBest[3]||0)+' — can you beat it?',()=>openSprint());
+    quickBtn('g3','🏅 Quiz Master','Physics, Chemistry, Biology, History, India, Space and more',()=>openQuizSetup());
+    quickBtn('g2','🌍 World Explorer','Flags, capitals and continents',()=>openWorldSetup());
+    quickBtn('g4','✨ Chess Puzzle of the Day',dSub,()=>openTask('puzzle',di));
+    quickBtn('g5','🤖 Robo Lab','Code a robot and train a mini AI',()=>tab('robo'));
+  }
+  const ms=todaysMissions();$('missions').innerHTML='';
+  ms.forEach((m,i)=>{const c=Math.min(prog.day.c[m.k]||0,m.n),done=!!prog.day.claimed[i];
+    const d=document.createElement('div');d.className='mission'+(done?' done':'');
+    d.innerHTML='<span class="ic">'+(done?'✅':m.e)+'</span><div class="tx">'+m.t+' <span style="float:right">'+c+'/'+m.n+'</span><div class="mb"><i style="width:'+(c/m.n*100)+'%"></i></div></div>';
+    $('missions').appendChild(d)});
+  $('chestState').textContent=prog.day.chest?'🎁 opened':'🎁 locked';
+  // sister race
+  const other=WHO==='aaranya'?'avanya':'aaranya',og=loadProg(other),op=PROFILES[other];
+  const diff=prog.xp-og.xp;
+  $('vsCard').innerHTML='<h3>🏁 Family race</h3><p>'+(diff>0?'You are <b>'+diff+' XP ahead</b> of '+op.name+' '+op.em+'. Keep going!':diff<0?op.name+' '+op.em+' is <b>'+(-diff)+' XP ahead</b>. You can catch up today!':'You and '+op.name+' are neck and neck!')+'</p>';
+}
+function applyTheme(){document.body.className=prog.theme&&prog.theme!=='classic'?'t-'+prog.theme:''}
+
+// ================= TROPHIES =================
+function renderTrophies(){
+  refreshHeader();
+  $('badgeGrid').innerHTML='';
+  BADGES.forEach(b=>{const d=document.createElement('div');d.className='bdg'+(prog.badges[b.id]?'':' locked');d.title=b.t;
+    d.innerHTML='<span>'+b.e+'</span>'+b.n;d.onclick=()=>toast(b.e+' '+b.t+(prog.badges[b.id]?' ✅':''));$('badgeGrid').appendChild(d)});
+  $('badgeCount').textContent=Object.keys(prog.badges).length+'/'+BADGES.length;
+  $('shop').innerHTML='';
+  THEMES.forEach(t=>{const own=!!prog.themes[t.id];const d=document.createElement('button');d.className='theme'+(prog.theme===t.id?' cur':'');
+    d.innerHTML='<div class="sw"><i style="background:'+t.l+'"></i><i style="background:'+t.d+'"></i><i style="background:'+t.l+'"></i><i style="background:'+t.d+'"></i></div>'+t.n+'<br>'+(prog.theme===t.id?'✅ Using':own?'Tap to use':'🪙 '+t.c);
+    d.onclick=()=>{
+      if(own){prog.theme=t.id;applyTheme();save();renderTrophies();return}
+      if(prog.coins<t.c){SND.bad();toast('Need '+(t.c-prog.coins)+' more 🪙 coins');return}
+      prog.coins-=t.c;prog.themes[t.id]=1;prog.theme=t.id;save();applyTheme();SND.win();confetti();toast('New theme: '+t.n+'! 🎨');earnBadge('shop');renderTrophies();
+    };$('shop').appendChild(d)});
+}
+
+// ================= CHESS =================
+function renderChessHub(){
+  $('lesSub').textContent=Object.keys(prog.lessons).length+'/10 done — learn how every piece moves';
+  $('puzSub').textContent=Object.keys(prog.puzzles).length+'/20 solved — checkmates and free pieces';
+}
+$('goLessons').onclick=()=>tab('learn');$('goPuzzles').onclick=()=>tab('puzzle');$('goPlay').onclick=()=>tab('play');$('goHunt').onclick=()=>openHunt();
+function renderBoard(el,s,opts){
+  opts=opts||{};el.innerHTML='';
+  for(let i=0;i<64;i++){
+    const r=Math.floor(i/8),c=i%8;const d=document.createElement('div');
+    d.className='sq '+((r+c)%2?'d':'l');
+    if(opts.sel===i)d.classList.add('sel');
+    if(opts.last&&(opts.last.from===i||opts.last.to===i))d.classList.add('last');
+    if(opts.check===i)d.classList.add('chk');
+    if(opts.hint===i)d.classList.add('hint');
+    if(c===7){const k=document.createElement('span');k.className='coord r';k.textContent=8-r;d.appendChild(k)}
+    if(r===7){const k=document.createElement('span');k.className='coord f';k.textContent='abcdefgh'[c];d.appendChild(k)}
+    const p=s.board[i];
+    if(p){const g=document.createElement('span');g.className='pc '+(isW(p)?'w':'b');g.textContent=GLYPH[p.toUpperCase()];d.appendChild(g)}
+    if(opts.stars&&opts.stars.includes(i)&&!p){const g=document.createElement('span');g.className='star';g.textContent='⭐';d.appendChild(g)}
+    if(opts.targets&&opts.targets.includes(i)){const g=document.createElement('span');g.className=p?'ring':'dot';d.appendChild(g)}
+    d.onclick=()=>opts.onClick&&opts.onClick(i);
+    el.appendChild(d);
+  }
+}
+function buildLists(){
+  const lg=$('lessonGrid');lg.innerHTML='';
+  LESSONS.forEach((L,i)=>{const b=document.createElement('button');b.className='tile'+(prog.lessons[i]?' done':'');
+    b.innerHTML='<span class="badge">'+(prog.lessons[i]?'⭐':'○')+'</span><b>'+L.title+'</b>'+(prog.lessons[i]?'Replay +5 XP':'+50 XP');
+    b.onclick=()=>openTask('lesson',i);lg.appendChild(b)});
+  const pg=$('puzzleGrid');pg.innerHTML='';const di=dailyIdx();
+  PUZZLES.forEach((P,i)=>{const b=document.createElement('button');b.className='tile'+(i===di?' today':prog.puzzles[i]?' done':'');
+    b.innerHTML='<span class="badge">'+(i===di?'✨':prog.puzzles[i]?'⭐':'○')+'</span><b>'+P.title+'</b>'+(P.goal==='mate'?'Checkmate in one':'Win a piece')+(i===di?' · 2× XP':'');
+    b.onclick=()=>openTask('puzzle',i);pg.appendChild(b)});
+}
+let T=null,timerId=null;
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null}}
+function openTask(kind,i){
+  stopAll();
+  const D=(kind==='lesson'?LESSONS:PUZZLES)[i];
+  T={kind,i,D,s:parseFEN(D.fen),sel:-1,stars:(D.stars||[]).map(sqIdx),done:false,last:null,hint:-1,moves:0,fails:0,hinted:false};
+  $('taskTitle').textContent=(kind==='puzzle'&&i===dailyIdx()?'✨ ':'')+D.title;
+  $('taskText').textContent=D.text;
+  $('taskTip').textContent='💡 '+D.tip;
+  $('huntTimer').classList.add('hidden');$('taskHint').classList.remove('hidden');
+  $('taskNext').classList.add('hidden');
+  setMsg('taskMsg','info',D.goal==='stars'?'Collect all the ⭐ stars!':'Your move, '+ME().name+'!');
+  show('taskView');drawTask();
+}
+function openHunt(){
+  stopAll();
+  const pieces=['R','B','Q','N','K'];const pc=pieces[Math.floor(Math.random()*pieces.length)];
+  const from=Math.floor(Math.random()*64);const b=Array(64).fill(null);b[from]=pc;
+  const col=sq=>(Math.floor(sq/8)+sq%8)%2;const n=pc==='K'||pc==='N'?3:4;const stars=[];
+  while(stars.length<n){const s=Math.floor(Math.random()*64);if(s===from||stars.includes(s))continue;if(pc==='B'&&col(s)!==col(from))continue;stars.push(s)}
+  const names={R:'Rook',B:'Bishop',Q:'Queen',N:'Knight',K:'King'};
+  T={kind:'hunt',piece:pc,n,D:{goal:'stars',title:'⭐ Star Hunt: '+names[pc]},s:{board:b,turn:'w',castle:{K:false,Q:false,k:false,q:false},ep:-1,half:0},
+    sel:-1,stars,done:false,last:null,hint:-1,moves:0,start:Date.now()};
+  $('taskTitle').textContent=T.D.title;
+  $('taskText').textContent='Collect all '+n+' stars with your '+names[pc].toLowerCase()+' as fast as you can!';
+  const best=prog.best[pc];$('taskTip').textContent=best?'🏁 Your best '+names[pc].toLowerCase()+' time: '+best+'s':'🏁 Set your first record!';
+  $('taskHint').classList.add('hidden');$('taskNext').classList.add('hidden');
+  $('huntTimer').classList.remove('hidden');$('huntTimer').textContent='⏱ 0s';
+  timerId=setInterval(()=>{$('huntTimer').textContent='⏱ '+Math.floor((Date.now()-T.start)/1000)+'s'},250);
+  setMsg('taskMsg','info','Go go go! 🏃‍♀️');
+  show('taskView');drawTask();
+}
+function drawTask(){
+  const s=T.s;let targets=[];
+  if(T.sel>=0)targets=legal(s).filter(m=>m.from===T.sel).map(m=>m.to);
+  const ck=inCheck(s,'b')?kingSq(s.board,'b'):-1;
+  renderBoard($('taskBoard'),s,{sel:T.sel,targets,stars:T.stars,last:T.last,check:ck,hint:T.hint,onClick:taskClick});
+}
+function taskClick(i){
+  if(T.done)return;
+  const s=T.s,p=s.board[i];
+  if(T.sel>=0){const m=legal(s).find(x=>x.from===T.sel&&x.to===i);if(m){doTaskMove(m);return}}
+  if(p&&isW(p)){T.sel=(T.sel===i?-1:i);T.hint=-1;drawTask()}
+  else if(T.sel>=0){T.sel=-1;drawTask();setMsg('taskMsg','bad','That piece can\'t go there. Look for the purple dots!')}
+}
+function doTaskMove(m){
+  const D=T.D;const captured=T.s.board[m.to];
+  let n=make(T.s,m);T.moves++;T.last=m;T.sel=-1;T.hint=-1;
+  if(D.goal==='stars'){
+    n.turn='w';n.ep=-1;T.s=n;
+    const had=T.stars.length;T.stars=T.stars.filter(x=>x!==m.to);
+    if(T.stars.length<had)SND.star();else if(captured)SND.cap();else SND.move();
+    if(!T.stars.length)return taskWin('All stars collected in '+T.moves+' moves!');
+    setMsg('taskMsg','info',T.stars.length+' star'+(T.stars.length>1?'s':'')+' to go!');drawTask();return;
+  }
+  T.s=n;captured?SND.cap():SND.move();
+  let ok=false,why='';
+  if(D.goal==='check'){ok=inCheck(n,'b');why='That isn\'t check. The king must be attacked!'}
+  if(D.goal==='mate'){const st=status(n);ok=st==='mate';why=inCheck(n,'b')?'Check! But the king can still escape. Look again!':st==='stalemate'?'Oops, that\'s stalemate — a draw!':'Not checkmate yet. Try a check!'}
+  if(D.goal==='castle'){ok=!!m.castle;why='Move the king TWO squares toward the rook to castle.'}
+  if(D.goal==='capture'){ok=m.to===sqIdx(D.target)&&!!captured;why='Hmm, that\'s not the free piece. Look again!'}
+  drawTask();
+  if(ok)taskWin(D.goal==='mate'?'CHECKMATE!':D.goal==='check'?'CHECK! Great attack!':'');
+  else{T.fails++;SND.bad();setMsg('taskMsg','bad',why);T.done=true;
+    setTimeout(()=>{T.s=parseFEN(D.fen);T.last=null;T.done=false;drawTask();setMsg('taskMsg','info','Try again — you can do it!')},1400)}
+}
+function taskWin(extra){
+  T.done=true;drawTask();SND.win();confetti();
+  if(T.kind==='hunt'){
+    stopTimer();const secs=Math.max(1,Math.round((Date.now()-T.start)/1000));
+    const best=prog.best[T.piece];const record=!best||secs<best;if(record)prog.best[T.piece]=secs;
+    prog.hunts=(prog.hunts||0)+1;save();
+    setMsg('taskMsg','ok',praise()+' '+secs+' seconds!'+(record&&best?' NEW RECORD! 🏁':''));
+    addXP(T.n*2+10+Math.max(0,20-secs)+(record&&best?10:0),'Star Hunt');bump('hunts');checkBadges();
+    $('taskNext').textContent='Another hunt ➡';$('taskNext').classList.remove('hidden');return;
+  }
+  const first=T.kind==='lesson'?!prog.lessons[T.i]:!prog.puzzles[T.i];
+  (T.kind==='lesson'?prog.lessons:prog.puzzles)[T.i]=1;save();
+  setMsg('taskMsg','ok',praise()+' '+(extra||''));
+  let xp=first?(T.kind==='lesson'?50:30):5;
+  if(first&&T.fails===0&&!T.hinted)xp+=20;
+  addXP(xp,first&&T.fails===0&&!T.hinted?'first try!':'');
+  if(T.kind==='lesson')bump('lessons');else bump('puzzles');
+  if(T.kind==='puzzle'&&T.i===dailyIdx()&&!(prog.day.c.daily)){bump('daily');addXP(60,'Puzzle of the Day');}
+  checkBadges();
+  const list=T.kind==='lesson'?LESSONS:PUZZLES;
+  $('taskNext').textContent='Next ➡';$('taskNext').classList.toggle('hidden',T.i>=list.length-1);
+}
+$('taskBack').onclick=()=>tab(T.kind==='lesson'?'learn':T.kind==='hunt'?'chess':'puzzle');
+$('taskReset').onclick=()=>T.kind==='hunt'?openHunt():openTask(T.kind,T.i);
+$('taskNext').onclick=()=>T.kind==='hunt'?openHunt():openTask(T.kind,T.i+1);
+$('taskHint').onclick=()=>{if(!T||T.done||!T.D.hint)return;T.hinted=true;T.hint=sqIdx(T.D.hint);T.sel=-1;drawTask();setMsg('taskMsg','info','Try moving the piece with the green border.')};
+
+const START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+let G={s:parseFEN(START),hist:[],sel:-1,last:null,over:false,level:1,hint:null,thinking:false,maxPly:0};
+document.querySelectorAll('#levelSeg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#levelSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');G.level=+b.dataset.l;newGame()});
+function newGame(){G.s=parseFEN(START);G.hist=[];G.sel=-1;G.last=null;G.over=false;G.hint=null;G.maxPly=0;
+  setMsg('playMsg','info','New game! You are White. Make the first move.');drawPlay()}
+function drawPlay(){
+  const s=G.s;let targets=[];
+  if(G.sel>=0)targets=legal(s).filter(m=>m.from===G.sel).map(m=>m.to);
+  const ck=inCheck(s,s.turn)?kingSq(s.board,s.turn):-1;
+  renderBoard($('playBoard'),s,{sel:G.sel,targets,last:G.last,check:ck,hint:G.hint,onClick:playClick});
+  $('sW').textContent=prog.score.w;$('sD').textContent=prog.score.d;$('sL').textContent=prog.score.l;
+}
+function playClick(i){
+  if(G.over||G.thinking||G.s.turn!=='w')return;
+  const p=G.s.board[i];
+  if(G.sel>=0){const m=legal(G.s).find(x=>x.from===G.sel&&x.to===i);if(m){playerMove(m);return}}
+  if(p&&isW(p)){G.sel=(G.sel===i?-1:i);G.hint=null;drawPlay()}else{G.sel=-1;drawPlay()}
+}
+function endCheck(){
+  const st=status(G.s);if(!st)return false;G.over=true;
+  if(st==='mate'){
+    if(G.s.turn==='b'){prog.score.w++;save();setMsg('playMsg','ok','CHECKMATE! You beat Robo-Knight! 🏆');SND.win();confetti();
+      addXP([0,60,150,300][G.level],'victory!');bump('wins');earnBadge('w1');if(G.level>=2)earnBadge('w2');if(G.level===3)earnBadge('w3');}
+    else{prog.score.l++;save();setMsg('playMsg','bad','Robo-Knight got a checkmate. Shake hands and try again! 🤝');SND.bad();addXP(10,'for playing')}
+  } else {prog.score.d++;save();setMsg('playMsg','info',st==='stalemate'?'Stalemate — it\'s a draw!':'Draw! Nobody can win now.');addXP(20,'draw')}
+  bump('games');checkBadges();drawPlay();return true;
+}
+function playerMove(m){
+  const cap=G.s.board[m.to]||(m.ep?'p':null);
+  G.hist.push(G.s);G.s=make(G.s,m);G.last=m;G.sel=-1;G.hint=null;
+  cap?SND.cap():SND.move();
+  let bonus=0;const fresh=G.hist.length>(G.maxPly||0);if(fresh)G.maxPly=G.hist.length;
+  if(fresh&&cap){bonus+={P:1,N:3,B:3,R:5,Q:9}[cap.toUpperCase()]||0;prog.stats.caps++;bump('caps')}
+  if(fresh&&inCheck(G.s,'b')){bonus+=2;prog.stats.checks++;bump('checks')}
+  if(fresh&&m.castle){bonus+=10;prog.stats.castles++;toast('🏰 Castled! King is safe')}
+  if(fresh&&m.promo){bonus+=15;prog.stats.promos++;toast('👑 New queen!')}
+  if(bonus)addXP(bonus);
+  checkBadges();
+  drawPlay();if(endCheck())return;
+  setMsg('playMsg',inCheck(G.s,'b')?'ok':'info',inCheck(G.s,'b')?'Check! ⚡':'Robo-Knight is thinking… 🤖');
+  G.thinking=true;
+  setTimeout(()=>{
+    const am=aiMove(G.s,G.level);const rc=G.s.board[am.to];
+    G.s=make(G.s,am);G.last=am;G.thinking=false;rc?SND.cap():SND.move();drawPlay();
+    if(endCheck())return;
+    if(inCheck(G.s,'w'))setMsg('playMsg','bad','Robo says CHECK! Protect your king! 🛡️');
+    else if(rc)setMsg('playMsg','bad','Robo captured your '+({P:'pawn',N:'knight',B:'bishop',R:'rook',Q:'queen'})[rc.toUpperCase()]+'. Watch out!');
+    else setMsg('playMsg','info','Your turn! Remember STOP: any threats?');
+  },G.level===3?60:350);
+}
+$('newGame').onclick=newGame;
+$('undo').onclick=()=>{if(G.thinking||!G.hist.length)return;G.s=G.hist.pop();G.over=false;G.last=null;G.sel=-1;G.hint=null;drawPlay();setMsg('playMsg','info','Move taken back. Have another think!')};
+$('playHint').onclick=()=>{if(G.over||G.thinking||G.s.turn!=='w')return;const m=bestMove(G.s,2);if(!m)return;G.hint=m.from;G.sel=m.from;drawPlay();setMsg('playMsg','info','Robo\'s tip: try the piece in green. Where should it go?')};
+
+// ================= BRAIN HUB =================
+document.querySelectorAll('#brainView [data-g]').forEach(b=>b.onclick=()=>{
+  const g=b.dataset.g;if(g==='sprint')openSprint();if(g==='world')openWorldSetup();if(g==='oly')openQuizSetup();if(g==='mem')openMem();if(g==='match')openMatch();
+});
+
+// ---------- MATH SPRINT ----------
+let SP={level:2,run:false,t:0,score:0,q:null,ans:'',iv:null};
+function sprintQ(L){
+  let a,b,text,ans;const t=rint(0,L===1?2:L===2?3:6);
+  if(L===1){
+    if(t===0){a=rint(1,20);b=rint(1,20);text=a+' + '+b;ans=a+b}
+    else if(t===1){a=rint(5,30);b=rint(1,a);text=a+' − '+b;ans=a-b}
+    else{a=rint(2,5);b=rint(1,10);text=a+' × '+b;ans=a*b}
+  } else if(L===2){
+    if(t===0){a=rint(10,99);b=rint(10,99);text=a+' + '+b;ans=a+b}
+    else if(t===1){a=rint(30,150);b=rint(10,a);text=a+' − '+b;ans=a-b}
+    else if(t===2){a=rint(2,12);b=rint(2,12);text=a+' × '+b;ans=a*b}
+    else{b=rint(2,12);ans=rint(2,12);text=(b*ans)+' ÷ '+b}
+  } else {
+    if(t===0){a=rint(12,99);b=rint(3,9);text=a+' × '+b;ans=a*b}
+    else if(t===1){a=rint(11,25);text=a+'²';ans=a*a}
+    else if(t===2){const p=pick([10,20,25,50,75]);b=pick([40,60,80,120,200,240,360,400]);text=p+'% of '+b;ans=p*b/100;if(ans%1){b=400;ans=p*4}text=p+'% of '+b}
+    else if(t===3){const den=pick([3,4,5,6,8]);const num=rint(1,den-1);const k=rint(2,12);b=den*k;text=num+'/'+den+' of '+b;ans=num*k}
+    else if(t===4){b=rint(15,80);ans=rint(10,90);text='? + '+b+' = '+(ans+b)}
+    else if(t===5){a=rint(2,20);b=rint(2,9);const c=rint(2,9);text=a+' + '+b+' × '+c;ans=a+b*c}
+    else{b=rint(3,9);ans=rint(11,40);text=(b*ans)+' ÷ '+b}
+  }
+  return{text,ans:String(ans)};
+}
+function openSprint(){
+  stopAll();if(!SP.picked){SP.level=WHO==='avanya'?3:1}
+  $('sprintSetup').classList.remove('hidden');$('sprintRun').classList.add('hidden');
+  renderSprintLv();show('sprintView');
+}
+function renderSprintLv(){
+  document.querySelectorAll('#sprintLv button').forEach(b=>{b.classList.toggle('on',+b.dataset.l===SP.level);b.onclick=()=>{SP.level=+b.dataset.l;SP.picked=1;renderSprintLv()}});
+  $('sprintBest').textContent='🏁 Your best on this level: '+(prog.sprintBest[SP.level]||0)+(SP.level===3?' · Olympiad mixes squares, percentages, fractions and missing numbers.':'');
+}
+const KEYS=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+$('keypad').innerHTML=KEYS.map(k=>'<button class="key" data-k="'+k+'">'+k+'</button>').join('');
+$('keypad').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b||!SP.run)return;const k=b.dataset.k;
+  if(k==='⌫')SP.ans=SP.ans.slice(0,-1);else if(k==='✓'){checkSprint(true);return}else if(SP.ans.length<6)SP.ans+=k;
+  SND.tick();$('spA').textContent=SP.ans;$('spA').className='sprinta';checkSprint(false)});
+function checkSprint(force){
+  if(SP.ans===SP.q.ans){SP.score++;SND.ok();$('spA').className='sprinta good';$('spScore').textContent='✅ '+SP.score;setTimeout(nextSprintQ,180);return}
+  if(force||SP.ans.length>=SP.q.ans.length){$('spA').className='sprinta bad';SND.bad();setTimeout(()=>{SP.ans='';$('spA').textContent='';$('spA').className='sprinta'},350)}
+}
+function nextSprintQ(){SP.q=sprintQ(SP.level);SP.ans='';$('spQ').textContent=SP.q.text+' = ?';$('spA').textContent='';$('spA').className='sprinta'}
+$('sprintGo').onclick=()=>{
+  SP.run=true;SP.score=0;SP.t=60;$('sprintSetup').classList.add('hidden');$('sprintRun').classList.remove('hidden');
+  $('spScore').textContent='✅ 0';$('spTime').textContent='⏱ 60';nextSprintQ();
+  SP.iv=setInterval(()=>{SP.t--;$('spTime').textContent='⏱ '+SP.t;if(SP.t<=5&&SP.t>0)SND.tick();if(SP.t<=0)endSprint()},1000);
+};
+$('spSkip').onclick=()=>{if(SP.run)nextSprintQ()};
+function stopSprint(){if(SP.iv){clearInterval(SP.iv);SP.iv=null}SP.run=false}
+function endSprint(){
+  stopSprint();roundDone('sprint');const best=prog.sprintBest[SP.level]||0;const rec=SP.score>best;if(rec)prog.sprintBest[SP.level]=SP.score;save();
+  const per=SP.level===3?3:SP.level===2?2:2;
+  $('sprintSetup').classList.remove('hidden');$('sprintRun').classList.add('hidden');renderSprintLv();
+  SND.win();if(rec)confetti();
+  modal(rec?'🏆':'⚡',SP.score+' correct!',rec?'NEW PERSONAL BEST! Previous best was '+best+'.':'Your best is '+best+'. Try again to beat it!');
+  addXP(SP.score*per+(rec&&SP.score>0?15:0),'Math Sprint');bump('sprints');earnBadge('ms1');if(SP.score>=20)earnBadge('ms20');checkBadges();
+}
+
+// ---------- QUIZ ENGINE (World Explorer & Quiz Master) ----------
+let Q=null;
+function runQuiz(cfg){
+  stopAll();Q=Object.assign({i:0,score:0,answered:false},cfg);
+  $('quizSetup').classList.add('hidden');$('quizRun').classList.remove('hidden');show('quizView');showQ();
+}
+function showQ(){
+  const it=Q.qs[Q.i];Q.answered=false;
+  $('qNum').textContent=Q.title+' · '+(Q.i+1)+'/'+Q.qs.length;$('qScore').textContent='✅ '+Q.score;
+  $('qBig').textContent=it.big||'';$('qBig').classList.toggle('hidden',!it.big);
+  $('qText').textContent=(it.cat?QICON[it.cat]+' ':'')+it.text;
+  $('qExplain').classList.add('hidden');$('qNext').classList.add('hidden');
+  $('qOpts').innerHTML='';
+  it.opts.forEach((o,k)=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>answerQ(k,b);$('qOpts').appendChild(b)});
+}
+function answerQ(k,btn){
+  if(Q.answered)return;Q.answered=true;const it=Q.qs[Q.i];const ok=k===it.ans;
+  const btns=$('qOpts').children;btns[it.ans].classList.add('right');
+  if(ok){Q.score++;SND.ok();addXP(3);prog.correctTotal=(prog.correctTotal||0)+1;bump('correct')}else{btn.classList.add('wrong');SND.bad()}
+  if(it.cat){const s=prog.qstats[it.cat]||(prog.qstats[it.cat]={r:0,t:0});s.t++;if(ok)s.r++;if(it.id!==undefined)prog.seen[it.id]=1;save()}
+  $('qScore').textContent='✅ '+Q.score;
+  const ex=(ok?'✅ Correct! ':'❌ The answer is: '+it.opts[it.ans]+'. ')+(it.explain||'');
+  $('qExplain').textContent=ex;$('qExplain').classList.remove('hidden');
+  $('qNext').textContent=Q.i<Q.qs.length-1?'Next ➡':'Finish 🏁';$('qNext').classList.remove('hidden');
+}
+$('qNext').onclick=()=>{if(Q.i<Q.qs.length-1){Q.i++;showQ()}else finishQuiz()};
+$('qQuit').onclick=()=>{Q.quit=true;Q.kind==='world'?openWorldSetup():openQuizSetup()};
+function roundDone(k){prog.rounds[k]=(prog.rounds[k]||0)+1;save()}
+function finishQuiz(){roundDone(Q.kind);
+  const perfect=Q.score===Q.qs.length;SND.win();if(perfect)confetti();
+  modal(perfect?'🏆':Q.score>=7?'🌟':'💪',Q.score+' / '+Q.qs.length,perfect?'PERFECT ROUND! +20 bonus XP':Q.score>=7?'Great job! Can you get 10/10 next time?':'Good practice! Read the explanations — they help you remember.');
+  if(perfect)addXP(20,'perfect!');
+  if(Q.kind==='world'){bump('world');earnBadge('wx1');if(perfect)earnBadge('wxp')}else{bump('quiz');earnBadge('q1')}
+  checkBadges();Q.kind==='world'?openWorldSetup():openQuizSetup();
+}
+
+// ---------- WORLD EXPLORER ----------
+let WX={mode:'flag',pool:null};
+function wPool(){const all=WX.pool==='all'||(!WX.pool&&WHO==='avanya');return all?COUNTRIES:COUNTRIES.filter(c=>FAMOUS.includes(c.n))}
+function openWorldSetup(){
+  stopAll();show('quizView');$('quizRun').classList.add('hidden');$('quizSetup').classList.remove('hidden');
+  const all=WX.pool==='all'||(!WX.pool&&WHO==='avanya');
+  const modes=[['flag','🏳️ Flag → Country'],['capital','🏙️ Country → Capital'],['rcap','🔁 Capital → Country'],['cont','🗺️ Which continent?']];
+  $('quizSetup').innerHTML='<h2>🌍 World Explorer</h2><p>10 questions per round. +3 XP for each right answer, +20 for a perfect round.</p>'+
+    '<h3>Choose a game</h3><div class="lv" id="wxModes">'+modes.map(m=>'<button data-m="'+m[0]+'" class="'+(WX.mode===m[0]?'on':'')+'">'+m[1]+'</button>').join('')+'</div>'+
+    '<h3>Countries</h3><div class="lv" id="wxPool"><button data-p="famous" class="'+(!all?'on':'')+'">⭐ Famous ('+COUNTRIES.filter(c=>FAMOUS.includes(c.n)).length+')</button><button data-p="all" class="'+(all?'on':'')+'">🌐 All ('+COUNTRIES.length+')</button></div>'+
+    '<div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="wxGo">▶ Start</button></div>'+
+    '<p class="tip" style="margin-top:10px">Flags show best on iPad and phones.</p>';
+  document.querySelectorAll('#wxModes button').forEach(b=>b.onclick=()=>{WX.mode=b.dataset.m;openWorldSetup()});
+  document.querySelectorAll('#wxPool button').forEach(b=>b.onclick=()=>{WX.pool=b.dataset.p;openWorldSetup()});
+  $('wxGo').onclick=startWorld;
+}
+function startWorld(){
+  let pool=wPool();if(WX.mode==='capital'||WX.mode==='rcap')pool=pool.filter(c=>c.cap);
+  const chosen=shuffle(pool).slice(0,10);
+  const qs=chosen.map(c=>{
+    const same=COUNTRIES.filter(x=>x!==c&&x.cont===c.cont&&(WX.mode==='flag'||WX.mode==='cont'||x.cap));
+    const others=COUNTRIES.filter(x=>x!==c&&(WX.mode==='flag'||WX.mode==='cont'||x.cap));
+    let wrong=shuffle(same).slice(0,3);if(wrong.length<3)wrong=wrong.concat(shuffle(others.filter(x=>!wrong.includes(x))).slice(0,3-wrong.length));
+    if(WX.mode==='cont'){
+      const conts=['Asia','Africa','Europe','North America','South America','Oceania'];
+      const opts=shuffle([c.cont].concat(shuffle(conts.filter(x=>x!==c.cont)).slice(0,3)));
+      return{big:c.f,text:'Which continent is '+c.n+' in?',opts,ans:opts.indexOf(c.cont)};
+    }
+    const all=shuffle([c].concat(wrong));
+    if(WX.mode==='flag')return{big:c.f,text:'Which country has this flag?',opts:all.map(x=>x.n),ans:all.indexOf(c)};
+    if(WX.mode==='capital')return{big:c.f,text:'What is the capital of '+c.n+'?',opts:all.map(x=>x.cap),ans:all.indexOf(c),explain:c.cap+' is the capital of '+c.n+'.'};
+    return{big:'🏙️',text:c.cap+' is the capital of which country?',opts:all.map(x=>x.n),ans:all.indexOf(c),explain:c.cap+' is the capital of '+c.n+' '+c.f+'.'};
+  });
+  runQuiz({kind:'world',title:'🌍',qs});
+}
+
+// ---------- QUIZ MASTER ----------
+let QM={cat:'Mixed'};
+function openQuizSetup(){
+  stopAll();show('quizView');$('quizRun').classList.add('hidden');$('quizSetup').classList.remove('hidden');
+  const cats=['Mixed'].concat(QCATS);
+  const rep=QCATS.map(c=>{const s=prog.qstats[c];const pct=s&&s.t?Math.round(s.r/s.t*100):null;return{c,pct,t:s?s.t:0}});
+  const played=rep.filter(r=>r.t>=3).sort((a,b)=>b.pct-a.pct);
+  let report='';
+  if(played.length){report='<h3>📊 Your topic report</h3>'+rep.filter(r=>r.t).map(r=>'<div class="mission"><span class="ic">'+QICON[r.c]+'</span><div class="tx">'+r.c+' <span style="float:right">'+r.pct+'% · '+r.t+' Qs</span><div class="mb"><i style="width:'+r.pct+'%;background:'+(r.pct>=80?'#2fbf71':r.pct>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>').join('')+
+    (played.length>=2?'<p class="tip">💪 Strongest: <b>'+played[0].c+'</b> · 🎯 Practise more: <b>'+played[played.length-1].c+'</b></p>':'');}
+  const unseen=OLY.filter((q,i)=>!prog.seen[i]).length;
+  $('quizSetup').innerHTML='<h2>🏅 Quiz Master</h2><p>10 questions per round, with an explanation after every answer. New questions come first — '+unseen+' of '+OLY.length+' still new for you!</p>'+
+    '<h3>Pick a topic</h3><div class="lv" id="qmCats">'+cats.map(c=>'<button data-c="'+c+'" class="'+(QM.cat===c?'on':'')+'">'+(QICON[c]||'🎲')+' '+c+'</button>').join('')+'</div>'+
+    '<div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="qmGo">▶ Start</button></div>'+report;
+  document.querySelectorAll('#qmCats button').forEach(b=>b.onclick=()=>{QM.cat=b.dataset.c;openQuizSetup()});
+  $('qmGo').onclick=startQuizMaster;
+}
+function startQuizMaster(){
+  const idx=OLY.map((q,i)=>i).filter(i=>QM.cat==='Mixed'||OLY[i].c===QM.cat);
+  const fresh=shuffle(idx.filter(i=>!prog.seen[i])),old=shuffle(idx.filter(i=>prog.seen[i]));
+  const chosen=fresh.concat(old).slice(0,10);
+  const qs=chosen.map(i=>{const q=OLY[i];const order=shuffle([0,1,2,3]);return{id:i,cat:q.c,text:q.q,opts:order.map(k=>q.o[k]),ans:order.indexOf(q.a),explain:q.e}});
+  runQuiz({kind:'quiz',title:(QICON[QM.cat]||'🎲')+' '+QM.cat,qs});
+}
+
+// ---------- MEMORY GRID ----------
+let MG={level:1,lives:3,cells:[],picked:[],showing:false,active:false,to:[]};
+function memStop(){MG.to.forEach(clearTimeout);MG.to=[];MG.active=false}
+function openMem(){stopAll();MG.level=1;MG.lives=3;MG.active=false;$('memGo').classList.remove('hidden');
+  $('memMsg').textContent='Some squares will glow. Remember them, then tap the same squares! Your best: level '+(prog.memBest||0)+'.';memDraw(4);memHud();show('memView')}
+function memSize(){return MG.level<=3?4:MG.level<=7?5:6}
+function memHud(){$('memLevel').textContent='Level '+MG.level;$('memLives').textContent='❤️'.repeat(MG.lives)+'🤍'.repeat(3-MG.lives)}
+function memDraw(n,cls){
+  const g=$('mgrid');g.style.gridTemplateColumns='repeat('+n+',1fr)';g.innerHTML='';
+  for(let i=0;i<n*n;i++){const b=document.createElement('button');b.className='mcell'+((cls&&cls[i])?' '+cls[i]:'');b.onclick=()=>memTap(i,b);g.appendChild(b)}
+}
+function memRound(){
+  memHud();const n=memSize(),k=Math.min(MG.level+2,n*n-2);
+  MG.cells=shuffle([...Array(n*n).keys()]).slice(0,k);MG.picked=[];MG.showing=true;MG.active=true;
+  const cls={};MG.cells.forEach(i=>cls[i]='lit');memDraw(n,cls);$('memMsg').textContent='Remember these '+k+' squares… 👀';
+  MG.to.push(setTimeout(()=>{memDraw(n);MG.showing=false;$('memMsg').textContent='Now tap the '+k+' squares!'},900+k*250));
+}
+function memTap(i,b){
+  if(!MG.active||MG.showing||MG.picked.includes(i))return;
+  if(MG.cells.includes(i)){MG.picked.push(i);b.classList.add('ok');SND.tick();
+    if(MG.picked.length===MG.cells.length){MG.active=false;SND.ok();addXP(MG.level*3);
+      if(MG.level>(prog.memBest||0)){prog.memBest=MG.level;save()}
+      $('memMsg').textContent=praise()+' On to level '+(MG.level+1)+'!';MG.level++;MG.to.push(setTimeout(memRound,900))}
+  } else {b.classList.add('no');SND.bad();MG.lives--;memHud();MG.active=false;
+    const cls={};MG.cells.forEach(c=>cls[c]='lit');cls[i]='no';MG.to.push(setTimeout(()=>memDraw(memSize(),cls),300));
+    if(MG.lives<=0){roundDone('mem');$('memMsg').textContent='Game over! You reached level '+MG.level+'.';$('memGo').classList.remove('hidden');$('memGo').textContent='🔄 Play again';
+      bump('mem');checkBadges();modal('🧠','Level '+MG.level+'!','Your best is level '+prog.memBest+'. Memory gets stronger with practice!')}
+    else{$('memMsg').textContent='Oops! Those were the squares. Try again…';MG.to.push(setTimeout(memRound,1500))}
+  }
+}
+$('memGo').onclick=()=>{MG.level=1;MG.lives=3;$('memGo').classList.add('hidden');memRound()};
+
+// ---------- FLAG MATCH ----------
+let MT={pairs:6,cards:[],open:[],moves:0,found:0,lock:false};
+function openMatch(){
+  stopAll();MT.pairs=WHO==='aaranya'?4:6;
+  const pool=shuffle(WHO==='aaranya'?COUNTRIES.filter(c=>FAMOUS.includes(c.n)):COUNTRIES).slice(0,MT.pairs);
+  MT.cards=shuffle(pool.flatMap(c=>[{c,flag:true},{c,flag:false}]));MT.open=[];MT.moves=0;MT.found=0;MT.lock=false;
+  $('cards').style.gridTemplateColumns='repeat(4,1fr)';drawMatch();show('matchView');
+}
+function drawMatch(){
+  $('mtMoves').textContent='Moves: '+MT.moves;$('mtPairs').textContent='Pairs: '+MT.found+'/'+MT.pairs;
+  $('cards').innerHTML='';
+  MT.cards.forEach((k,i)=>{const b=document.createElement('button');const up=k.done||MT.open.includes(i);
+    b.className='mcard'+(up?' up':'')+(up&&k.flag?' fl':'')+(k.done?' gone':'');b.textContent=up?(k.flag?k.c.f:k.c.n):'?';
+    b.onclick=()=>flip(i);$('cards').appendChild(b)});
+}
+function flip(i){
+  const k=MT.cards[i];if(MT.lock||k.done||MT.open.includes(i))return;
+  MT.open.push(i);SND.tick();drawMatch();
+  if(MT.open.length===2){MT.moves++;const[a,b]=MT.open.map(x=>MT.cards[x]);
+    if(a.c===b.c&&a.flag!==b.flag){a.done=b.done=true;MT.open=[];MT.found++;SND.ok();toast(a.c.f+' '+a.c.n);drawMatch();
+      if(MT.found===MT.pairs){const xp=MT.pairs*4+Math.max(0,MT.pairs*2-MT.moves+MT.pairs)*2;SND.win();confetti();
+        roundDone('match');modal('🃏','All matched!','You did it in '+MT.moves+' moves.');addXP(xp,'Flag Match');bump('match');earnBadge('match');checkBadges()}}
+    else{MT.lock=true;setTimeout(()=>{MT.open=[];MT.lock=false;drawMatch()},900)}
+  }
+}
+$('mtNew').onclick=openMatch;
+
+// ================= ROBO LAB =================
+$('goBot').onclick=()=>openBot(BOT_LEVELS.findIndex((_,i)=>!prog.bot[i])>=0?BOT_LEVELS.findIndex((_,i)=>!prog.bot[i]):0);
+$('goTeach').onclick=()=>openTeach();
+$('goCards').onclick=()=>openCards(0);
+
+// ---------- CODE-A-BOT ----------
+let BOT={lv:0,prog:[],rep:1,running:false};
+const ARROW={U:'⬆️',D:'⬇️',L:'⬅️',R:'➡️'};
+function botParse(L){const m=L.map.map(r=>r.split(''));let s,b,star=null;m.forEach((row,r)=>row.forEach((ch,c)=>{if(ch==='S')s=[r,c];if(ch==='B')b=[r,c];if(ch==='*')star=[r,c]}));return{m,s,b,star}}
+function openBot(i){
+  stopAll();BOT.lv=i;BOT.prog=[];BOT.rep=1;BOT.running=false;const L=BOT_LEVELS[i];
+  $('botTitle').textContent='🕹️ '+L.t+(prog.bot[i]?' ✅':'');$('botText').textContent=L.x;
+  $('botNext').classList.add('hidden');$('botRun').classList.remove('hidden');
+  $('botRepeat').innerHTML=L.loop?['1','2','3','4','5'].map(n=>'<button data-r="'+n+'" class="'+(BOT.rep==n?'on':'')+'">🔁 Repeat ×'+n+'</button>').join(''):'';
+  document.querySelectorAll('#botRepeat button').forEach(b=>b.onclick=()=>{BOT.rep=+b.dataset.r;document.querySelectorAll('#botRepeat button').forEach(x=>x.classList.toggle('on',x===b));botProgDraw()});
+  setMsg('botMsg','info','Build a program with the arrows, then press ▶ Run.');
+  botDrawGrid();botProgDraw();show('botView');
+}
+function botDrawGrid(pos,starTaken,crash){
+  const L=BOT_LEVELS[BOT.lv],P=botParse(L),n=P.m.length;pos=pos||P.s;
+  const g=$('botGrid');g.style.gridTemplateColumns='repeat('+n+',1fr)';g.innerHTML='';
+  P.m.forEach((row,r)=>row.forEach((ch,c)=>{const d=document.createElement('div');d.className='mcell';d.style.cssText='display:flex;align-items:center;justify-content:center;font-size:min(8vw,34px);cursor:default';
+    let t='';if(ch==='#')t='🪨';if(ch==='B')t='🔋';if(ch==='*'&&!starTaken)t='⭐';
+    if(pos[0]===r&&pos[1]===c){t=crash?'💥':'🤖';d.style.background='#ffe066'}
+    d.textContent=t;g.appendChild(d)}));
+}
+function botProgDraw(){
+  const L=BOT_LEVELS[BOT.lv];
+  $('botProg').textContent=BOT.prog.length?BOT.prog.map(c=>ARROW[c]).join(' ')+(L.loop&&BOT.rep>1?'  🔁×'+BOT.rep:''):'—';
+  $('botCount').textContent=BOT.prog.length+' / '+L.max+' blocks';
+}
+document.querySelectorAll('#botView [data-cmd]').forEach(b=>b.onclick=()=>{if(BOT.running)return;const L=BOT_LEVELS[BOT.lv];
+  if(BOT.prog.length>=L.max){SND.bad();setMsg('botMsg','bad','Only '+L.max+' blocks allowed here!'+(L.loop?' Use Repeat.':''));return}
+  BOT.prog.push(b.dataset.cmd);SND.tick();botProgDraw()});
+$('botDel').onclick=()=>{if(!BOT.running){BOT.prog.pop();botProgDraw()}};
+$('botClear').onclick=()=>{if(!BOT.running){BOT.prog=[];botProgDraw();botDrawGrid();setMsg('botMsg','info','Cleared. Build a new program!')}};
+$('botRun').onclick=()=>{
+  if(BOT.running||!BOT.prog.length)return;BOT.running=true;
+  const L=BOT_LEVELS[BOT.lv],P=botParse(L),n=P.m.length;let pos=P.s.slice(),star=!P.star,steps=[];
+  for(let k=0;k<(L.loop?BOT.rep:1);k++)steps=steps.concat(BOT.prog);
+  let i=0;
+  const step=()=>{
+    if(i>=steps.length){BOT.running=false;
+      if(pos[0]===P.b[0]&&pos[1]===P.b[1]&&star)return botWin();
+      SND.bad();setMsg('botMsg','bad',(pos[0]===P.b[0]&&pos[1]===P.b[1])?'Robo reached the battery but forgot the ⭐! Debug your program.':'Robo stopped before the battery. Add more commands, or fix them!');
+      MG.to.push(setTimeout(()=>botDrawGrid(),1300));return}
+    const d={U:[-1,0],D:[1,0],L:[0,-1],R:[0,1]}[steps[i]];const np=[pos[0]+d[0],pos[1]+d[1]];
+    if(np[0]<0||np[1]<0||np[0]>=n||np[1]>=n||P.m[np[0]][np[1]]==='#'){BOT.running=false;botDrawGrid(pos,!star?false:true,true);SND.bad();
+      setMsg('botMsg','bad','💥 Bump! Robo hit '+(P.m[np[0]]&&P.m[np[0]][np[1]]==='#'?'a rock':'the wall')+' on step '+(i+1)+'. Finding a bug is how engineers learn — fix it and try again!');
+      MG.to.push(setTimeout(()=>botDrawGrid(),1500));return}
+    pos=np;if(P.star&&pos[0]===P.star[0]&&pos[1]===P.star[1]&&!star){star=true;SND.star()}else SND.tick();
+    botDrawGrid(pos,star&&!!P.star);i++;MG.to.push(setTimeout(step,330));
+  };
+  setMsg('botMsg','info','Running your program… 🤖');step();
+};
+function botWin(){
+  const first=!prog.bot[BOT.lv];prog.bot[BOT.lv]=1;save();SND.win();confetti();
+  setMsg('botMsg','ok','🔋 Robo is charged! '+praise()+' Your program worked.');
+  addXP(first?25+BOT.lv*5:5,'Code-a-Bot');bump('robo');checkBadges();
+  if(BOT.lv<BOT_LEVELS.length-1){$('botNext').classList.remove('hidden');$('botRun').classList.add('hidden')}
+  else modal('🛰️','Mission complete!','You programmed a Mars rover. Real engineers at ISRO and NASA write programs like this!');
+}
+$('botNext').onclick=()=>openBot(BOT.lv+1);
+
+// ---------- TEACH THE ROBOT ----------
+let TR=null;
+function openTeach(){
+  stopAll();show('teachView');
+  $('teachTop').innerHTML='<h2>🧑‍🏫 Teach the Robot</h2><p>AI learns from <b>examples</b> that people give it. You will be the teacher! First you sort some animals. Then the robot tries to sort new animals all by itself.</p>';
+  $('teachBody').innerHTML='<h3>Choose a lesson</h3>'+
+    '<button class="big g5" id="trWater">🌊 Water or 🌳 Land?<small>Teach the robot which animals live in water</small></button>'+
+    '<button class="big g4" id="trOwn">🎨 Your secret rule<small>Sort animals by ANY rule you like — can the robot work it out?</small></button>'+
+    '<div class="row"><button class="btn alt" data-back="robo">⬅ Back</button></div>';
+  $('trWater').onclick=()=>startTeach('water');$('trOwn').onclick=()=>startTeach('own');
+}
+function startTeach(mode){
+  const pool=mode==='water'?CREATURES.filter(c=>c.w>=0):CREATURES.slice();
+  let train,test;
+  if(mode==='water'){const wet=shuffle(pool.filter(c=>c.w===1)),dry=shuffle(pool.filter(c=>c.w===0));train=shuffle(wet.slice(0,3).concat(dry.slice(0,3)));test=shuffle(wet.slice(3,6).concat(dry.slice(3,6)))}
+  else{const p=shuffle(pool);train=p.slice(0,8);test=p.slice(8,14)}
+  TR={mode,train,test,labels:{},i:0,examples:[],round:1,marks:{}};
+  TR.A=mode==='water'?'🌊 Water':'⭐ Group A';TR.B=mode==='water'?'🌳 Land':'🌙 Group B';
+  teachLabelStep();
+}
+function teachLabelStep(){
+  if(TR.i>=TR.train.length)return teachPredict();
+  const c=TR.train[TR.i];
+  $('teachTop').innerHTML='<h2>Step 1: You are the teacher</h2><p>'+(TR.mode==='water'?'Tell the robot where each animal lives.':'Think of a secret rule (like "can fly" or "I find it cute") and sort each animal. Don\'t tell the robot your rule!')+'</p><div class="qbar"><span>Example '+(TR.i+1)+' of '+TR.train.length+'</span><span>🤖 learning…</span></div>';
+  $('teachBody').innerHTML='<div class="qbig">'+c.e+'</div><div class="qtext">'+c.n+'</div><div class="opts"><button class="opt" id="tA">'+TR.A+'</button><button class="opt" id="tB">'+TR.B+'</button></div>';
+  $('tA').onclick=()=>teachLabel(1);$('tB').onclick=()=>teachLabel(0);
+}
+function teachLabel(v){TR.examples.push({c:TR.train[TR.i],y:v});TR.i++;SND.tick();teachLabelStep()}
+function robotGuess(c){
+  // nearest-neighbour: find the most similar examples it was taught
+  const d=TR.examples.map(ex=>{let s=0;for(let k=0;k<c.f.length;k++){const w=k===4?0.15:1;s+=w*Math.abs(c.f[k]-ex.c.f[k])}return{y:ex.y,d:s}}).sort((a,b)=>a.d-b.d);
+  const top=d.slice(0,3);let va=0,vb=0;top.forEach(t=>{const w=1/(0.3+t.d);t.y?va+=w:vb+=w});
+  return{y:va>=vb?1:0,conf:Math.round(Math.max(va,vb)/(va+vb)*100)};
+}
+function teachPredict(){
+  TR.marks={};
+  $('teachTop').innerHTML='<h2>Step 2: Robot\'s turn 🤖</h2><p>The robot has never seen these animals. It looks for <b>patterns</b> in your examples (fur, fins, feathers, legs, wings, size) to guess. Tap ✅ if it is right or ❌ if it is wrong.</p>';
+  let h='';TR.test.forEach((c,i)=>{const g=robotGuess(c);c._g=g;
+    h+='<div class="mission"><span class="ic" style="font-size:2rem">'+c.e+'</span><div class="tx">'+c.n+'<br><small>🤖 I think: <b>'+(g.y?TR.A:TR.B)+'</b> ('+g.conf+'% sure)</small></div><button class="btn alt" data-ok="'+i+'">✅</button> <button class="btn alt" data-no="'+i+'">❌</button></div>'});
+  $('teachBody').innerHTML=h+'<div class="row"><button class="btn" id="trDone">📊 See results</button></div>';
+  $('teachBody').querySelectorAll('[data-ok],[data-no]').forEach(b=>b.onclick=()=>{const i=+(b.dataset.ok??b.dataset.no);TR.marks[i]=b.dataset.ok!==undefined;
+    const row=b.parentNode;row.querySelectorAll('button').forEach(x=>x.style.opacity=.35);b.style.opacity=1;SND.tick()});
+  $('trDone').onclick=teachResults;
+}
+function teachResults(){
+  const n=TR.test.length,marked=Object.keys(TR.marks).length;
+  if(marked<n){toast('Mark all '+n+' guesses first ✅ / ❌');return}
+  const right=Object.values(TR.marks).filter(Boolean).length;
+  const wrongs=TR.test.filter((c,i)=>!TR.marks[i]);
+  $('teachTop').innerHTML='<h2>Round '+TR.round+' results</h2><div class="qbig">'+(right===n?'🏆':right>=n/2?'🤖':'🤔')+'</div><div class="qtext">The robot got '+right+' out of '+n+' right!</div>';
+  let tip=right===n?'Your examples were so clear that the robot found the pattern. That is exactly how AI learns!':
+    'The robot made mistakes because it had not seen enough of the right examples. '+(wrongs.length?'It got '+wrongs.map(c=>c.e).join(' ')+' wrong.':'')+' Real AI needs lots of good examples — and people to check and correct it.';
+  $('teachBody').innerHTML='<p class="tip">💡 '+tip+'</p><p class="tip">🧠 Big idea: <b>AI only knows what it learns from the examples people give it.</b> If the examples are wrong or too few, the AI will be wrong too. That is why people stay in charge!</p>'+
+    (wrongs.length?'<div class="row"><button class="btn" id="trFix">🧑‍🏫 Correct the robot and try again</button></div>':'')+
+    '<div class="row"><button class="btn alt" id="trNew">🔄 New lesson</button><button class="btn alt" data-back="robo">⬅ Robo Lab</button></div>';
+  if(!TR.scored){TR.scored=1;addXP(15+right*2,'AI trainer');bump('robo');earnBadge('teach');checkBadges()}
+  if(wrongs.length)$('trFix').onclick=()=>{
+    wrongs.forEach(c=>TR.examples.push({c,y:c._g.y?0:1}));
+    const used=new Set(TR.examples.map(e=>e.c).concat(TR.test));
+    const pool=(TR.mode==='water'?CREATURES.filter(c=>c.w>=0):CREATURES).filter(c=>!used.has(c));
+    if(pool.length<3){toast('The robot has learned every animal! 🎓');return}
+    TR.test=shuffle(pool).slice(0,Math.min(6,pool.length));TR.round++;TR.scored=0;teachPredict();
+    toast('🤖 Thanks, teacher! I learned from my mistakes.');
+  };
+  $('trNew').onclick=openTeach;
+}
+
+// ---------- AI STORY CARDS + MYTH OR FACT ----------
+let CD={i:0};
+const DECK=AI_CARDS.map((c,i)=>({k:'story',i,...c})).concat(MYTHS.map((m,i)=>({k:'myth',i,...m})));
+function openCards(i){stopAll();CD.i=i;drawCard();show('cardsView')}
+function drawCard(){
+  const c=DECK[CD.i];$('cardNum').textContent=(CD.i+1)+' / '+DECK.length;
+  $('cardFlip').innerHTML='';
+  if(c.k==='story'){
+    $('cardKind').textContent='📖 AI story';$('cardEm').textContent=c.e;$('cardTitle').textContent=c.t;$('cardText').textContent=c.x;
+    if(!prog.cardsSeen[c.i]){prog.cardsSeen[c.i]=1;save();addXP(3);if(AI_CARDS.every((_,j)=>prog.cardsSeen[j])){bump('robo');checkBadges()}}
+  } else {
+    $('cardKind').textContent='🤔 Myth or Fact?';$('cardEm').textContent='❓';$('cardTitle').textContent='"'+c.s+'"';$('cardText').textContent='What do you think?';
+    $('cardFlip').innerHTML='<div class="opts"><button class="opt" id="mfM">🙅 Myth</button><button class="opt" id="mfF">👍 Fact</button></div>';
+    const reveal=g=>{const ok=g===c.f;$('cardEm').textContent=c.f?'✅':'🙅';$('cardText').textContent=c.x;
+      (ok?SND.ok:SND.bad)();$('cardFlip').innerHTML='<p class="tip">'+(ok?'You got it! ':'Good guess — now you know! ')+'</p>';if(ok)addXP(3)};
+    $('mfM').onclick=()=>reveal(false);$('mfF').onclick=()=>reveal(true);
+  }
+  $('cardPrev').disabled=CD.i===0;$('cardNext').textContent=CD.i===DECK.length-1?'🏁 Done':'➡';
+}
+$('cardPrev').onclick=()=>{if(CD.i>0){CD.i--;drawCard()}};
+$('cardNext').onclick=()=>{if(CD.i<DECK.length-1){CD.i++;drawCard()}else{confetti();modal('🤖','You are an AI Explorer!','AI is a tool made by people, for people. Keep asking questions — that is your superpower!');tab('robo')}};
+
+
+// ================= ACTIVITY TRACKING & PARENT BOARD =================
+setInterval(()=>{if(WHO&&document.visibilityState==='visible'){const t=today();prog.mins[t]=(prog.mins[t]||0)+1;save()}},60000);
+function lastDays(n){const out=[];const d=new Date();for(let i=n-1;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);out.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'))}return out}
+function snapshot(id,p){
+  const days=lastDays(14),pickMap=m=>{const o={};days.forEach(d=>{if(m&&m[d])o[d]=m[d]});return o};
+  const qs={};for(const c in (p.qstats||{}))qs[c]=[p.qstats[c].r,p.qstats[c].t];
+  return{v:1,id,at:Date.now(),xp:p.xp,streak:p.streak||0,lastDay:p.lastDay,badges:Object.keys(p.badges||{}).length,
+    lessons:Object.keys(p.lessons||{}).length,puzzles:Object.keys(p.puzzles||{}).length,score:p.score,hunts:p.hunts||0,
+    sb:p.sprintBest||{},mem:p.memBest||0,qs,ct:p.correctTotal||0,bot:Object.keys(p.bot||{}).length,cards:Object.keys(p.cardsSeen||{}).length,
+    dxp:pickMap(p.dxp),mins:pickMap(p.mins),rounds:p.rounds||{},today:p.day&&p.day.date===today()?Object.keys(p.day.claimed||{}).length:0};
+}
+const enc=o=>'QC1:'+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+function dec(txt){const m=(txt||'').match(/QC1:([A-Za-z0-9+/=]+)/);if(!m)return null;try{const o=JSON.parse(decodeURIComponent(escape(atob(m[1]))));return o&&o.v===1&&PROFILES[o.id]?o:null}catch(e){return null}}
+function qSummary(qs){const arr=Object.entries(qs||{}).filter(([c,v])=>v[1]>=3).map(([c,v])=>({c,pct:Math.round(v[0]/v[1]*100),t:v[1]})).sort((a,b)=>b.pct-a.pct);return arr}
+function sum(m){return Object.values(m||{}).reduce((a,b)=>a+b,0)}
+function fmtDate(ts){return new Date(ts).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}
+function reportText(){
+  const s=snapshot(WHO,prog),r=RANKS[rankOf(s.xp)],wk=lastDays(7);
+  const wxp=wk.reduce((a,d)=>a+(s.dxp[d]||0),0),wmin=wk.reduce((a,d)=>a+(s.mins[d]||0),0),q=qSummary(s.qs);
+  let t=ME().em+' '+ME().name+'\'s Quest report — '+new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'})+'\n';
+  t+='⭐ '+s.xp+' XP · '+r.e+' '+r.n+' · 🔥 '+s.streak+'-day streak · 🏅 '+s.badges+' badges\n';
+  t+='📅 Last 7 days: '+wmin+' min played, '+wxp+' XP earned\n';
+  t+='♞ Chess: '+s.lessons+'/10 lessons, '+s.puzzles+'/20 puzzles, games W'+s.score.w+' D'+s.score.d+' L'+s.score.l+'\n';
+  if(q.length)t+='🧠 Quiz: '+s.ct+' correct · strongest '+q[0].c+' ('+q[0].pct+'%)'+(q.length>1?' · practise '+q[q.length-1].c+' ('+q[q.length-1].pct+'%)':'')+'\n';
+  if(s.sb[3]||s.sb[2]||s.sb[1])t+='⚡ Math Sprint best: '+[1,2,3].filter(l=>s.sb[l]).map(l=>['','Starter','Explorer','Olympiad'][l]+' '+s.sb[l]).join(', ')+'\n';
+  t+='🤖 Robo Lab: '+s.bot+'/8 coding levels, '+s.cards+'/12 AI cards\n\n';
+  t+='Paste this whole message into the Parent board:\n'+enc(s);
+  return t;
+}
+$('sendReport').onclick=()=>{
+  const t=reportText();const box=$('reportBox');box.value=t;box.classList.remove('hidden');
+  const done=()=>{toast('📋 Copied! Paste it in WhatsApp for Papa');SND.ok()};
+  try{navigator.clipboard.writeText(t).then(done,()=>{box.select();toast('Select all and copy the text below')})}catch(e){box.select();toast('Select all and copy the text below')}
+};
+// ---- parent area ----
+function getPin(){try{return localStorage.getItem('quest_pin')}catch(e){return null}}
+function getReports(){try{return JSON.parse(localStorage.getItem('quest_reports')||'{}')}catch(e){return{}}}
+function openParent(){
+  const pin=getPin();show('parentView');$('pBoard').classList.add('hidden');$('pinCard').classList.remove('hidden');
+  $('pinCard').innerHTML='<h2>🔒 Parent board</h2><p>'+(pin?'Enter your 4-digit PIN.':'Create a 4-digit PIN so only parents can open this.')+'</p>'+
+    '<input id="pinIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" style="font-size:2rem;letter-spacing:12px;text-align:center;width:180px;display:block;margin:10px auto;border-radius:12px;border:2px solid #e3dcff;padding:8px">'+
+    '<div class="row"><button class="btn alt" id="pinBack">⬅ Back</button><button class="btn" id="pinGo">'+(pin?'Open':'Set PIN')+'</button></div>';
+  $('pinBack').onclick=showPicker;
+  $('pinGo').onclick=()=>{const v=$('pinIn').value;
+    if(!/^\d{4}$/.test(v)){toast('Use 4 digits');return}
+    if(!pin){try{localStorage.setItem('quest_pin',v)}catch(e){}toast('PIN saved 🔒');renderParent();return}
+    if(v===pin)renderParent();else{SND.bad();toast('Wrong PIN');$('pinIn').value=''}};
+}
+$('goParent').onclick=openParent;
+$('pBack').onclick=showPicker;
+$('pImport').onclick=()=>{
+  const o=dec($('pPaste').value);if(!o){SND.bad();toast('Could not read that report. Paste the whole message.');return}
+  const r=getReports();if(r[o.id]&&r[o.id].at>o.at){toast('You already have a newer report for '+PROFILES[o.id].name);return}
+  r[o.id]=o;try{localStorage.setItem('quest_reports',JSON.stringify(r))}catch(e){}
+  $('pPaste').value='';SND.ok();toast('✅ Added '+PROFILES[o.id].name+'\'s report');renderParent();
+};
+function lastActive(s){const ds=Object.keys(s.mins||{}).concat(Object.keys(s.dxp||{}));ds.sort();return ds.length?ds[ds.length-1]:s.lastDay}
+setInterval(()=>{if(SYNC_URL&&!$('parentView').classList.contains('hidden')&&!$('pBoard').classList.contains('hidden'))renderParent()},30000);
+function renderParent(){
+  $('pinCard').classList.add('hidden');$('pBoard').classList.remove('hidden');
+  if(SYNC_URL&&Date.now()-CLOUD_AT>15000)pullAll().then(k=>{if(k&&!$('pBoard').classList.contains('hidden')&&!$('parentView').classList.contains('hidden'))renderParent()});
+  $('pIntro').innerHTML=SYNC_URL?('☁️ <b>Live</b> — the girls\' progress uploads automatically while they play and this board refreshes every 30 seconds.'+(syncOK===false?' <b>(Can\'t reach the sync service right now — showing the latest saved data.)</b>':'')+' If a device is offline, a WhatsApp report (Prizes → 📤) still works.'):'Progress from <b>this device</b> shows automatically. For the girls\' own iPad or phone, ask them to tap <b>Prizes → 📤 Send my progress to Papa</b> and paste the message below. The newest data is used.';
+  const reps=getReports();let h='';
+  for(const id of Object.keys(PROFILES)){
+    const P=PROFILES[id],lp=localStorage.getItem(P.key)?loadProg(id):null,imp=reps[id]||null,c=CLOUD&&CLOUD[id];
+    const cands=[];
+    if(lp&&lp.xp>0)cands.push({s:snapshot(id,lp),t:lp.updated||0,src:'this device'});
+    if(imp)cands.push({s:imp,t:imp.at||0,src:'report sent '+fmtDate(imp.at)});
+    if(c&&c.data&&c.data.xp>0)cands.push({s:snapshot(id,Object.assign(newProg(),c.data)),t:c.updated||0,src:'☁️ live sync · updated '+ago(c.updated)});
+    cands.sort((a,b)=>b.t-a.t);
+    let s=cands.length?cands[0].s:null,src=cands.length?cands[0].src:'';
+    h+='<div class="card"><h2>'+P.em+' '+P.name+'</h2>';
+    if(!s||!s.xp){h+='<p class="tip">No progress yet. Ask '+P.name+' to send her report.</p></div>';continue}
+    const r=RANKS[rankOf(s.xp)],days=lastDays(7),wmin=days.reduce((a,d)=>a+(s.mins[d]||0),0),wxp=days.reduce((a,d)=>a+(s.dxp[d]||0),0);
+    const maxv=Math.max(10,...days.map(d=>s.mins[d]||0));
+    h+='<p style="opacity:.7;font-size:.85rem">Source: '+src+' · last active '+(lastActive(s)||'—')+'</p>';
+    h+='<div class="score" style="margin:8px 0"><div>XP<span>'+s.xp+'</span></div><div>Rank<span>'+r.e+'</span></div><div>Streak<span>🔥'+s.streak+'</span></div><div>Badges<span>'+s.badges+'</span></div></div>';
+    h+='<h3>📅 Last 7 days · '+wmin+' min · '+wxp+' XP</h3><div style="display:flex;gap:6px;align-items:flex-end;height:90px;padding:4px 0">'+
+      days.map(d=>{const m=s.mins[d]||0;return '<div style="flex:1;text-align:center;font-size:.7rem"><div style="height:'+Math.round(m/maxv*64)+'px;background:'+(m?'var(--accent)':'#eee')+';border-radius:6px 6px 0 0;min-height:3px"></div>'+(m?m+'m':'')+'<br>'+['Su','Mo','Tu','We','Th','Fr','Sa'][new Date(d+'T00:00:00').getDay()]+'</div>'}).join('')+'</div>';
+    h+='<h3>♞ Chess</h3><p>'+s.lessons+'/10 lessons · '+s.puzzles+'/20 puzzles · vs Robo: '+s.score.w+' won, '+s.score.d+' drawn, '+s.score.l+' lost · '+s.hunts+' Star Hunts</p>';
+    const q=qSummary(s.qs);
+    h+='<h3>🏅 Quiz Master · '+s.ct+' correct answers</h3>';
+    if(q.length){h+=q.map(x=>'<div class="mission"><span class="ic">'+QICON[x.c]+'</span><div class="tx">'+x.c+'<span style="float:right">'+x.pct+'% · '+x.t+' Qs</span><div class="mb"><i style="width:'+x.pct+'%;background:'+(x.pct>=80?'#2fbf71':x.pct>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>').join('');
+      if(q.length>1)h+='<p class="tip">💪 Strongest: <b>'+q[0].c+'</b> · 🎯 Needs practice: <b>'+q[q.length-1].c+'</b></p>'}
+    else h+='<p style="opacity:.7">Not enough quiz answers yet (3+ per topic).</p>';
+    h+='<h3>🧠 Brain games</h3><p>Math Sprint best — Starter '+(s.sb[1]||0)+', Explorer '+(s.sb[2]||0)+', Olympiad '+(s.sb[3]||0)+' · Memory Grid best level '+s.mem+'<br>Rounds played: '+(s.rounds.sprint||0)+' sprints, '+(s.rounds.quiz||0)+' quizzes, '+(s.rounds.world||0)+' World Explorer, '+(s.rounds.match||0)+' Flag Match</p>';
+    h+='<h3>🤖 Robo Lab</h3><p>'+s.bot+'/8 coding levels · '+s.cards+'/12 AI story cards read</p>';
+    h+='<p class="tip">🎯 Today\'s missions done: '+s.today+'/3</p></div>';
+  }
+  h+='<div class="card"><button class="btn alt" id="pinReset">🔑 Change PIN</button></div>';
+  $('pKids').innerHTML=h;
+  $('pinReset').onclick=()=>{try{localStorage.removeItem('quest_pin')}catch(e){}openParent()};
+}
+
+// ================= START =================
+if(WHO){choose(WHO)}
+else showPicker();
+</script>
+</body>
+</html>
