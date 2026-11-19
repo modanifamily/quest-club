@@ -5,7 +5,7 @@ const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 const start = html.indexOf('const COUNTRY_RAW'), end = html.indexOf('const BOT_LEVELS');
 if (start < 0 || end < 0) { console.error('Could not find question data'); process.exit(1); }
 eval(html.slice(start, end).replace(/^const /gm, 'var '));
-const CATS = ['India','History','World','Nature','Animals','Space','Physics','Chemistry','Biology','Maths','Reasoning'];
+const CATS = ['India','History','World','Nature','Animals','Space','Physics','Chemistry','Biology','Maths','Reasoning','Spirituality'];
 let errors = 0; const seen = new Set(); const byCat = {}; const hard = {};
 OLY.forEach((q, i) => {
   const where = '#' + i + ' "' + (q.q || '').slice(0, 60) + '"';

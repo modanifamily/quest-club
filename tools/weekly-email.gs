@@ -40,6 +40,7 @@ const TIPS = {
   'Memory': 'one Memory Grid game a day',
   'Chess': 'chess puzzles, aiming to solve them on the first try',
   'Coding & AI': 'the next Code-a-Bot level in Robo Lab',
+  'Spirituality': 'reading the mantra and Gita verse of the day together, then a Spirituality quiz round',
 };
 
 function rankOf_(xp) { let r = RANKS[0][0]; RANKS.forEach(x => { if (xp >= x[1]) r = x[0]; }); return r; }
@@ -67,6 +68,7 @@ function streams_(p) {
   const sc = p.score || { w: 0, d: 0, l: 0 }, games = sc.w + sc.d + sc.l, L = cnt_(p.lessons), P = cnt_(p.puzzles), pz = p.pz || { s: 0, f: 0 };
   out.push(['Chess', (L || P || games) ? avg_([L * 10, pz.s >= 3 ? Math.round(pz.f / pz.s * 100) : (P ? P * 5 : null), games >= 3 ? Math.round((sc.w + 0.5 * sc.d) / games * 100) : null]) : null]);
   const bot = cnt_(p.bot), cards = cnt_(p.cardsSeen), teach = !!(p.badges || {}).teach;
+  out.push(['Spirituality', acc_(p.qstats, ['Spirituality'])]);
   out.push(['Coding & AI', (bot || cards || teach) ? Math.round(bot / 8 * 60 + (teach ? 20 : 0) + cards / 12 * 20) : null]);
   return out;
 }
@@ -104,7 +106,7 @@ function kidSection_(kid, rec) {
   h += '</table>';
 
   // Time and score by subject: this week vs last week
-  const SUBJ = ['Maths & Logic', 'Science', 'General Knowledge', 'Geography', 'Memory', 'Chess', 'Coding & AI'];
+  const SUBJ = ['Maths & Logic', 'Science', 'General Knowledge', 'Geography', 'Memory', 'Chess', 'Coding & AI', 'Spirituality'];
   const agg = (days, k) => { let m = 0, r = 0, t = 0; days.forEach(d => { m += ((p.dm || {})[d] || {})[k] || 0; const v = ((p.ds || {})[d] || {})[k]; if (v) { r += v[0]; t += v[1]; } }); return { m: m, s: t >= 3 ? Math.round(r / t * 100) : null }; };
   const subjRows = SUBJ.map(k => { const a = agg(wk, k), b = agg(pw, k); if (!a.m && !b.m && a.s === null && b.s === null) return ''; 
     const ar = (x, y) => (x === null || y === null) ? '' : x > y ? ' <span style="color:#1d9a5b">▲</span>' : x < y ? ' <span style="color:#d64545">▼</span>' : '';
@@ -130,10 +132,12 @@ function kidSection_(kid, rec) {
   if (hst.t >= 5) { const r = hst.r / hst.t; tips.push('🔥 <b>Challenge questions:</b> ' + Math.round(r * 100) + '% over ' + hst.t + (r >= 0.75 ? ' — ready for harder material.' : r < 0.5 ? ' — a mix of Standard rounds would build confidence.' : ' — a good stretch level.')); }
   const spW = (p.sh || []).filter(x => wk.includes(x.d));
   if (spW.length) { const best = spW.reduce((a, x) => x.s > a.s ? x : a, spW[0]); tips.push('⚡ <b>Math Sprint:</b> ' + spW.length + ' sprint' + (spW.length > 1 ? 's' : '') + ' this week, best ' + best.s + ' on ' + SPRINT_NAME[best.l] + ' (all-time best ' + ((p.sprintBest || {})[best.l] || best.s) + ').'); }
+  const wis = p.wis || {}, wisW = wk.filter(d => (wis.m || {})[d] || (wis.g || {})[d]).length;
+  tips.push('🪔 <b>Wisdom Corner:</b> ' + (wisW ? 'mantra / Gita verse read on ' + wisW + ' of 7 days (' + cnt_(wis.seenG) + ' Gita verses so far).' : 'not visited this week.'));
   if (badgesW) tips.push('🏅 Earned <b>' + badgesW + ' new badge' + (badgesW > 1 ? 's' : '') + '</b> this week.');
   tips.push('🗓️ <b>Consistency:</b> ' + (daysW >= 5 ? 'excellent — played on ' + daysW + ' days.' : daysW >= 3 ? 'good — played on ' + daysW + ' days.' : daysW ? 'played on only ' + daysW + ' day' + (daysW > 1 ? 's' : '') + '; a short daily slot would help.' : 'no play this week.'));
   const ar = p.area || {}, at = Object.values(ar).reduce((a, b) => a + b, 0);
-  if (at >= 15) tips.push('⚖️ <b>Time split (all time):</b> ' + ['Chess', 'Brain games', 'Robo Lab'].map(k => k + ' ' + Math.round((ar[k] || 0) / at * 100) + '%').join(', ') + '.');
+  if (at >= 15) tips.push('⚖️ <b>Time split (all time):</b> ' + ['Chess', 'Brain games', 'Robo Lab', 'Wisdom'].map(k => k + ' ' + Math.round((ar[k] || 0) / at * 100) + '%').join(', ') + '.');
   const untried = st.filter(x => x[1] === null || x[1] === undefined).map(x => x[0]);
   if (untried.length) tips.push('🆕 <b>Not tried yet:</b> ' + untried.join(', ') + '.');
   h += '<h3 style="margin:14px 0 6px;color:#2d2a4a">🔎 Key insights</h3><ul style="margin:0;padding-left:20px;line-height:1.55">' + tips.map(t => '<li>' + t + '</li>').join('') + '</ul>';
