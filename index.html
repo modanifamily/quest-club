@@ -272,6 +272,8 @@
   <!-- ROBO LAB -->
   <section id="roboView" class="hidden">
     <div class="card"><h2>🤖 Robo Lab</h2><p>Robots and AI are tools that people build and control. Here <b>you</b> are the boss of the robot!</p>
+      <button class="big g4" id="goMaze">🧭 Today's robot maze<small>A brand-new Code-a-Bot puzzle every day</small></button>
+      <button class="big g5" id="goFact">💡 Robo fact of the day<small>One amazing thing about robots, AI and coding</small></button>
       <button class="big g2" id="goBot">🕹️ Code-a-Bot<small>Give Robo step-by-step commands to reach the battery</small></button>
       <button class="big g3" id="goTeach">🧑‍🏫 Teach the Robot<small>Train a mini AI with examples and watch it learn</small></button>
       <button class="big g1" id="goCards">📖 AI Story Cards<small>How AI and robots help people — plus Myth or Fact?</small></button>
@@ -308,6 +310,9 @@
       <div class="row"><button class="btn alt" id="cardPrev">⬅</button><button class="btn alt" data-back="robo">🏠 Lab</button><button class="btn" id="cardNext">➡</button></div>
     </div>
   </section>
+
+  <!-- ROBO FACT -->
+  <section id="factView" class="hidden"><div id="factBody"></div></section>
 
   <!-- WISDOM CORNER -->
   <section id="wisdomView" class="hidden"><div id="wisBody"></div></section>
@@ -1159,6 +1164,39 @@ OLY.push(
  {d:2,c:'Spirituality',q:'Which Upanishad tells the story of young Nachiketa and Yama, the god of death?',o:['Katha Upanishad','Isha Upanishad','Mandukya Upanishad','Prashna Upanishad'],a:0,e:'The Katha Upanishad, where Nachiketa asks Yama what happens after death.'},
  {d:2,c:'Spirituality',q:'The Sikh holy book is called…',o:['Guru Granth Sahib','Tripitaka','Agamas','Avesta'],a:0,e:'The Guru Granth Sahib, honoured as the eternal Guru of the Sikhs.'}
 );
+// ---------- ROBO FACT OF THE DAY ----------
+const ROBO_FACTS=[
+ {e:'📜',t:'Where does the word "robot" come from?',x:'It comes from the Czech word "robota", which means hard work. It was first used in a play called R.U.R. by Karel Čapek in 1920.',y:'Can you think of a hard job a robot could help with at home?'},
+ {e:'🌙',t:'India\'s robot on the Moon',x:'In 2023, Chandrayaan-3\'s little rover Pragyan rolled across the Moon near its south pole. Its wheels left prints of ISRO\'s logo and India\'s national emblem in the Moon dust!',y:'If you could send a robot anywhere, where would it go?'},
+ {e:'🧹',t:'How robot vacuums don\'t fall downstairs',x:'Robot vacuum cleaners have "cliff sensors" underneath that bounce light off the floor. If the floor suddenly disappears, the robot stops and turns around.',y:'What other senses would a cleaning robot need?'},
+ {e:'🐱',t:'How AI learns to spot a cat',x:'An AI is shown thousands of pictures labelled "cat" and "not cat". Slowly it finds patterns — ears, whiskers, eyes — just like you did in Teach the Robot.',y:'What pattern would you use to tell a dog from a cat?'},
+ {e:'🚗',t:'How self-driving cars "see"',x:'They use cameras, radar and sometimes lasers (called lidar) to sense the road, other cars and people — and a computer decides how to steer and brake.',y:'Why do you think a self-driving car needs more than one kind of sensor?'},
+ {e:'🦾',t:'Robots in factories',x:'Robot arms in car factories can weld and paint the same way thousands of times without getting tired — very precisely.',y:'Which jobs are better for robots, and which need people?'},
+ {e:'🩺',t:'Robots that help doctors',x:'Some surgeons use robot arms for tiny, steady movements during operations. The surgeon is always in control — the robot just helps their hands be extra precise.',y:'Why is it important that the doctor stays in charge?'},
+ {e:'🚁',t:'Flying robots carry medicine',x:'Drones are flying robots. In some places they carry medicines and blood to faraway villages much faster than a road trip.',y:'Where in India could a medicine drone be really useful?'},
+ {e:'👩‍🚀',t:'Vyommitra, ISRO\'s robot astronaut',x:'ISRO built a half-humanoid robot called Vyommitra to test the Gaganyaan spacecraft before Indian astronauts fly in it. "Vyom" means space and "mitra" means friend.',y:'What would you name your own robot friend?'},
+ {e:'🤔',t:'"Can machines think?"',x:'In 1950, the mathematician Alan Turing asked this famous question. People are still discussing it today — and today\'s AI still does not think or feel like a person.',y:'What is something only people can do?'},
+ {e:'👩‍💻',t:'The first computer programmer',x:'Ada Lovelace wrote what is often called the first computer program in the 1840s — over 100 years before modern computers existed!',y:'What would you like to program a computer to do?'},
+ {e:'0️⃣',t:'Computers speak in 0s and 1s',x:'Deep inside, a computer understands only two signals: on (1) and off (0). This is called binary. Every photo, song and game is made of 0s and 1s.',y:'In binary, 1 is "1", 2 is "10" and 3 is "11". Can you guess 4?'},
+ {e:'🧾',t:'What is an algorithm?',x:'An algorithm is a step-by-step recipe for solving a problem. Your Code-a-Bot program is an algorithm — so is the recipe for making chai!',y:'Write the steps (the algorithm) for brushing your teeth.'},
+ {e:'🐛',t:'Why mistakes in code are called "bugs"',x:'In 1947, Grace Hopper\'s team found a real moth stuck inside a computer, causing a problem. They taped it into their notebook as the "first actual bug"!',y:'When your robot crashed in Code-a-Bot, how did you find the bug?'},
+ {e:'👀',t:'Sensors are a robot\'s senses',x:'Cameras work like eyes, microphones like ears and touch sensors like skin. Robots use sensors to know what is happening around them.',y:'Which of your senses is most like a camera?'},
+ {e:'💪',t:'Motors are a robot\'s muscles',x:'Motors and other "actuators" make robots move — turning wheels, lifting arms or gripping objects.',y:'Which robot part would you need to pick up a ball?'},
+ {e:'🌊',t:'Robots that explore the deep sea',x:'Underwater robots dive to places that are too deep, dark or cold for people, and send back photos of strange sea creatures.',y:'What would you hope a deep-sea robot discovers?'},
+ {e:'♟️',t:'The computer that beat a chess champion',x:'In 1997, a computer called Deep Blue beat world chess champion Garry Kasparov. It could check millions of moves every second — but it didn\'t enjoy the game like you do!',y:'What do you enjoy about chess that a computer can\'t?'},
+ {e:'🗣️',t:'How voice assistants understand you',x:'When you talk to a phone, AI turns the sound of your voice into words (speech recognition) and then tries to work out what you mean.',y:'Why might a voice assistant get confused sometimes?'},
+ {e:'🌐',t:'AI that translates languages',x:'Translation apps use AI to change words from one language to another. India\'s Bhashini project uses AI to help people use the internet in Indian languages.',y:'Which two languages would you love to translate between?'},
+ {e:'🌀',t:'Computers help predict storms',x:'Weather scientists use powerful computers to predict cyclones and heavy rain days in advance, so people can stay safe.',y:'How does a weather forecast help your family plan the day?'},
+ {e:'🔁',t:'Loops make programs shorter',x:'A loop tells a computer to repeat steps. Instead of writing "step" 100 times, you write "repeat 100 times: step". You used a loop in Code-a-Bot level 7!',y:'What do you do every day that is like a loop?'},
+ {e:'🛡️',t:'Robots that keep people safe',x:'Special robots can check dangerous objects or go into smoky buildings, so that police officers and firefighters stay safe.',y:'Why is it good to send a robot instead of a person sometimes?'},
+ {e:'🧸',t:'AI has no feelings',x:'AI can talk in a friendly way, but it does not feel happy, sad or angry. It follows patterns it learned from examples. People decide how it is used.',y:'How is your friend different from a chatbot?'},
+ {e:'✅',t:'People test robots carefully',x:'Before robots and AI are used, engineers test them again and again to find mistakes and make them safe. Testing is a big part of an engineer\'s job.',y:'How would you test a robot that makes sandwiches?'},
+ {e:'🧩',t:'Kids can code with blocks',x:'Scratch, made at MIT, lets kids build games by snapping coding blocks together — just like arrows in Code-a-Bot. Millions of children use it.',y:'What game would you build with coding blocks?'},
+ {e:'🚶',t:'Why walking is hard for robots',x:'Walking on two legs needs constant balance. Humanoid robots use gyroscope sensors — a bit like the balance organ inside your ear — to avoid falling.',y:'Try standing on one leg — what does your body do to balance?'},
+ {e:'🛰️',t:'A robot arm in space',x:'The International Space Station has a giant robotic arm called Canadarm2. It helps catch visiting spacecraft and move equipment outside the station.',y:'What would be tricky about using a robot arm in space?'},
+ {e:'📚',t:'Always double-check AI',x:'AI can sometimes give wrong answers while sounding very sure. A smart habit: check important facts with a book, a teacher or a grown-up.',y:'Who would you ask to double-check an important fact?'},
+ {e:'🌱',t:'Robots on farms',x:'Some farms use robots and drones to spray only the plants that need it, saving water and medicine for crops.',y:'How could a robot help a farmer you know about?'},
+];
 // @@NEW-QUESTIONS-ABOVE@@ (weekly additions are appended just above this line; never edit or reorder existing questions)
 // ---------- Code-a-Bot levels: S start, B battery, # rock, * star to collect first ----------
 const BOT_LEVELS=[
@@ -1273,7 +1311,7 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 const dayNum=s=>Math.round(Date.parse(s+'T00:00:00Z')/864e5);
 function newProg(){return{lessons:{},puzzles:{},score:{w:0,d:0,l:0},xp:0,coins:0,streak:0,lastDay:null,badges:{},themes:{classic:1},theme:'classic',
   hunts:0,best:{},stats:{checks:0,caps:0,castles:0,promos:0},day:null,sound:true,
-  sprintBest:{},memBest:0,qstats:{},seen:{},correctTotal:0,bot:{},cardsSeen:{},dxp:{},mins:{},rounds:{world:0,quiz:0,sprint:0,mem:0,match:0},ws:{},pz:{s:0,f:0},sh:[],mh:[],area:{},dq:{},wrong:[],hst:{r:0,t:0},dm:{},ds:{},wis:{m:{},g:{},seenM:{},seenG:{}},qok:{},wc:{},fm:{},myth:{},teachModes:{},planLog:{}}}
+  sprintBest:{},memBest:0,qstats:{},seen:{},correctTotal:0,bot:{},cardsSeen:{},dxp:{},mins:{},rounds:{world:0,quiz:0,sprint:0,mem:0,match:0},ws:{},pz:{s:0,f:0},sh:[],mh:[],area:{},dq:{},wrong:[],hst:{r:0,t:0},dm:{},ds:{},wis:{m:{},g:{},seenM:{},seenG:{}},qok:{},wc:{},fm:{},myth:{},teachModes:{},planLog:{},factSeen:{},factDone:{},mazeDone:{}}}
 function loadProg(id){
   const p=newProg();
   try{const raw=localStorage.getItem(PROFILES[id].key);if(raw){const o=JSON.parse(raw);for(const k in o)if(o[k]!==null&&o[k]!==undefined)p[k]=o[k]}}catch(e){}
@@ -1316,7 +1354,7 @@ const ME=()=>PROFILES[WHO];
 function rankOf(xp){let r=0;for(let i=0;i<RANKS.length;i++)if(xp>=RANKS[i].xp)r=i;return r}
 function seeded(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647}
 // ---------- TODAY'S PLAN (daily portions; replaces random missions) ----------
-const PLAN_CAT={lessons:'Chess',puzzles:'Chess',games:'Chess',sprints:'Maths',dquiz:'Quiz',world:'Geography',match:'Geography',mem:'Memory',wisdom:'Wisdom',robo:'Robo Lab'};
+const PLAN_CAT={robofact:'Robo Lab',robomaze:'Robo Lab',lessons:'Chess',puzzles:'Chess',games:'Chess',sprints:'Maths',dquiz:'Quiz',world:'Geography',match:'Geography',mem:'Memory',wisdom:'Wisdom',robo:'Robo Lab'};
 const DQ_SIZE=()=>WHO==='avanya'?15:10;
 function buildPlan(){
   const n=dayNum(today()),alt=n%2===0,roboDay=[2,5].includes(n%7),A=WHO==='aaranya';
@@ -1328,11 +1366,14 @@ function buildPlan(){
   if(A)plan.push(alt?{k:'world',n:1,e:'🌍',t:'1 World Explorer round'}:{k:'match',n:1,e:'🃏',t:'1 Flag Match game'});
   else{plan.push({k:'world',n:1,e:'🌍',t:'1 World Explorer round'});plan.push(alt?{k:'mem',n:1,e:'🧠',t:'1 Memory Grid game'}:{k:'match',n:1,e:'🃏',t:'1 Flag Match game'})}
   plan.push({k:'wisdom',n:1,e:'🪔',t:'Today\'s mantra & Gita verse'});
-  if(roboDay)plan.push({k:'robo',n:1,e:'🤖',t:'1 Robo Lab activity'});
+  plan.push({k:'robofact',n:1,e:'💡',t:'Robo fact of the day'});
+  plan.push({k:'robomaze',n:1,e:'🧭',t:'Today\'s robot maze'});
   return plan;
 }
-function todaysMissions(){ensureDayBase();if(!prog.day.plan){prog.day.plan=buildPlan();prog.day.claimed={};prog.day.chest=false}return prog.day.plan}
-function planGo(k){({lessons:()=>{const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);openTask('lesson',nl<0?0:nl)},puzzles:()=>tab('puzzle'),games:()=>tab('play'),sprints:()=>openSprint(),dquiz:()=>openDailyQuiz(),
+function todaysMissions(){ensureDayBase();if(!prog.day.plan){prog.day.plan=buildPlan();prog.day.claimed={};prog.day.chest=false}
+  if(!prog.day.plan.some(m=>m.k==='robofact')){prog.day.plan=prog.day.plan.filter(m=>m.k!=='robo').concat([{k:'robofact',n:1,e:'💡',t:'Robo fact of the day'},{k:'robomaze',n:1,e:'🧭',t:'Today\'s robot maze'}]);const cl={};prog.day.plan.forEach((m,i)=>{if((prog.day.c[m.k]||0)>=m.n)cl[i]=1});prog.day.claimed=cl;prog.day.chest=false}
+  return prog.day.plan}
+function planGo(k){({lessons:()=>{const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);openTask('lesson',nl<0?0:nl)},puzzles:()=>tab('puzzle'),games:()=>tab('play'),sprints:()=>openSprint(),dquiz:()=>openDailyQuiz(),robofact:()=>openRoboFact(),robomaze:()=>openDailyMaze(),
   world:()=>openWorldSetup(),match:()=>openMatch(),mem:()=>openMem(),wisdom:()=>openWisdom(),robo:()=>tab('robo')}[k]||(()=>tab('brain')))()}
 function planFrac(){const pl=todaysMissions();return pl.reduce((a,m)=>a+Math.min(1,(prog.day.c[m.k]||0)/m.n),0)/pl.length}
 function logPlan(){const t=today(),pl=todaysMissions(),lg=prog.planLog||(prog.planLog={});const o={};
@@ -1454,7 +1495,7 @@ function bump(k,n){
 }
 
 // ================= NAVIGATION =================
-const VIEWS=['wisdomView','parentView','pickView','homeView','chessView','learnList','puzzleList','brainView','sprintView','quizView','memView','matchView','roboView','botView','teachView','cardsView','trophyView','taskView','playView'];
+const VIEWS=['factView','wisdomView','parentView','pickView','homeView','chessView','learnList','puzzleList','brainView','sprintView','quizView','memView','matchView','roboView','botView','teachView','cardsView','trophyView','taskView','playView'];
 function show(id){for(const v of VIEWS)$(v).classList.toggle('hidden',v!==id);$('nav').classList.toggle('hidden',id==='pickView'||id==='parentView');window.scrollTo(0,0)}
 function stopAll(){stopTimer();stopSprint();memStop();try{if(typeof ttsStop==='function')ttsStop()}catch(e){}}
 function tab(name){
@@ -2021,17 +2062,54 @@ function flip(i){
 $('mtNew').onclick=openMatch;
 
 // ================= ROBO LAB =================
+$('goMaze').onclick=()=>openDailyMaze();$('goFact').onclick=()=>openRoboFact();
 $('goBot').onclick=()=>openBot(BOT_LEVELS.findIndex((_,i)=>!prog.bot[i])>=0?BOT_LEVELS.findIndex((_,i)=>!prog.bot[i]):0);
 $('goTeach').onclick=()=>openTeach();
 $('goCards').onclick=()=>openCards(0);
+
+
+// ---------- DAILY ROBOT MAZE (new every day) ----------
+function mazeBFS(m,s,b,star){const n=m.length,key=(r,c,k)=>r*100+c*10+k;const q=[[s[0],s[1],star?0:1,0]],seen=new Set([key(s[0],s[1],star?0:1)]);
+  while(q.length){const[r,c,k,d]=q.shift();if(r===b[0]&&c===b[1]&&k)return d;
+    for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){const nr=r+dr,nc=c+dc;if(nr<0||nc<0||nr>=n||nc>=n||m[nr][nc]==='#')continue;const nk=k||(star&&nr===star[0]&&nc===star[1])?1:0;const kk=key(nr,nc,nk);if(seen.has(kk))continue;seen.add(kk);q.push([nr,nc,nk,d+1])}}
+  return -1}
+function dailyMaze(){
+  const A=WHO==='aaranya',n=A?5:6,dn=dayNum(today()),rnd=seeded(dn*97+(A?5:9));const withStar=!A&&dn%2===0;
+  for(let tries=0;tries<400;tries++){
+    const m=Array.from({length:n},()=>Array(n).fill('.'));const cell=()=>[Math.floor(rnd()*n),Math.floor(rnd()*n)];
+    const S=cell();let B=cell();if(Math.abs(S[0]-B[0])+Math.abs(S[1]-B[1])<n-1)continue;
+    const dens=A?0.14:0.26;for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(rnd()<dens)m[r][c]='#';
+    m[S[0]][S[1]]='S';m[B[0]][B[1]]='B';let st=null;
+    if(withStar){st=cell();if(m[st[0]][st[1]]!=='.'){continue}m[st[0]][st[1]]='*'}
+    const d=mazeBFS(m,S,B,st);const lo=A?4:8,hi=A?9:15;if(d<lo||d>hi)continue;
+    return{t:'Today\'s robot maze'+(withStar?' ⭐':''),x:(withStar?'Collect the ⭐ first, then reach the 🔋 battery. ':'Guide Robo to the 🔋 battery. ')+'You can use up to '+(d+(A?4:1))+' blocks'+(A?'.':' — the shortest path needs exactly '+d+'!'),max:d+(A?4:1),map:m.map(r=>r.join(''))};
+  }
+  return Object.assign({},BOT_LEVELS[2],{t:'Today\'s robot maze'});
+}
+function openDailyMaze(){openBot(0,dailyMaze())}
+// ---------- ROBO FACT OF THE DAY ----------
+const factIdx=()=>dayNum(today())%ROBO_FACTS.length;
+function openRoboFact(i){
+  stopAll();const today_i=factIdx();if(i===undefined)i=today_i;const F=ROBO_FACTS[i];prog.factSeen=prog.factSeen||{};prog.factSeen[i]=1;save();
+  const t=today(),done=(prog.factDone||{})[t];
+  $('factBody').innerHTML='<div class="card" style="text-align:center"><div class="qbar"><span>💡 Robo fact'+(i===today_i?' of the day':'')+'</span><span>'+Object.keys(prog.factSeen).length+'/'+ROBO_FACTS.length+' discovered</span></div>'+
+    '<div class="qbig">'+F.e+'</div><h2>'+F.t+'</h2><p style="font-size:1.05rem">'+F.x+'</p><p class="tip">🤔 <b>Try this:</b> '+F.y+'</p>'+
+    (i===today_i?(done?'<p class="msg ok">✅ Learned today! A new fact comes tomorrow.</p>':'<div class="row"><button class="btn" id="factOk">✅ I learned something new (+10 XP)</button></div>'):'')+
+    '<div class="row"><button class="btn alt" id="factList">📚 All facts I\'ve discovered</button><button class="btn alt" data-back="robo">⬅ Robo Lab</button></div></div>';
+  if($('factOk'))$('factOk').onclick=()=>{prog.factDone=prog.factDone||{};prog.factDone[t]=1;addXP(10,'robo fact');SND.ok();bump('robofact');save();openRoboFact(i)};
+  $('factList').onclick=()=>{$('factBody').innerHTML='<div class="card"><h2>📚 Robo facts discovered</h2>'+Object.keys(prog.factSeen).map(Number).sort((a,b)=>a-b).map(k=>'<div class="mission" data-fact="'+k+'" style="cursor:pointer"><span class="ic">'+ROBO_FACTS[k].e+'</span><div class="tx">'+ROBO_FACTS[k].t+'</div></div>').join('')+
+    '<p style="opacity:.7;font-size:.85rem">A new fact unlocks every day.</p><div class="row"><button class="btn alt" data-back="robo">⬅ Robo Lab</button></div></div>';
+    document.querySelectorAll('[data-fact]').forEach(b=>b.onclick=()=>openRoboFact(+b.dataset.fact))};
+  show('factView');
+}
 
 // ---------- CODE-A-BOT ----------
 let BOT={lv:0,prog:[],rep:1,running:false};
 const ARROW={U:'⬆️',D:'⬇️',L:'⬅️',R:'➡️'};
 function botParse(L){const m=L.map.map(r=>r.split(''));let s,b,star=null;m.forEach((row,r)=>row.forEach((ch,c)=>{if(ch==='S')s=[r,c];if(ch==='B')b=[r,c];if(ch==='*')star=[r,c]}));return{m,s,b,star}}
-function openBot(i){
-  stopAll();BOT.lv=i;BOT.prog=[];BOT.rep=1;BOT.running=false;const L=BOT_LEVELS[i];
-  $('botTitle').textContent='🕹️ '+L.t+(prog.bot[i]?' ✅':'');$('botText').textContent=L.x;
+function openBot(i,lvObj){
+  stopAll();BOT.lv=i;BOT.daily=!!lvObj;BOT.L=lvObj||BOT_LEVELS[i];BOT.prog=[];BOT.rep=1;BOT.running=false;const L=BOT.L;
+  $('botTitle').textContent='🕹️ '+L.t+(!lvObj&&prog.bot[i]?' ✅':'');$('botText').textContent=L.x;
   $('botNext').classList.add('hidden');$('botRun').classList.remove('hidden');
   $('botRepeat').innerHTML=L.loop?['1','2','3','4','5'].map(n=>'<button data-r="'+n+'" class="'+(BOT.rep==n?'on':'')+'">🔁 Repeat ×'+n+'</button>').join(''):'';
   document.querySelectorAll('#botRepeat button').forEach(b=>b.onclick=()=>{BOT.rep=+b.dataset.r;document.querySelectorAll('#botRepeat button').forEach(x=>x.classList.toggle('on',x===b));botProgDraw()});
@@ -2039,7 +2117,7 @@ function openBot(i){
   botDrawGrid();botProgDraw();show('botView');
 }
 function botDrawGrid(pos,starTaken,crash){
-  const L=BOT_LEVELS[BOT.lv],P=botParse(L),n=P.m.length;pos=pos||P.s;
+  const L=BOT.L,P=botParse(L),n=P.m.length;pos=pos||P.s;
   const g=$('botGrid');g.style.gridTemplateColumns='repeat('+n+',1fr)';g.innerHTML='';
   P.m.forEach((row,r)=>row.forEach((ch,c)=>{const d=document.createElement('div');d.className='mcell';d.style.cssText='display:flex;align-items:center;justify-content:center;font-size:min(8vw,34px);cursor:default';
     let t='';if(ch==='#')t='🪨';if(ch==='B')t='🔋';if(ch==='*'&&!starTaken)t='⭐';
@@ -2047,18 +2125,18 @@ function botDrawGrid(pos,starTaken,crash){
     d.textContent=t;g.appendChild(d)}));
 }
 function botProgDraw(){
-  const L=BOT_LEVELS[BOT.lv];
+  const L=BOT.L;
   $('botProg').textContent=BOT.prog.length?BOT.prog.map(c=>ARROW[c]).join(' ')+(L.loop&&BOT.rep>1?'  🔁×'+BOT.rep:''):'—';
   $('botCount').textContent=BOT.prog.length+' / '+L.max+' blocks';
 }
-document.querySelectorAll('#botView [data-cmd]').forEach(b=>b.onclick=()=>{if(BOT.running)return;const L=BOT_LEVELS[BOT.lv];
+document.querySelectorAll('#botView [data-cmd]').forEach(b=>b.onclick=()=>{if(BOT.running)return;const L=BOT.L;
   if(BOT.prog.length>=L.max){SND.bad();setMsg('botMsg','bad','Only '+L.max+' blocks allowed here!'+(L.loop?' Use Repeat.':''));return}
   BOT.prog.push(b.dataset.cmd);SND.tick();botProgDraw()});
 $('botDel').onclick=()=>{if(!BOT.running){BOT.prog.pop();botProgDraw()}};
 $('botClear').onclick=()=>{if(!BOT.running){BOT.prog=[];botProgDraw();botDrawGrid();setMsg('botMsg','info','Cleared. Build a new program!')}};
 $('botRun').onclick=()=>{
   if(BOT.running||!BOT.prog.length)return;BOT.running=true;
-  const L=BOT_LEVELS[BOT.lv],P=botParse(L),n=P.m.length;let pos=P.s.slice(),star=!P.star,steps=[];
+  const L=BOT.L,P=botParse(L),n=P.m.length;let pos=P.s.slice(),star=!P.star,steps=[];
   for(let k=0;k<(L.loop?BOT.rep:1);k++)steps=steps.concat(BOT.prog);
   let i=0;
   const step=()=>{
@@ -2077,6 +2155,8 @@ $('botRun').onclick=()=>{
 };
 function botWin(){
   addScore('Coding & AI',1,1);
+  if(BOT.daily){const t=today();prog.mazeDone=prog.mazeDone||{};const first=!prog.mazeDone[t];prog.mazeDone[t]=1;save();SND.win();confetti();
+    setMsg('botMsg','ok','🔋 Maze solved! '+praise()+(first?' New maze tomorrow!':''));if(first){addXP(20,'robot maze');bump('robomaze');bump('robo')}checkBadges();return}
   const first=!prog.bot[BOT.lv];prog.bot[BOT.lv]=1;save();SND.win();confetti();
   setMsg('botMsg','ok','🔋 Robo is charged! '+praise()+' Your program worked.');
   addXP(first?25+BOT.lv*5:5,'Code-a-Bot');bump('robo');checkBadges();
@@ -2176,7 +2256,7 @@ $('cardNext').onclick=()=>{if(CD.i<DECK.length-1){CD.i++;drawCard()}else{confett
 
 
 // ================= ACTIVITY TRACKING & PARENT BOARD =================
-const AREA={chessView:'Chess',learnList:'Chess',puzzleList:'Chess',taskView:'Chess',playView:'Chess',brainView:'Brain games',sprintView:'Brain games',quizView:'Brain games',memView:'Brain games',matchView:'Brain games',roboView:'Robo Lab',botView:'Robo Lab',teachView:'Robo Lab',cardsView:'Robo Lab',wisdomView:'Wisdom'};
+const AREA={chessView:'Chess',learnList:'Chess',puzzleList:'Chess',taskView:'Chess',playView:'Chess',brainView:'Brain games',sprintView:'Brain games',quizView:'Brain games',memView:'Brain games',matchView:'Brain games',roboView:'Robo Lab',botView:'Robo Lab',teachView:'Robo Lab',cardsView:'Robo Lab',factView:'Robo Lab',wisdomView:'Wisdom'};
 setInterval(()=>{if(WHO&&document.visibilityState==='visible'){const t=today();prog.mins[t]=(prog.mins[t]||0)+1;
   const v=VIEWS.find(x=>!$(x).classList.contains('hidden'));const a=AREA[v];if(a)prog.area[a]=(prog.area[a]||0)+1;
   const sj=curSubject(v);if(sj){const dd=prog.dm[t]||(prog.dm[t]={});dd[sj]=(dd[sj]||0)+1}save()}},60000);
@@ -2185,7 +2265,7 @@ function curSubject(v){
   if(v==='sprintView')return 'Maths & Logic';
   if(v==='quizView'){if(Q&&!$('quizRun').classList.contains('hidden')){if(Q.kind==='world')return 'Geography';const it=Q.qs[Q.i];return (it&&TOPIC2S[it.cat])||'General Knowledge'}return null}
   if(v==='memView')return 'Memory';if(v==='matchView')return 'Geography';if(v==='wisdomView')return 'Spirituality';
-  if(['roboView','botView','teachView','cardsView'].includes(v))return 'Coding & AI';
+  if(['roboView','botView','teachView','cardsView','factView'].includes(v))return 'Coding & AI';
   return null;
 }
 function lastDays(n){const out=[];const d=new Date();for(let i=n-1;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);out.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'))}return out}
@@ -2548,10 +2628,12 @@ function completion(){
     bot:{d:cntK(P.bot),t:BOT_LEVELS.length,s:'levels'},
     teach:{d:cntK(P.teachModes),t:2,s:'lessons'},
     cards:{d:cntK(P.cardsSeen)+cntK(P.myth),t:AI_CARDS.length+MYTHS.length,s:'cards'},
+    facts:{d:cntK(P.factSeen),t:ROBO_FACTS.length,s:'facts'},
+    maze:{d:cntK(P.mazeDone),t:30,s:'mazes (30-day goal)'},
   };
   for(const k in items){const it=items[k];it.p=it.t?Math.min(100,Math.round(it.d/it.t*100)):0}
   const avg=ks=>Math.round(ks.reduce((a,k)=>a+items[k].p,0)/ks.length);
-  const sec={chess:avg(['lessons','puzzles','robo','hunt']),brain:avg(['sprint','oly','world','mem','match','wisdom']),robo:avg(['bot','teach','cards'])};
+  const sec={chess:avg(['lessons','puzzles','robo','hunt']),brain:avg(['sprint','oly','world','mem','match','wisdom']),robo:avg(['bot','teach','cards','facts','maze'])};
   sec.all=Math.round((sec.chess+sec.brain+sec.robo)/3);
   return{items,sec};
 }
@@ -2571,7 +2653,7 @@ function updateProgressUI(){
   setPct($('goLessons'),I.lessons);setPct($('goPuzzles'),I.puzzles);setPct($('goPlay'),I.robo);setPct($('goHunt'),I.hunt);
   ['sprint','oly','world','mem','match','wisdom'].forEach(k=>setPct(document.querySelector('#brainView [data-g="'+k+'"]'),I[k]));
   {const ids=dailyQuizIds();setPct(document.querySelector('#brainView [data-g="dquiz"]'),{d:Math.min(prog.day.dqPos||0,ids.length),t:ids.length,p:Math.round(Math.min(prog.day.dqPos||0,ids.length)/ids.length*100)})}
-  setPct($('goBot'),I.bot);setPct($('goTeach'),I.teach);setPct($('goCards'),I.cards);
+  setPct($('goMaze'),I.maze);setPct($('goFact'),I.facts);setPct($('goBot'),I.bot);setPct($('goTeach'),I.teach);setPct($('goCards'),I.cards);
   setHub('chessView','Chess journey',C.sec.chess);setHub('brainView','Brain games journey',C.sec.brain,'new questions arrive every Saturday');setHub('roboView','Robo Lab journey',C.sec.robo);
   return C;
 }
