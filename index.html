@@ -1158,7 +1158,7 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 const dayNum=s=>Math.round(Date.parse(s+'T00:00:00Z')/864e5);
 function newProg(){return{lessons:{},puzzles:{},score:{w:0,d:0,l:0},xp:0,coins:0,streak:0,lastDay:null,badges:{},themes:{classic:1},theme:'classic',
   hunts:0,best:{},stats:{checks:0,caps:0,castles:0,promos:0},day:null,sound:true,
-  sprintBest:{},memBest:0,qstats:{},seen:{},correctTotal:0,bot:{},cardsSeen:{},dxp:{},mins:{},rounds:{world:0,quiz:0,sprint:0,mem:0,match:0},ws:{},pz:{s:0,f:0},sh:[],mh:[],area:{},dq:{},wrong:[],hst:{r:0,t:0}}}
+  sprintBest:{},memBest:0,qstats:{},seen:{},correctTotal:0,bot:{},cardsSeen:{},dxp:{},mins:{},rounds:{world:0,quiz:0,sprint:0,mem:0,match:0},ws:{},pz:{s:0,f:0},sh:[],mh:[],area:{},dq:{},wrong:[],hst:{r:0,t:0},dm:{},ds:{}}}
 function loadProg(id){
   const p=newProg();
   try{const raw=localStorage.getItem(PROFILES[id].key);if(raw){const o=JSON.parse(raw);for(const k in o)if(o[k]!==null&&o[k]!==undefined)p[k]=o[k]}}catch(e){}
@@ -1283,10 +1283,17 @@ function checkBadges(){
   if(prog.bot[0])earnBadge('bot1');if(BOT_LEVELS.every((_,i)=>prog.bot[i]))earnBadge('bot8');
   if(AI_CARDS.every((_,i)=>prog.cardsSeen[i]))earnBadge('cards');
 }
+// ---- per-subject daily tracking (time in minutes, scores as [right,total]) ----
+const STREAMS=['Maths & Logic','Science','General Knowledge','Geography','Memory','Chess','Coding & AI'];
+const SCOL={'Maths & Logic':'#7b5cff','Science':'#1fa2a8','General Knowledge':'#ffb020','Geography':'#2fbf71','Memory':'#ff7eb6','Chess':'#8a5a35','Coding & AI':'#4f7cff'};
+const TOPIC2S={Maths:'Maths & Logic',Reasoning:'Maths & Logic',Physics:'Science',Chemistry:'Science',Biology:'Science',India:'General Knowledge',History:'General Knowledge',World:'General Knowledge',Nature:'General Knowledge',Animals:'General Knowledge',Space:'General Knowledge'};
+function addScore(stream,r,t){if(!WHO||!t)return;const d=today();const day=prog.ds[d]||(prog.ds[d]={});const v=day[stream]||(day[stream]=[0,0]);v[0]+=r;v[1]+=t;save()}
+function pruneOld(){const cut=lastDays(120)[0];['dxp','mins','dq','dm','ds'].forEach(k=>{const m=prog[k]||{};Object.keys(m).forEach(d=>{if(d<cut)delete m[d]})})}
 function ensureDay(){
   const t=today();
   if(!prog.day||prog.day.date!==t){prog.day={date:t,c:{},claimed:{},chest:false}}
   if(prog.lastDay!==t){
+    pruneOld();
     const gap=prog.lastDay?dayNum(t)-dayNum(prog.lastDay):99;
     prog.streak=gap===1?(prog.streak||0)+1:1;
     const first=!prog.lastDay;prog.lastDay=t;save();
@@ -1514,6 +1521,7 @@ function taskWin(extra){
   const first=T.kind==='lesson'?!prog.lessons[T.i]:!prog.puzzles[T.i];
   (T.kind==='lesson'?prog.lessons:prog.puzzles)[T.i]=1;save();
   setMsg('taskMsg','ok',praise()+' '+(extra||''));
+  if(T.kind==='puzzle')addScore('Chess',(T.fails===0&&!T.hinted)?1:0,1);
   if(T.kind==='puzzle'&&first){prog.pz.s++;if(T.fails===0&&!T.hinted)prog.pz.f++}
   let xp=first?(T.kind==='lesson'?50:30):5;
   if(first&&T.fails===0&&!T.hinted)xp+=20;
@@ -1551,10 +1559,10 @@ function playClick(i){
 function endCheck(){
   const st=status(G.s);if(!st)return false;G.over=true;
   if(st==='mate'){
-    if(G.s.turn==='b'){prog.score.w++;save();setMsg('playMsg','ok','CHECKMATE! You beat Robo-Knight! 🏆');SND.win();confetti();
+    if(G.s.turn==='b'){prog.score.w++;addScore('Chess',1,1);save();setMsg('playMsg','ok','CHECKMATE! You beat Robo-Knight! 🏆');SND.win();confetti();
       addXP([0,60,150,300][G.level],'victory!');bump('wins');earnBadge('w1');if(G.level>=2)earnBadge('w2');if(G.level===3)earnBadge('w3');}
-    else{prog.score.l++;save();setMsg('playMsg','bad','Robo-Knight got a checkmate. Shake hands and try again! 🤝');SND.bad();addXP(10,'for playing')}
-  } else {prog.score.d++;save();setMsg('playMsg','info',st==='stalemate'?'Stalemate — it\'s a draw!':'Draw! Nobody can win now.');addXP(20,'draw')}
+    else{prog.score.l++;addScore('Chess',0,1);save();setMsg('playMsg','bad','Robo-Knight got a checkmate. Shake hands and try again! 🤝');SND.bad();addXP(10,'for playing')}
+  } else {prog.score.d++;addScore('Chess',1,2);save();setMsg('playMsg','info',st==='stalemate'?'Stalemate — it\'s a draw!':'Draw! Nobody can win now.');addXP(20,'draw')}
   bump('games');checkBadges();drawPlay();return true;
 }
 function playerMove(m){
@@ -1656,7 +1664,7 @@ $('sprintGo').onclick=()=>{
 $('spSkip').onclick=()=>{if(SP.run)nextSprintQ()};
 function stopSprint(){if(SP.iv){clearInterval(SP.iv);SP.iv=null}SP.run=false}
 function endSprint(){
-  stopSprint();prog.sh.push({d:today(),l:SP.level,s:SP.score});if(prog.sh.length>40)prog.sh.shift();roundDone('sprint');const best=prog.sprintBest[SP.level]||0;const rec=SP.score>best;if(rec)prog.sprintBest[SP.level]=SP.score;save();
+  stopSprint();prog.sh.push({d:today(),l:SP.level,s:SP.score});{const B=SPRINT_BENCH[SP.level]||20;addScore('Maths & Logic',Math.min(SP.score,B),B)}if(prog.sh.length>40)prog.sh.shift();roundDone('sprint');const best=prog.sprintBest[SP.level]||0;const rec=SP.score>best;if(rec)prog.sprintBest[SP.level]=SP.score;save();
   const per=SP.level===4?4:SP.level===3?3:2;
   $('sprintSetup').classList.remove('hidden');$('sprintRun').classList.add('hidden');renderSprintLv();
   SND.win();if(rec)confetti();
@@ -1688,6 +1696,8 @@ function answerQ(k,btn){
     if(it.hard){prog.hst.t++;if(ok)prog.hst.r++}
     if(it.id!==undefined){prog.wrong=prog.wrong.filter(x=>x!==it.id);if(!ok){prog.wrong.push(it.id);if(prog.wrong.length>20)prog.wrong.shift()}}
     save()}
+  if(it.cat)addScore(TOPIC2S[it.cat]||'General Knowledge',ok?1:0,1);
+  if(Q.kind==='world')addScore('Geography',ok?1:0,1);
   if(Q.kind==='world'&&Q.mode){const w=prog.ws[Q.mode]||(prog.ws[Q.mode]={r:0,t:0});w.t++;if(ok)w.r++;save()}
   $('qScore').textContent='✅ '+Q.score;
   const ex=(ok?'✅ Correct! ':'❌ The answer is: '+it.opts[it.ans]+'. ')+(it.explain||'');
@@ -1805,7 +1815,7 @@ function memTap(i,b){
       $('memMsg').textContent=praise()+' On to level '+(MG.level+1)+'!';MG.level++;MG.to.push(setTimeout(memRound,900))}
   } else {b.classList.add('no');SND.bad();MG.lives--;memHud();MG.active=false;
     const cls={};MG.cells.forEach(c=>cls[c]='lit');cls[i]='no';MG.to.push(setTimeout(()=>memDraw(memSize(),cls),300));
-    if(MG.lives<=0){prog.mh.push(MG.level);if(prog.mh.length>30)prog.mh.shift();roundDone('mem');$('memMsg').textContent='Game over! You reached level '+MG.level+'.';$('memGo').classList.remove('hidden');$('memGo').textContent='🔄 Play again';
+    if(MG.lives<=0){prog.mh.push(MG.level);addScore('Memory',Math.min(MG.level,8),8);if(prog.mh.length>30)prog.mh.shift();roundDone('mem');$('memMsg').textContent='Game over! You reached level '+MG.level+'.';$('memGo').classList.remove('hidden');$('memGo').textContent='🔄 Play again';
       bump('mem');checkBadges();modal('🧠','Level '+MG.level+'!','Your best is level '+prog.memBest+'. Memory gets stronger with practice!')}
     else{$('memMsg').textContent='Oops! Those were the squares. Try again…';MG.to.push(setTimeout(memRound,1500))}
   }
@@ -1833,7 +1843,7 @@ function flip(i){
   if(MT.open.length===2){MT.moves++;const[a,b]=MT.open.map(x=>MT.cards[x]);
     if(a.c===b.c&&a.flag!==b.flag){a.done=b.done=true;MT.open=[];MT.found++;SND.ok();toast(a.c.f+' '+a.c.n);drawMatch();
       if(MT.found===MT.pairs){const xp=MT.pairs*4+Math.max(0,MT.pairs*2-MT.moves+MT.pairs)*2;SND.win();confetti();
-        roundDone('match');modal('🃏','All matched!','You did it in '+MT.moves+' moves.');addXP(xp,'Flag Match');bump('match');earnBadge('match');checkBadges()}}
+        roundDone('match');addScore('Geography',MT.pairs,Math.max(MT.moves,MT.pairs));modal('🃏','All matched!','You did it in '+MT.moves+' moves.');addXP(xp,'Flag Match');bump('match');earnBadge('match');checkBadges()}}
     else{MT.lock=true;setTimeout(()=>{MT.open=[];MT.lock=false;drawMatch()},900)}
   }
 }
@@ -1883,10 +1893,10 @@ $('botRun').onclick=()=>{
   const step=()=>{
     if(i>=steps.length){BOT.running=false;
       if(pos[0]===P.b[0]&&pos[1]===P.b[1]&&star)return botWin();
-      SND.bad();setMsg('botMsg','bad',(pos[0]===P.b[0]&&pos[1]===P.b[1])?'Robo reached the battery but forgot the ⭐! Debug your program.':'Robo stopped before the battery. Add more commands, or fix them!');
+      addScore('Coding & AI',0,1);SND.bad();setMsg('botMsg','bad',(pos[0]===P.b[0]&&pos[1]===P.b[1])?'Robo reached the battery but forgot the ⭐! Debug your program.':'Robo stopped before the battery. Add more commands, or fix them!');
       MG.to.push(setTimeout(()=>botDrawGrid(),1300));return}
     const d={U:[-1,0],D:[1,0],L:[0,-1],R:[0,1]}[steps[i]];const np=[pos[0]+d[0],pos[1]+d[1]];
-    if(np[0]<0||np[1]<0||np[0]>=n||np[1]>=n||P.m[np[0]][np[1]]==='#'){BOT.running=false;botDrawGrid(pos,!star?false:true,true);SND.bad();
+    if(np[0]<0||np[1]<0||np[0]>=n||np[1]>=n||P.m[np[0]][np[1]]==='#'){BOT.running=false;addScore('Coding & AI',0,1);botDrawGrid(pos,!star?false:true,true);SND.bad();
       setMsg('botMsg','bad','💥 Bump! Robo hit '+(P.m[np[0]]&&P.m[np[0]][np[1]]==='#'?'a rock':'the wall')+' on step '+(i+1)+'. Finding a bug is how engineers learn — fix it and try again!');
       MG.to.push(setTimeout(()=>botDrawGrid(),1500));return}
     pos=np;if(P.star&&pos[0]===P.star[0]&&pos[1]===P.star[1]&&!star){star=true;SND.star()}else SND.tick();
@@ -1895,6 +1905,7 @@ $('botRun').onclick=()=>{
   setMsg('botMsg','info','Running your program… 🤖');step();
 };
 function botWin(){
+  addScore('Coding & AI',1,1);
   const first=!prog.bot[BOT.lv];prog.bot[BOT.lv]=1;save();SND.win();confetti();
   setMsg('botMsg','ok','🔋 Robo is charged! '+praise()+' Your program worked.');
   addXP(first?25+BOT.lv*5:5,'Code-a-Bot');bump('robo');checkBadges();
@@ -1958,7 +1969,7 @@ function teachResults(){
   $('teachBody').innerHTML='<p class="tip">💡 '+tip+'</p><p class="tip">🧠 Big idea: <b>AI only knows what it learns from the examples people give it.</b> If the examples are wrong or too few, the AI will be wrong too. That is why people stay in charge!</p>'+
     (wrongs.length?'<div class="row"><button class="btn" id="trFix">🧑‍🏫 Correct the robot and try again</button></div>':'')+
     '<div class="row"><button class="btn alt" id="trNew">🔄 New lesson</button><button class="btn alt" data-back="robo">⬅ Robo Lab</button></div>';
-  if(!TR.scored){TR.scored=1;addXP(15+right*2,'AI trainer');bump('robo');earnBadge('teach');checkBadges()}
+  if(!TR.scored){TR.scored=1;addScore('Coding & AI',right,n);addXP(15+right*2,'AI trainer');bump('robo');earnBadge('teach');checkBadges()}
   if(wrongs.length)$('trFix').onclick=()=>{
     wrongs.forEach(c=>TR.examples.push({c,y:c._g.y?0:1}));
     const used=new Set(TR.examples.map(e=>e.c).concat(TR.test));
@@ -1996,15 +2007,24 @@ $('cardNext').onclick=()=>{if(CD.i<DECK.length-1){CD.i++;drawCard()}else{confett
 // ================= ACTIVITY TRACKING & PARENT BOARD =================
 const AREA={chessView:'Chess',learnList:'Chess',puzzleList:'Chess',taskView:'Chess',playView:'Chess',brainView:'Brain games',sprintView:'Brain games',quizView:'Brain games',memView:'Brain games',matchView:'Brain games',roboView:'Robo Lab',botView:'Robo Lab',teachView:'Robo Lab',cardsView:'Robo Lab'};
 setInterval(()=>{if(WHO&&document.visibilityState==='visible'){const t=today();prog.mins[t]=(prog.mins[t]||0)+1;
-  const v=VIEWS.find(x=>!$(x).classList.contains('hidden'));const a=AREA[v];if(a)prog.area[a]=(prog.area[a]||0)+1;save()}},60000);
+  const v=VIEWS.find(x=>!$(x).classList.contains('hidden'));const a=AREA[v];if(a)prog.area[a]=(prog.area[a]||0)+1;
+  const sj=curSubject(v);if(sj){const dd=prog.dm[t]||(prog.dm[t]={});dd[sj]=(dd[sj]||0)+1}save()}},60000);
+function curSubject(v){
+  if(['chessView','learnList','puzzleList','taskView','playView'].includes(v))return 'Chess';
+  if(v==='sprintView')return 'Maths & Logic';
+  if(v==='quizView'){if(Q&&!$('quizRun').classList.contains('hidden')){if(Q.kind==='world')return 'Geography';const it=Q.qs[Q.i];return (it&&TOPIC2S[it.cat])||'General Knowledge'}return null}
+  if(v==='memView')return 'Memory';if(v==='matchView')return 'Geography';
+  if(['roboView','botView','teachView','cardsView'].includes(v))return 'Coding & AI';
+  return null;
+}
 function lastDays(n){const out=[];const d=new Date();for(let i=n-1;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);out.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'))}return out}
 function snapshot(id,p){
-  const days=lastDays(14),pickMap=m=>{const o={};days.forEach(d=>{if(m&&m[d])o[d]=m[d]});return o};
+  const days=lastDays(56),pickMap=m=>{const o={};days.forEach(d=>{if(m&&m[d])o[d]=m[d]});return o};
   const qs={};for(const c in (p.qstats||{}))qs[c]=[p.qstats[c].r,p.qstats[c].t];
   return{v:1,id,at:Date.now(),xp:p.xp,streak:p.streak||0,lastDay:p.lastDay,badges:Object.keys(p.badges||{}).length,
     lessons:Object.keys(p.lessons||{}).length,puzzles:Object.keys(p.puzzles||{}).length,score:p.score,hunts:p.hunts||0,
     sb:p.sprintBest||{},mem:p.memBest||0,qs,ct:p.correctTotal||0,bot:Object.keys(p.bot||{}).length,cards:Object.keys(p.cardsSeen||{}).length,
-    dxp:pickMap(p.dxp),mins:pickMap(p.mins),rounds:p.rounds||{},ws:p.ws||{},pz:p.pz||{s:0,f:0},area:p.area||{},sh:(p.sh||[]).slice(-15),mh:(p.mh||[]).slice(-12),dq:pickMap(p.dq),wr:(p.wrong||[]).slice(-8),hst:p.hst||{r:0,t:0},teach:!!(p.badges||{}).teach,today:p.day&&p.day.date===today()?Object.keys(p.day.claimed||{}).length:0};
+    dxp:pickMap(p.dxp),mins:pickMap(p.mins),rounds:p.rounds||{},ws:p.ws||{},pz:p.pz||{s:0,f:0},area:p.area||{},sh:(p.sh||[]).slice(-30),mh:(p.mh||[]).slice(-12),dq:pickMap(p.dq),dm:pickMap(p.dm),ds:pickMap(p.ds),wr:(p.wrong||[]).slice(-8),hst:p.hst||{r:0,t:0},teach:!!(p.badges||{}).teach,today:p.day&&p.day.date===today()?Object.keys(p.day.claimed||{}).length:0};
 }
 const enc=o=>'QC1:'+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
 function dec(txt){const m=(txt||'').match(/QC1:([A-Za-z0-9+/=]+)/);if(!m)return null;try{const o=JSON.parse(decodeURIComponent(escape(atob(m[1]))));return o&&o.v===1&&PROFILES[o.id]?o:null}catch(e){return null}}
@@ -2075,6 +2095,8 @@ function renderParent(){
     h+='<h3>📅 Last 7 days · '+wmin+' min · '+wxp+' XP</h3><div style="display:flex;gap:6px;align-items:flex-end;height:90px;padding:4px 0">'+
       days.map(d=>{const m=s.mins[d]||0;return '<div style="flex:1;text-align:center;font-size:.7rem"><div style="height:'+Math.round(m/maxv*64)+'px;background:'+(m?'var(--accent)':'#eee')+';border-radius:6px 6px 0 0;min-height:3px"></div>'+(m?m+'m':'')+'<br>'+['Su','Mo','Tu','We','Th','Fr','Sa'][new Date(d+'T00:00:00').getDay()]+'</div>'}).join('')+'</div>';
     h+=insightsHTML(s,P.name);
+    h+=trendsHTML(s,P.name);
+    h+=questionsHTML(s,P.name);
     h+='<details style="margin-top:10px"><summary style="font-weight:700;cursor:pointer">More details</summary>';
     h+='<h3>♞ Chess</h3><p>'+s.lessons+'/10 lessons · '+s.puzzles+'/20 puzzles · vs Robo: '+s.score.w+' won, '+s.score.d+' drawn, '+s.score.l+' lost · '+s.hunts+' Star Hunts</p>';
     const q=qSummary(s.qs);
@@ -2113,6 +2135,11 @@ function streams(s){
   return out;
 }
 const lbl=v=>v===null||v===undefined?['Not tried yet','#bbb']:v>=80?['Strong','#2fbf71']:v>=60?['Good','#7b5cff']:v>=40?['Developing','#ffb020']:['Needs focus','#ff5d5d'];
+function questionsHTML(s,name){let h='';
+  if(s.wr&&s.wr.length){h+='<h3>❓ Questions to talk through with '+name+'</h3><p style="font-size:.85rem;opacity:.7">Recently answered wrong (they drop off once she gets them right):</p>'+
+    s.wr.slice().reverse().slice(0,6).map(id=>{const q=OLY[id];return q?'<div class="mission"><span class="ic">'+QICON[q.c]+'</span><div class="tx" style="font-weight:500">'+q.q+'<br><small style="color:#1d7a49">✅ '+q.o[q.a]+'</small></div></div>':''}).join('')}
+  return h;
+}
 function insightsHTML(s,name){
   const st=streams(s),tried=st.filter(x=>x.v!==null&&x.v!==undefined).sort((a,b)=>b.v-a.v),untried=st.filter(x=>x.v===null||x.v===undefined);
   const days=lastDays(14),active=days.filter(d=>(s.mins[d]||0)>0||(s.dxp[d]||0)>0),mins=days.reduce((a,d)=>a+(s.mins[d]||0),0);
@@ -2141,10 +2168,92 @@ function insightsHTML(s,name){
   h+=(tried.length||active.length)?'<ul style="padding-left:18px;margin:6px 0;line-height:1.5">'+tips.map(t=>'<li style="margin-bottom:6px">'+t+'</li>').join('')+'</ul>':'<p class="tip">Insights will appear after a few play sessions.</p>';
   h+='<h3>📊 Stream scorecard</h3>'+st.map(x=>{const L=lbl(x.v);return '<div class="mission"><span class="ic">'+x.e+'</span><div class="tx">'+x.n+'<span style="float:right;color:'+L[1]+'">'+(x.v!==null&&x.v!==undefined?x.v+' · ':'')+L[0]+'</span><div class="mb"><i style="width:'+(x.v||0)+'%;background:'+L[1]+'"></i></div><small style="opacity:.65">'+(x.why||'')+'</small></div></div>'}).join('');
   h+='<p style="font-size:.78rem;opacity:.6">Scores out of 100: Strong 80+, Good 60–79, Developing 40–59. Based on quiz accuracy (5+ answers), Math Sprint vs a benchmark for the level, best Memory Grid level, chess progress and Robo Lab progress.</p>';
-  if(s.wr&&s.wr.length){h+='<h3>❓ Questions to talk through with '+name+'</h3><p style="font-size:.85rem;opacity:.7">Recently answered wrong (they drop off once she gets them right):</p>'+
-    s.wr.slice().reverse().slice(0,6).map(id=>{const q=OLY[id];return q?'<div class="mission"><span class="ic">'+QICON[q.c]+'</span><div class="tx" style="font-weight:500">'+q.q+'<br><small style="color:#1d7a49">✅ '+q.o[q.a]+'</small></div></div>':''}).join('')}
   return h;
 }
+
+
+// ================= PARENT TRENDS (charts) =================
+let PB_MODE='day';
+const shortDay=d=>{const x=new Date(d+'T00:00:00');return ['Su','Mo','Tu','We','Th','Fr','Sa'][x.getDay()]+' '+x.getDate()};
+const shortDate=d=>new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+function buckets(mode){
+  if(mode==='day')return lastDays(14).map(d=>({label:shortDay(d),days:[d]}));
+  const all=lastDays(56),out=[];for(let w=0;w<8;w++){const days=all.slice(w*7,w*7+7);out.push({label:shortDate(days[0]),days})}return out;
+}
+function seriesFor(s,B){
+  const time={},score={};STREAMS.forEach(k=>{time[k]=[];score[k]=[]});const total=[],other=[],overall=[];
+  B.forEach(b=>{
+    let tsum=0,tall=0,R=0,T=0;
+    STREAMS.forEach(k=>{let m=0,r=0,t=0;b.days.forEach(d=>{m+=((s.dm||{})[d]||{})[k]||0;const v=((s.ds||{})[d]||{})[k];if(v){r+=v[0];t+=v[1]}});
+      time[k].push(m);tsum+=m;score[k].push(t>=3?Math.round(r/t*100):null);R+=r;T+=t});
+    b.days.forEach(d=>tall+=(s.mins||{})[d]||0);
+    total.push(Math.max(tall,tsum));other.push(Math.max(0,tall-tsum));overall.push(T>=3?Math.round(R/T*100):null);
+  });
+  return{time,score,total,other,overall};
+}
+function svgStack(B,S){
+  const W=360,H=170,L=26,Bt=22,n=B.length,cw=(W-L-4)/n,max=Math.max(10,...S.total);const step=max>120?60:max>60?30:max>30?15:5,top=Math.ceil(max/step)*step;
+  const y=v=>H-Bt-(v/top)*(H-Bt-10);let g='';
+  for(let v=0;v<=top;v+=step){g+='<line x1="'+L+'" x2="'+W+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#eee"/><text x="'+(L-3)+'" y="'+(y(v)+3)+'" font-size="8" text-anchor="end" fill="#999">'+v+'</text>'}
+  B.forEach((b,i)=>{let acc=0;const x=L+i*cw+cw*0.15,w=cw*0.7;
+    STREAMS.concat(['Other']).forEach(k=>{const v=k==='Other'?S.other[i]:S.time[k][i];if(!v)return;const y0=y(acc),y1=y(acc+v);acc+=v;
+      g+='<rect x="'+x.toFixed(1)+'" y="'+y1.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+(y0-y1).toFixed(1)+'" fill="'+(k==='Other'?'#d9d4e8':SCOL[k])+'"><title>'+k+': '+v+' min</title></rect>'});
+    if(S.total[i])g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(y(S.total[i])-2).toFixed(1)+'" font-size="7.5" text-anchor="middle" fill="#555">'+S.total[i]+'</text>';
+    if(n<=8||i%2===0||i===n-1)g+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(H-8)+'" font-size="8" text-anchor="middle" fill="#777">'+b.label+'</text>'});
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+g+'</svg>';
+}
+function svgLines(B,lines,yMax){
+  const W=360,H=170,L=26,Bt=22,n=B.length,cw=(W-L-8)/(n-1||1);yMax=yMax||100;
+  let st=25;if(yMax!==100){const raw=yMax/4,cands=[1,2,5,10,20,25,50,100,200,250,500,1000,2000,2500,5000,10000];st=cands.find(c=>c>=raw)||Math.ceil(raw);yMax=Math.ceil(yMax/st)*st}
+  const x=i=>L+4+i*cw,y=v=>H-Bt-(v/yMax)*(H-Bt-10);let g='';
+  for(let v=0;v<=yMax;v+=st){g+='<line x1="'+L+'" x2="'+W+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#eee"/><text x="'+(L-3)+'" y="'+(y(v)+3)+'" font-size="8" text-anchor="end" fill="#999">'+v+'</text>'}
+  B.forEach((b,i)=>{if(n<=8||i%2===0||i===n-1)g+='<text x="'+x(i)+'" y="'+(H-8)+'" font-size="8" text-anchor="middle" fill="#777">'+b.label+'</text>'});
+  lines.forEach(ln=>{let d='',pen=false;ln.v.forEach((v,i)=>{if(v===null||v===undefined){pen=false;return}d+=(pen?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ';pen=true});
+    if(d)g+='<path d="'+d+'" fill="none" stroke="'+ln.c+'" stroke-width="'+(ln.w||1.8)+'" stroke-linecap="round" stroke-linejoin="round"'+(ln.dash?' stroke-dasharray="4 3"':'')+'/>';
+    ln.v.forEach((v,i)=>{if(v!==null&&v!==undefined)g+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="'+(ln.w>2?2.6:2)+'" fill="'+ln.c+'"><title>'+ln.n+': '+v+(yMax===100?'%':'')+'</title></circle>'})});
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+g+'</svg>';
+}
+function legend(items){return '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.72rem;margin:2px 0 8px">'+items.map(i=>'<span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+i[1]+';margin-right:4px;vertical-align:-1px"></i>'+i[0]+'</span>').join('')+'</div>'}
+function heatmap(s){
+  const days=lastDays(56),first=new Date(days[0]+'T00:00:00').getDay();
+  let h='<div style="display:grid;grid-template-columns:repeat(9,1fr);grid-auto-flow:column;grid-template-rows:repeat(7,14px);gap:3px;max-width:290px">';
+  const cells=[];for(let i=0;i<first;i++)cells.push('<div></div>');
+  days.forEach(d=>{const m=(s.mins||{})[d]||0;const c=m===0?'#eeeaf7':m<10?'#cfc4ff':m<20?'#a48cff':m<40?'#7b5cff':'#4b2fd1';cells.push('<div title="'+shortDate(d)+': '+m+' min" style="background:'+c+';border-radius:3px"></div>')});
+  return h+cells.join('')+'</div><div style="font-size:.7rem;opacity:.65;margin-top:4px">Each square is a day: columns are weeks (oldest on the left), rows run Sunday to Saturday. Darker = more minutes.</div>';
+}
+function trendsHTML(s,name){
+  const B=buckets(PB_MODE),S=seriesFor(s,B),per=PB_MODE==='day'?'day':'week';
+  let h='<h3>📈 Trends</h3><div class="seg pbmode"><button data-m="day" class="'+(PB_MODE==='day'?'on':'')+'">📅 Daily (14 days)</button><button data-m="week" class="'+(PB_MODE==='week'?'on':'')+'">🗓️ Weekly (8 weeks)</button></div>';
+  const used=STREAMS.filter(k=>S.time[k].some(v=>v>0));
+  h+='<h4 style="margin:10px 0 2px">⏱ Time spent per '+per+' (minutes)</h4>';
+  if(S.total.some(v=>v)){h+=svgStack(B,S)+legend(used.map(k=>[k,SCOL[k]]).concat(S.other.some(v=>v)?[['Menus & other','#d9d4e8']]:[]))}
+  else h+='<p style="opacity:.7;font-size:.85rem">No time recorded yet in this period.</p>';
+  const scoreUsed=STREAMS.filter(k=>S.score[k].some(v=>v!==null));
+  h+='<h4 style="margin:10px 0 2px">🎯 Score % per '+per+' (by subject and overall)</h4>';
+  if(S.overall.some(v=>v!==null)){
+    h+=svgLines(B,[{n:'Overall',c:'#2d2a4a',v:S.overall,w:3}].concat(scoreUsed.map(k=>({n:k,c:SCOL[k],v:S.score[k]}))),100)+legend([['Overall','#2d2a4a']].concat(scoreUsed.map(k=>[k,SCOL[k]])));
+  } else h+='<p style="opacity:.7;font-size:.85rem">Scores appear once she has answered a few questions or finished some games in this period.</p>';
+  // comparison table: last 7 days vs previous 7 (day mode) or this week vs last (week mode)
+  const cur=PB_MODE==='day'?lastDays(7):B[B.length-1].days,prev=PB_MODE==='day'?lastDays(14).slice(0,7):B[B.length-2].days;
+  const agg=(days,k)=>{let m=0,r=0,t=0;days.forEach(d=>{m+=k?(((s.dm||{})[d]||{})[k]||0):((s.mins||{})[d]||0);
+    (k?[k]:STREAMS).forEach(kk=>{const v=((s.ds||{})[d]||{})[kk];if(v){r+=v[0];t+=v[1]}})});return{m,p:t>=3?Math.round(r/t*100):null}};
+  const arrow=(a,b)=>a===null||b===null||a===undefined||b===undefined?'':a>b?' <span style="color:#1d9a5b">▲</span>':a<b?' <span style="color:#d64545">▼</span>':' •';
+  const rows=[['Overall',null]].concat(STREAMS.map(k=>[k,k])).map(([lbl,k])=>{const a=agg(cur,k),b=agg(prev,k);if(k&&!a.m&&!b.m&&a.p===null&&b.p===null)return '';
+    return '<tr><td style="padding:4px 2px">'+(k?'<i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:'+SCOL[k]+';margin-right:4px"></i>':'<b>')+lbl+(k?'':'</b>')+'</td><td align="right">'+a.m+'m'+arrow(a.m,b.m)+'</td><td align="right" style="opacity:.6">'+b.m+'m</td><td align="right">'+(a.p===null?'—':a.p+'%')+arrow(a.p,b.p)+'</td><td align="right" style="opacity:.6">'+(b.p===null?'—':b.p+'%')+'</td></tr>'}).join('');
+  h+='<h4 style="margin:12px 0 4px">'+(PB_MODE==='day'?'Last 7 days vs previous 7':'This week vs last week')+'</h4><table style="width:100%;font-size:.8rem;border-collapse:collapse"><tr style="opacity:.7"><td></td><td align="right">Time</td><td align="right">prev</td><td align="right">Score</td><td align="right">prev</td></tr>'+rows+'</table>';
+  // Math Sprint trend
+  const sh=(s.sh||[]);if(sh.length>=2){const lv=sh[sh.length-1].l,same=sh.filter(x=>x.l===lv).slice(-12);
+    if(same.length>=2){const SB=[...same.map((x,i)=>({label:x.d?shortDate(x.d):'#'+(i+1)}))],B2=SPRINT_BENCH[lv];
+      h+='<h4 style="margin:12px 0 2px">⚡ Math Sprint scores ('+['','Class 3','Explorer','Olympiad','Champion'][lv]+', last '+same.length+' sprints)</h4>'+svgLines(SB,[{n:'Score',c:'#7b5cff',v:same.map(x=>x.s),w:2.4},{n:'Target',c:'#2fbf71',v:same.map(()=>B2),dash:1,w:1.4}],Math.max(B2+5,...same.map(x=>x.s))+2)+legend([['Score per sprint','#7b5cff'],['Target for this level ('+B2+')','#2fbf71']])}}
+  // XP growth
+  const all=lastDays(PB_MODE==='day'?14:56);let cum=s.xp-all.reduce((a,d)=>a+((s.dxp||{})[d]||0),0);const xpLine=[];
+  B.forEach(b=>{b.days.forEach(d=>cum+=(s.dxp||{})[d]||0);xpLine.push(Math.max(0,cum))});
+  if(xpLine[xpLine.length-1]>0){const mx=Math.max(...xpLine);h+='<h4 style="margin:12px 0 2px">⭐ Total XP growth</h4>'+svgLines(B,[{n:'XP',c:'#ffb020',v:xpLine,w:2.4}],Math.ceil(mx*1.1/50)*50||50)}
+  h+='<h4 style="margin:12px 0 4px">🗓️ Playing calendar (last 8 weeks)</h4>'+heatmap(s);
+  h+='<p style="font-size:.74rem;opacity:.6;margin-top:8px">Score % = correct answers in quizzes, World Explorer and chess puzzles (first try), plus games scored against a target (Math Sprint vs level benchmark, Memory level out of 8, Flag Match moves, Code-a-Bot runs). A point needs 3+ answers in that '+per+'. Percentiles need a comparison group, so trends are shown against her own past results and age-level targets.</p>';
+  return h;
+}
+document.addEventListener('click',e=>{const b=e.target.closest('.pbmode [data-m]');if(b){PB_MODE=b.dataset.m;renderParent()}});
 
 // ================= START =================
 if(WHO){choose(WHO)}

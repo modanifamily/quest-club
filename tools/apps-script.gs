@@ -167,6 +167,17 @@ function kidSection_(kid, rec) {
   h += row('Quiz questions answered', qW[1], qP[1], '');
   h += '</table>';
 
+  // Time and score by subject: this week vs last week
+  const SUBJ = ['Maths & Logic', 'Science', 'General Knowledge', 'Geography', 'Memory', 'Chess', 'Coding & AI'];
+  const agg = (days, k) => { let m = 0, r = 0, t = 0; days.forEach(d => { m += ((p.dm || {})[d] || {})[k] || 0; const v = ((p.ds || {})[d] || {})[k]; if (v) { r += v[0]; t += v[1]; } }); return { m: m, s: t >= 3 ? Math.round(r / t * 100) : null }; };
+  const subjRows = SUBJ.map(k => { const a = agg(wk, k), b = agg(pw, k); if (!a.m && !b.m && a.s === null && b.s === null) return ''; 
+    const ar = (x, y) => (x === null || y === null) ? '' : x > y ? ' <span style="color:#1d9a5b">▲</span>' : x < y ? ' <span style="color:#d64545">▼</span>' : '';
+    return '<tr><td style="padding:5px 6px;border-bottom:1px solid #eee">' + k + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee"><b>' + a.m + ' min</b>' + ar(a.m, b.m) + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee;color:#777">' + b.m + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee"><b>' + (a.s === null ? '—' : a.s + '%') + '</b>' + ar(a.s, b.s) + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee;color:#777">' + (b.s === null ? '—' : b.s + '%') + '</td></tr>'; }).join('');
+  if (subjRows) {
+    h += '<h3 style="margin:14px 0 6px;color:#2d2a4a">📚 By subject</h3><table style="border-collapse:collapse;width:100%;font-size:13px">';
+    h += '<tr style="background:#f4f1ff"><th align="left" style="padding:5px 6px">Subject</th><th align="right" style="padding:5px 6px">Time</th><th align="right" style="padding:5px 6px">last wk</th><th align="right" style="padding:5px 6px">Score</th><th align="right" style="padding:5px 6px">last wk</th></tr>' + subjRows + '</table>';
+  }
+
   // Insights
   const st = streams_(p), tried = st.filter(x => x[1] !== null && x[1] !== undefined).sort((a, b) => b[1] - a[1]);
   const tips = [];
