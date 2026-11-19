@@ -133,6 +133,14 @@
   .lv{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0}
   .lv button{border:2px solid var(--accent);background:#fff;color:var(--accent);border-radius:12px;padding:7px 10px;font-weight:700;cursor:pointer;font-family:inherit}
   .lv button.on{background:var(--accent);color:#fff}
+  .big{position:relative;overflow:hidden;padding-right:78px}
+  .big .pct{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.28);border-radius:14px;padding:5px 8px;font-size:1rem;font-weight:800;text-align:center;line-height:1.1;min-width:54px}
+  .big .pct small{display:block;font-size:.66rem;font-weight:700;opacity:.95;margin:1px 0 0}
+  .big .ptrack{position:absolute;left:0;right:0;bottom:0;height:6px;background:rgba(0,0,0,.12)}
+  .big .ptrack i{display:block;height:100%;background:rgba(255,255,255,.9)}
+  .hubpct{margin:4px 0 10px;font-weight:700}
+  .hubpct .bar2{height:12px;background:#eee;border-radius:99px;overflow:hidden;margin-top:5px}
+  .hubpct .bar2 i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
   .g4{background:linear-gradient(120deg,#ff7eb6,#ff9a5c)} .g5{background:linear-gradient(120deg,#1fa2a8,#4f7cff)}
 </style>
 </head>
@@ -174,12 +182,13 @@
     <div class="card">
       <h2 id="hello"></h2>
       <p id="nextRank"></p>
-      <div id="quick"></div>
     </div>
     <div class="card">
-      <h3>🎯 Today's missions <span id="chestState" style="float:right"></span></h3>
+      <h3>📋 Today's plan <span id="chestState" style="float:right"></span></h3>
+      <div class="hubpct" id="planPct"></div>
       <div id="missions"></div>
     </div>
+    <div class="card"><h3>🎮 Free play &amp; shortcuts</h3><div id="quick"></div></div>
     <div class="card" id="vsCard"></div>
   </section>
 
@@ -204,9 +213,10 @@
   <!-- BRAIN HUB -->
   <section id="brainView" class="hidden">
     <div class="card"><h2>Brain Games 🧠</h2>
+      <button class="big g2" data-g="dquiz">📝 Today's Quiz<small>Your daily set — new questions every day</small></button>
       <button class="big g1" data-g="sprint">⚡ Math Sprint<small>How many sums can you solve in 60 seconds?</small></button>
       <button class="big g2" data-g="world">🌍 World Explorer<small>Flags, capitals and continents</small></button>
-      <button class="big g3" data-g="oly">🏅 Quiz Master<small>India, History, Space, Animals, Physics, Chemistry, Biology, Maths and more</small></button>
+      <button class="big g3" data-g="oly">🏅 Quiz Master — free practice<small>Pick any topic: India, History, Space, Physics, Spirituality and more</small></button>
       <button class="big g4" data-g="mem">🧩 Memory Grid<small>Remember the glowing squares</small></button>
       <button class="big g5" data-g="match">🃏 Flag Match<small>Flip cards to match each flag with its country</small></button>
       <button class="big g1" data-g="wisdom">🪔 Wisdom Corner<small>Mantra and Gita verse of the day, with meanings</small></button>
@@ -1263,7 +1273,7 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 const dayNum=s=>Math.round(Date.parse(s+'T00:00:00Z')/864e5);
 function newProg(){return{lessons:{},puzzles:{},score:{w:0,d:0,l:0},xp:0,coins:0,streak:0,lastDay:null,badges:{},themes:{classic:1},theme:'classic',
   hunts:0,best:{},stats:{checks:0,caps:0,castles:0,promos:0},day:null,sound:true,
-  sprintBest:{},memBest:0,qstats:{},seen:{},correctTotal:0,bot:{},cardsSeen:{},dxp:{},mins:{},rounds:{world:0,quiz:0,sprint:0,mem:0,match:0},ws:{},pz:{s:0,f:0},sh:[],mh:[],area:{},dq:{},wrong:[],hst:{r:0,t:0},dm:{},ds:{},wis:{m:{},g:{},seenM:{},seenG:{}}}}
+  sprintBest:{},memBest:0,qstats:{},seen:{},correctTotal:0,bot:{},cardsSeen:{},dxp:{},mins:{},rounds:{world:0,quiz:0,sprint:0,mem:0,match:0},ws:{},pz:{s:0,f:0},sh:[],mh:[],area:{},dq:{},wrong:[],hst:{r:0,t:0},dm:{},ds:{},wis:{m:{},g:{},seenM:{},seenG:{}},qok:{},wc:{},fm:{},myth:{},teachModes:{},planLog:{}}}
 function loadProg(id){
   const p=newProg();
   try{const raw=localStorage.getItem(PROFILES[id].key);if(raw){const o=JSON.parse(raw);for(const k in o)if(o[k]!==null&&o[k]!==undefined)p[k]=o[k]}}catch(e){}
@@ -1305,11 +1315,28 @@ const ME=()=>PROFILES[WHO];
 
 function rankOf(xp){let r=0;for(let i=0;i<RANKS.length;i++)if(xp>=RANKS[i].xp)r=i;return r}
 function seeded(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647}
-function todaysMissions(){
-  const rnd=seeded(dayNum(today())*7+(WHO==='avanya'?11:3));const pool=MISSIONS[WHO].slice();const out=[];const used={};
-  while(out.length<3&&pool.length){const m=pool.splice(Math.floor(rnd()*pool.length),1)[0];if(used[m.k])continue;used[m.k]=1;out.push(m)}
-  return out;
+// ---------- TODAY'S PLAN (daily portions; replaces random missions) ----------
+const PLAN_CAT={lessons:'Chess',puzzles:'Chess',games:'Chess',sprints:'Maths',dquiz:'Quiz',world:'Geography',match:'Geography',mem:'Memory',wisdom:'Wisdom',robo:'Robo Lab'};
+const DQ_SIZE=()=>WHO==='avanya'?15:10;
+function buildPlan(){
+  const n=dayNum(today()),alt=n%2===0,roboDay=[2,5].includes(n%7),A=WHO==='aaranya';
+  const plan=[];
+  if(A&&Object.keys(prog.lessons||{}).length<LESSONS.length)plan.push({k:'lessons',n:1,e:'📚',t:'1 chess lesson'});
+  else plan.push(alt||A?{k:'puzzles',n:2,e:'🧩',t:'2 chess puzzles'}:{k:'games',n:1,e:'♞',t:'1 chess game vs Robo-Knight'});
+  plan.push({k:'sprints',n:1,e:'⚡',t:'1 Math Sprint ('+(A?'Class 3':'Champion')+')'});
+  plan.push({k:'dquiz',n:DQ_SIZE(),e:'📝',t:'Today\'s Quiz ('+DQ_SIZE()+' questions)'});
+  if(A)plan.push(alt?{k:'world',n:1,e:'🌍',t:'1 World Explorer round'}:{k:'match',n:1,e:'🃏',t:'1 Flag Match game'});
+  else{plan.push({k:'world',n:1,e:'🌍',t:'1 World Explorer round'});plan.push(alt?{k:'mem',n:1,e:'🧠',t:'1 Memory Grid game'}:{k:'match',n:1,e:'🃏',t:'1 Flag Match game'})}
+  plan.push({k:'wisdom',n:1,e:'🪔',t:'Today\'s mantra & Gita verse'});
+  if(roboDay)plan.push({k:'robo',n:1,e:'🤖',t:'1 Robo Lab activity'});
+  return plan;
 }
+function todaysMissions(){ensureDayBase();if(!prog.day.plan){prog.day.plan=buildPlan();prog.day.claimed={};prog.day.chest=false}return prog.day.plan}
+function planGo(k){({lessons:()=>{const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);openTask('lesson',nl<0?0:nl)},puzzles:()=>tab('puzzle'),games:()=>tab('play'),sprints:()=>openSprint(),dquiz:()=>openDailyQuiz(),
+  world:()=>openWorldSetup(),match:()=>openMatch(),mem:()=>openMem(),wisdom:()=>openWisdom(),robo:()=>tab('robo')}[k]||(()=>tab('brain')))()}
+function planFrac(){const pl=todaysMissions();return pl.reduce((a,m)=>a+Math.min(1,(prog.day.c[m.k]||0)/m.n),0)/pl.length}
+function logPlan(){const t=today(),pl=todaysMissions(),lg=prog.planLog||(prog.planLog={});const o={};
+  pl.forEach(m=>{const cat=PLAN_CAT[m.k]||m.k;const f=Math.min(1,(prog.day.c[m.k]||0)/m.n);o[cat]=o[cat]===undefined?f:(o[cat]+f)/2});o._all=Math.round(planFrac()*100)/100;lg[t]=o}
 const dailyIdx=()=>dayNum(today())%PUZZLES.length;
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -1396,9 +1423,10 @@ const SCOL={'Maths & Logic':'#7b5cff','Science':'#1fa2a8','General Knowledge':'#
 const TOPIC2S={Maths:'Maths & Logic',Reasoning:'Maths & Logic',Physics:'Science',Chemistry:'Science',Biology:'Science',India:'General Knowledge',History:'General Knowledge',World:'General Knowledge',Nature:'General Knowledge',Animals:'General Knowledge',Space:'General Knowledge',Spirituality:'Spirituality'};
 function addScore(stream,r,t){if(!WHO||!t)return;const d=today();const day=prog.ds[d]||(prog.ds[d]={});const v=day[stream]||(day[stream]=[0,0]);v[0]+=r;v[1]+=t;save()}
 function pruneOld(){const cut=lastDays(120)[0];['dxp','mins','dq','dm','ds'].forEach(k=>{const m=prog[k]||{};Object.keys(m).forEach(d=>{if(d<cut)delete m[d]})})}
+function ensureDayBase(){const t=today();if(!prog.day||prog.day.date!==t){prog.day={date:t,c:{},claimed:{},chest:false}}}
 function ensureDay(){
   const t=today();
-  if(!prog.day||prog.day.date!==t){prog.day={date:t,c:{},claimed:{},chest:false}}
+  ensureDayBase();
   if(prog.lastDay!==t){
     pruneOld();
     const gap=prog.lastDay?dayNum(t)-dayNum(prog.lastDay):99;
@@ -1414,11 +1442,13 @@ function ensureDay(){
 }
 function bump(k,n){
   if(!WHO)return;ensureDay();prog.day.c[k]=(prog.day.c[k]||0)+(n||1);
-  todaysMissions().forEach((m,i)=>{
-    if(!prog.day.claimed[i]&&(prog.day.c[m.k]||0)>=m.n){prog.day.claimed[i]=1;toast('🎯 Mission done: '+m.t);addXP(30,'mission')}
+  const pl=todaysMissions();
+  pl.forEach((m,i)=>{
+    if(!prog.day.claimed[i]&&(prog.day.c[m.k]||0)>=m.n){prog.day.claimed[i]=1;toast('✅ Plan: '+m.t+' — done!');addXP(30,'plan')}
   });
-  if(!prog.day.chest&&Object.keys(prog.day.claimed).length===3){
-    prog.day.chest=true;save();earnBadge('chest');confetti();modal('🎁','Treasure chest!','You finished all 3 missions today! +50 bonus XP. New missions tomorrow!');addXP(50,'chest');
+  logPlan();
+  if(!prog.day.chest&&Object.keys(prog.day.claimed).length===pl.length){
+    prog.day.chest=true;save();earnBadge('chest');confetti();SND.level();modal('🎉','Day complete!','You finished today\'s whole plan! +50 bonus XP. A new plan is waiting tomorrow. Free play is still open if you want more!');addXP(50,'day complete');
   }
   save();
 }
@@ -1431,9 +1461,9 @@ function tab(name){
   stopAll();
   for(const[b,n]of[['tabHome','home'],['tabChess','chess'],['tabBrain','brain'],['tabRobo','robo'],['tabTrophy','trophy']])$(b).classList.toggle('on',n===name);
   if(name==='home'){renderHome();show('homeView')}
-  if(name==='chess'){renderChessHub();show('chessView')}
-  if(name==='brain')show('brainView');
-  if(name==='robo')show('roboView');
+  if(name==='chess'){renderChessHub();updateProgressUI();show('chessView')}
+  if(name==='brain'){updateProgressUI();show('brainView')}
+  if(name==='robo'){updateProgressUI();show('roboView')}
   if(name==='trophy'){renderTrophies();show('trophyView')}
   if(name==='learn'){buildLists();show('learnList')}
   if(name==='puzzle'){buildLists();show('puzzleList')}
@@ -1444,6 +1474,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-back]');if
 
 // ================= PICKER =================
 function showPicker(){
+  if(WHO&&READY===WHO)pushNow();
   WHO=null;try{localStorage.removeItem('quest_who')}catch(e){}
   prog=newProg();applyTheme();refreshHeader();
   const rows=Object.entries(PROFILES).map(([id,p])=>{let g=loadProg(id);const c=CLOUD&&CLOUD[id];if(c&&c.data&&(c.updated||0)>(g.updated||0))g=Object.assign(newProg(),c.data);return{id,p,g}}).sort((a,b)=>b.g.xp-a.g.xp);
@@ -1468,9 +1499,11 @@ function renderHome(){
   const r=rankOf(prog.xp),nx=RANKS[r+1];
   $('hello').textContent='Hi '+ME().name+'! '+ME().em;
   $('nextRank').textContent=nx?('Only '+(nx.xp-prog.xp)+' XP until you become a '+nx.e+' '+nx.n+'!'):'You reached the top rank. Grandmaster '+ME().name+'! 🏆';
+  {const C=updateProgressUI();if(C)$('nextRank').innerHTML=$('nextRank').textContent+'<div class="hubpct" style="margin-top:10px">🗺️ Your learning journey: '+C.sec.all+'% complete<span style="float:right;font-weight:600;opacity:.75">♞ '+C.sec.chess+'% · 🧠 '+C.sec.brain+'% · 🤖 '+C.sec.robo+'%</span><div class="bar2"><i style="width:'+C.sec.all+'%"></i></div></div>'}
   $('quick').innerHTML='';
   const di=dailyIdx(),dSub=PUZZLES[di].title.replace(/^\d+\.\s*/,'')+(prog.day.c.daily?' — solved today ✅':' — double XP today!');
   const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);
+  quickBtn('g2','📝 Today\'s Quiz',(prog.day.dqPos||0)>=DQ_SIZE()?'Done for today ✅':(prog.day.dqPos||0)+'/'+DQ_SIZE()+' done — new set every day',()=>openDailyQuiz());
   if(WHO==='aaranya'){
     quickBtn('g1','✨ Chess Puzzle of the Day',dSub,()=>openTask('puzzle',di));
     quickBtn('g3','📚 Continue chess lessons',nl>=0?'Next: '+LESSONS[nl].title:'All lessons done! Try puzzles.',()=>{if(nl>=0)openTask('lesson',nl);else tab('puzzle')});
@@ -1488,10 +1521,12 @@ function renderHome(){
   }
   const ms=todaysMissions();$('missions').innerHTML='';
   ms.forEach((m,i)=>{const c=Math.min(prog.day.c[m.k]||0,m.n),done=!!prog.day.claimed[i];
-    const d=document.createElement('div');d.className='mission'+(done?' done':'');
-    d.innerHTML='<span class="ic">'+(done?'✅':m.e)+'</span><div class="tx">'+m.t+' <span style="float:right">'+c+'/'+m.n+'</span><div class="mb"><i style="width:'+(c/m.n*100)+'%"></i></div></div>';
-    $('missions').appendChild(d)});
-  $('chestState').textContent=prog.day.chest?'🎁 opened':'🎁 locked';
+    const d=document.createElement('div');d.className='mission'+(done?' done':'');d.style.cursor='pointer';
+    d.innerHTML='<span class="ic">'+(done?'✅':m.e)+'</span><div class="tx">'+m.t+' <span style="float:right">'+(done?'Done':c+'/'+m.n+' ▶')+'</span><div class="mb"><i style="width:'+(c/m.n*100)+'%"></i></div></div>';
+    d.onclick=()=>planGo(m.k);$('missions').appendChild(d)});
+  const pf=Math.round(planFrac()*100);
+  $('planPct').innerHTML=(prog.day.chest?'🎉 Day complete! Free play is open — see you tomorrow for a new plan.':'Today: '+pf+'% done — tap a task to start')+'<div class="bar2"><i style="width:'+pf+'%"></i></div>';
+  $('chestState').textContent=prog.day.chest?'🎉 done':'';
   // sister race
   const other=WHO==='aaranya'?'avanya':'aaranya',og=loadProg(other),op=PROFILES[other];
   const diff=prog.xp-og.xp;
@@ -1703,7 +1738,7 @@ $('playHint').onclick=()=>{if(G.over||G.thinking||G.s.turn!=='w')return;const m=
 
 // ================= BRAIN HUB =================
 document.querySelectorAll('#brainView [data-g]').forEach(b=>b.onclick=()=>{
-  const g=b.dataset.g;if(g==='sprint')openSprint();if(g==='world')openWorldSetup();if(g==='oly')openQuizSetup();if(g==='mem')openMem();if(g==='match')openMatch();if(g==='wisdom')openWisdom();
+  const g=b.dataset.g;if(g==='sprint')openSprint();if(g==='world')openWorldSetup();if(g==='oly')openQuizSetup();if(g==='mem')openMem();if(g==='match')openMatch();if(g==='wisdom')openWisdom();if(g==='dquiz')openDailyQuiz();
 });
 
 // ---------- MATH SPRINT ----------
@@ -1789,7 +1824,7 @@ function runQuiz(cfg){
 }
 function showQ(){
   const it=Q.qs[Q.i];Q.answered=false;
-  $('qNum').textContent=Q.title+' · '+(Q.i+1)+'/'+Q.qs.length;$('qScore').textContent='✅ '+Q.score;
+  $('qNum').textContent=Q.kind==='dquiz'?'📝 Today\'s Quiz · '+(Q.offset+Q.i+1)+'/'+Q.total:Q.title+' · '+(Q.i+1)+'/'+Q.qs.length;$('qScore').textContent='✅ '+Q.score;
   $('qBig').textContent=it.big||'';$('qBig').classList.toggle('hidden',!it.big);
   $('qText').textContent=(it.cat?QICON[it.cat]+' ':'')+it.text;
   $('qExplain').classList.add('hidden');$('qNext').classList.add('hidden');
@@ -1799,6 +1834,9 @@ function showQ(){
 function answerQ(k,btn){
   if(Q.answered)return;Q.answered=true;const it=Q.qs[Q.i];const ok=k===it.ans;
   const btns=$('qOpts').children;btns[it.ans].classList.add('right');
+  if(Q.kind==='dquiz'){prog.day.dqPos=(prog.day.dqPos||0)+1;bump('dquiz')}
+  if(ok&&it.id!==undefined)prog.qok[it.id]=1;
+  if(ok&&it.cn)prog.wc[it.cn]=1;
   if(ok){Q.score++;SND.ok();addXP(it.hard?5:3);prog.correctTotal=(prog.correctTotal||0)+1;bump('correct')}else{btn.classList.add('wrong');SND.bad()}
   if(it.cat){const s=prog.qstats[it.cat]||(prog.qstats[it.cat]={r:0,t:0});s.t++;if(ok)s.r++;if(it.id!==undefined)prog.seen[it.id]=1;
     const td=today(),d=prog.dq[td]||(prog.dq[td]=[0,0]);d[1]++;if(ok)d[0]++;
@@ -1814,14 +1852,37 @@ function answerQ(k,btn){
   $('qNext').textContent=Q.i<Q.qs.length-1?'Next ➡':'Finish 🏁';$('qNext').classList.remove('hidden');
 }
 $('qNext').onclick=()=>{if(Q.i<Q.qs.length-1){Q.i++;showQ()}else finishQuiz()};
-$('qQuit').onclick=()=>{Q.quit=true;Q.kind==='world'?openWorldSetup():openQuizSetup()};
+$('qQuit').onclick=()=>{Q.quit=true;Q.kind==='dquiz'?(toast('Saved — carry on later from Today\'s plan'),tab('home')):Q.kind==='world'?openWorldSetup():openQuizSetup()};
 function roundDone(k){prog.rounds[k]=(prog.rounds[k]||0)+1;save()}
-function finishQuiz(){roundDone(Q.kind);
+function finishQuiz(){roundDone(Q.kind==='dquiz'?'quiz':Q.kind);
+  if(Q.kind==='dquiz'){SND.win();confetti();modal('📝','Today\'s Quiz complete!','You got '+Q.score+' right in this sitting. New questions tomorrow!');earnBadge('q1');checkBadges();tab('home');return}
   const perfect=Q.score===Q.qs.length;SND.win();if(perfect)confetti();
   modal(perfect?'🏆':Q.score>=7?'🌟':'💪',Q.score+' / '+Q.qs.length,perfect?'PERFECT ROUND! +20 bonus XP':Q.score>=7?'Great job! Can you get 10/10 next time?':'Good practice! Read the explanations — they help you remember.');
   if(perfect)addXP(20,'perfect!');
   if(Q.kind==='world'){bump('world');earnBadge('wx1');if(perfect)earnBadge('wxp')}else{bump('quiz');earnBadge('q1')}
   checkBadges();Q.kind==='world'?openWorldSetup():openQuizSetup();
+}
+
+
+// ---------- TODAY'S QUIZ (fixed daily set) ----------
+function dailyQuizIds(){
+  ensureDayBase();if(prog.day.dqIds)return prog.day.dqIds;
+  const rnd=seeded(dayNum(today())*31+(WHO==='avanya'?7:13));const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  const pool=quizPool(),N=DQ_SIZE(),A=WHO==='aaranya';
+  const want=A?{std:N}:{hard:Math.round(N*0.6),std:N-Math.round(N*0.6)};
+  const pickFrom=(ids,k)=>{const fresh=sh(ids.filter(i=>!prog.seen[i])),old=sh(ids.filter(i=>prog.seen[i]));const order=fresh.concat(old);
+    const byCat={};order.forEach(i=>{(byCat[OLY[i].c]=byCat[OLY[i].c]||[]).push(i)});const cats=sh(Object.keys(byCat));const out=[];
+    while(out.length<k&&cats.some(c=>byCat[c].length)){for(const c of cats){if(out.length>=k)break;if(byCat[c].length)out.push(byCat[c].shift())}}return out};
+  let ids=[];
+  if(want.hard)ids=ids.concat(pickFrom(pool.filter(i=>OLY[i].d===2),want.hard));
+  ids=ids.concat(pickFrom(pool.filter(i=>!OLY[i].d&&!ids.includes(i)),N-ids.length));
+  prog.day.dqIds=sh(ids);prog.day.dqPos=0;save();return prog.day.dqIds;
+}
+function openDailyQuiz(){
+  const ids=dailyQuizIds(),pos=prog.day.dqPos||0;
+  if(pos>=ids.length){modal('✅','Today\'s Quiz is done!','Great work! A new set of questions comes tomorrow. Want more? Try free practice in Quiz Master.');openQuizSetup();return}
+  const qs=ids.slice(pos).map(i=>{const q=OLY[i];const order=shuffle([0,1,2,3]);return{id:i,hard:q.d===2,cat:q.c,text:(q.d===2?'🔥 ':'')+q.q,opts:order.map(k=>q.o[k]),ans:order.indexOf(q.a),explain:q.e}});
+  runQuiz({kind:'dquiz',title:'📝 Today ('+pos+'/'+ids.length+' done)',qs,offset:pos,total:ids.length});
 }
 
 // ---------- WORLD EXPLORER ----------
@@ -1857,6 +1918,7 @@ function startWorld(){
     if(WX.mode==='capital')return{big:c.f,text:'What is the capital of '+c.n+'?',opts:all.map(x=>x.cap),ans:all.indexOf(c),explain:c.cap+' is the capital of '+c.n+'.'};
     return{big:'🏙️',text:c.cap+' is the capital of which country?',opts:all.map(x=>x.n),ans:all.indexOf(c),explain:c.cap+' is the capital of '+c.n+' '+c.f+'.'};
   });
+  qs.forEach((q,k)=>q.cn=chosen[k].n);
   runQuiz({kind:'world',mode:WX.mode,title:'🌍',qs});
 }
 
@@ -1950,7 +2012,7 @@ function flip(i){
   const k=MT.cards[i];if(MT.lock||k.done||MT.open.includes(i))return;
   MT.open.push(i);SND.tick();drawMatch();
   if(MT.open.length===2){MT.moves++;const[a,b]=MT.open.map(x=>MT.cards[x]);
-    if(a.c===b.c&&a.flag!==b.flag){a.done=b.done=true;MT.open=[];MT.found++;SND.ok();toast(a.c.f+' '+a.c.n);drawMatch();
+    if(a.c===b.c&&a.flag!==b.flag){prog.fm[a.c.n]=1;a.done=b.done=true;MT.open=[];MT.found++;SND.ok();toast(a.c.f+' '+a.c.n);drawMatch();
       if(MT.found===MT.pairs){const xp=MT.pairs*4+Math.max(0,MT.pairs*2-MT.moves+MT.pairs)*2;SND.win();confetti();
         roundDone('match');addScore('Geography',MT.pairs,Math.max(MT.moves,MT.pairs));modal('🃏','All matched!','You did it in '+MT.moves+' moves.');addXP(xp,'Flag Match');bump('match');earnBadge('match');checkBadges()}}
     else{MT.lock=true;setTimeout(()=>{MT.open=[];MT.lock=false;drawMatch()},900)}
@@ -2070,7 +2132,7 @@ function teachPredict(){
 function teachResults(){
   const n=TR.test.length,marked=Object.keys(TR.marks).length;
   if(marked<n){toast('Mark all '+n+' guesses first ✅ / ❌');return}
-  const right=Object.values(TR.marks).filter(Boolean).length;
+  const right=Object.values(TR.marks).filter(Boolean).length;prog.teachModes[TR.mode]=1;save();
   const wrongs=TR.test.filter((c,i)=>!TR.marks[i]);
   $('teachTop').innerHTML='<h2>Round '+TR.round+' results</h2><div class="qbig">'+(right===n?'🏆':right>=n/2?'🤖':'🤔')+'</div><div class="qtext">The robot got '+right+' out of '+n+' right!</div>';
   let tip=right===n?'Your examples were so clear that the robot found the pattern. That is exactly how AI learns!':
@@ -2103,7 +2165,7 @@ function drawCard(){
   } else {
     $('cardKind').textContent='🤔 Myth or Fact?';$('cardEm').textContent='❓';$('cardTitle').textContent='"'+c.s+'"';$('cardText').textContent='What do you think?';
     $('cardFlip').innerHTML='<div class="opts"><button class="opt" id="mfM">🙅 Myth</button><button class="opt" id="mfF">👍 Fact</button></div>';
-    const reveal=g=>{const ok=g===c.f;$('cardEm').textContent=c.f?'✅':'🙅';$('cardText').textContent=c.x;
+    const reveal=g=>{prog.myth[c.i]=1;save();const ok=g===c.f;$('cardEm').textContent=c.f?'✅':'🙅';$('cardText').textContent=c.x;
       (ok?SND.ok:SND.bad)();$('cardFlip').innerHTML='<p class="tip">'+(ok?'You got it! ':'Good guess — now you know! ')+'</p>';if(ok)addXP(3)};
     $('mfM').onclick=()=>reveal(false);$('mfF').onclick=()=>reveal(true);
   }
@@ -2133,7 +2195,7 @@ function snapshot(id,p){
   return{v:1,id,at:Date.now(),xp:p.xp,streak:p.streak||0,lastDay:p.lastDay,badges:Object.keys(p.badges||{}).length,
     lessons:Object.keys(p.lessons||{}).length,puzzles:Object.keys(p.puzzles||{}).length,score:p.score,hunts:p.hunts||0,
     sb:p.sprintBest||{},mem:p.memBest||0,qs,ct:p.correctTotal||0,bot:Object.keys(p.bot||{}).length,cards:Object.keys(p.cardsSeen||{}).length,
-    dxp:pickMap(p.dxp),mins:pickMap(p.mins),rounds:p.rounds||{},ws:p.ws||{},pz:p.pz||{s:0,f:0},area:p.area||{},sh:(p.sh||[]).slice(-30),mh:(p.mh||[]).slice(-12),dq:pickMap(p.dq),dm:pickMap(p.dm),ds:pickMap(p.ds),wisDays:lastDays(14).filter(d=>((p.wis||{}).m||{})[d]||((p.wis||{}).g||{})[d]).length,gitaTotal:Object.keys((p.wis||{}).seenG||{}).length,wr:(p.wrong||[]).slice(-8),hst:p.hst||{r:0,t:0},teach:!!(p.badges||{}).teach,today:p.day&&p.day.date===today()?Object.keys(p.day.claimed||{}).length:0};
+    dxp:pickMap(p.dxp),mins:pickMap(p.mins),rounds:p.rounds||{},ws:p.ws||{},pz:p.pz||{s:0,f:0},area:p.area||{},sh:(p.sh||[]).slice(-30),mh:(p.mh||[]).slice(-12),dq:pickMap(p.dq),dm:pickMap(p.dm),ds:pickMap(p.ds),planLog:pickMap(p.planLog),wisDays:lastDays(14).filter(d=>((p.wis||{}).m||{})[d]||((p.wis||{}).g||{})[d]).length,gitaTotal:Object.keys((p.wis||{}).seenG||{}).length,wr:(p.wrong||[]).slice(-8),hst:p.hst||{r:0,t:0},teach:!!(p.badges||{}).teach,today:p.day&&p.day.date===today()?Object.keys(p.day.claimed||{}).length:0};
 }
 const enc=o=>'QC1:'+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
 function dec(txt){const m=(txt||'').match(/QC1:([A-Za-z0-9+/=]+)/);if(!m)return null;try{const o=JSON.parse(decodeURIComponent(escape(atob(m[1]))));return o&&o.v===1&&PROFILES[o.id]?o:null}catch(e){return null}}
@@ -2273,6 +2335,8 @@ function insightsHTML(s,name){
   const ar=s.area||{},atot=Object.values(ar).reduce((a,b)=>a+b,0);
   if(atot>=15){const parts=['Chess','Brain games','Robo Lab','Wisdom'].map(k=>({k,p:Math.round((ar[k]||0)/atot*100)})).sort((a,b)=>b.p-a.p);
     tips.push('⚖️ <b>Time split:</b> '+parts.map(x=>x.k+' '+x.p+'%').join(', ')+(parts[parts.length-1].p<5?' — '+parts[parts.length-1].k+' is barely used.':'.'))}
+  {const pl=lastDays(7).map(d=>(s.planLog||{})[d]).filter(Boolean);const full=pl.filter(x=>x._all>=1).length;const avgp=pl.length?Math.round(pl.reduce((a,x)=>a+x._all,0)/7*100):0;
+   tips.unshift('📋 <b>Daily plan:</b> fully completed on '+full+' of the last 7 days; average '+avgp+'% of the plan done per day.'+(full>=5?' Great routine!':full<=2?' A fixed daily slot (e.g. after homework) could help.':''))}
   if(s.wisDays!==undefined)tips.push('🪔 <b>Wisdom Corner:</b> '+(s.wisDays?'visited on '+s.wisDays+' of the last 14 days ('+(s.gitaTotal||0)+' Gita verses read so far).':'not visited yet — the mantra and Gita verse of the day take two minutes.'));
   if(untried.length)tips.push('🆕 <b>Not tried yet:</b> '+untried.map(x=>x.n).join(', ')+'.');
   let h='<h3>🔎 Insights</h3>';
@@ -2332,10 +2396,21 @@ function heatmap(s){
   days.forEach(d=>{const m=(s.mins||{})[d]||0;const c=m===0?'#eeeaf7':m<10?'#cfc4ff':m<20?'#a48cff':m<40?'#7b5cff':'#4b2fd1';cells.push('<div title="'+shortDate(d)+': '+m+' min" style="background:'+c+';border-radius:3px"></div>')});
   return h+cells.join('')+'</div><div style="font-size:.7rem;opacity:.65;margin-top:4px">Each square is a day: columns are weeks (oldest on the left), rows run Sunday to Saturday. Darker = more minutes.</div>';
 }
+
+function planGrid(s){
+  const days=lastDays(14),cats=['Chess','Maths','Quiz','Geography','Memory','Wisdom','Robo Lab'].filter(c=>days.some(d=>((s.planLog||{})[d]||{})[c]!==undefined));
+  if(!cats.length)return '<p style="opacity:.7;font-size:.85rem">The daily plan grid fills in as she completes her daily plans.</p>';
+  const col=v=>v===undefined?'#f4f2f8':v>=1?'#2fbf71':v>=0.5?'#9be3b9':v>0?'#ffd98a':'#ffc9c9';
+  let h='<div style="overflow-x:auto"><table style="border-collapse:separate;border-spacing:2px;font-size:.66rem;width:100%"><tr><td></td>'+days.map(d=>'<td style="text-align:center;opacity:.7">'+shortDay(d).replace(' ','<br>')+'</td>').join('')+'</tr>';
+  cats.concat(['Overall']).forEach(c=>{h+='<tr><td style="white-space:nowrap;font-weight:'+(c==='Overall'?800:600)+';padding-right:4px">'+c+'</td>'+days.map(d=>{const L=(s.planLog||{})[d];const v=L?(c==='Overall'?L._all:L[c]):undefined;
+    return '<td title="'+c+' '+shortDate(d)+': '+(v===undefined?'not in plan':Math.round(v*100)+'%')+'" style="background:'+col(v)+';height:18px;border-radius:4px;text-align:center;color:#2d2a4a">'+(v===undefined?'':c==='Overall'?Math.round(v*100):(v>=1?'✓':''))+'</td>'}).join('')+'</tr>'});
+  return h+'</table></div>'+legend([['Done','#2fbf71'],['Half or more','#9be3b9'],['Started','#ffd98a'],['Not started','#ffc9c9'],['Not in that day\'s plan','#f4f2f8']]);
+}
 function trendsHTML(s,name){
   const B=buckets(PB_MODE),S=seriesFor(s,B),per=PB_MODE==='day'?'day':'week';
   let h='<h3>📈 Trends</h3><div class="seg pbmode"><button data-m="day" class="'+(PB_MODE==='day'?'on':'')+'">📅 Daily (14 days)</button><button data-m="week" class="'+(PB_MODE==='week'?'on':'')+'">🗓️ Weekly (8 weeks)</button></div>';
   const used=STREAMS.filter(k=>S.time[k].some(v=>v>0));
+  h+='<h4 style="margin:10px 0 4px">📋 Daily plan completion by category (last 14 days)</h4>'+planGrid(s);
   h+='<h4 style="margin:10px 0 2px">⏱ Time spent per '+per+' (minutes)</h4>';
   if(S.total.some(v=>v)){h+=svgStack(B,S)+legend(used.map(k=>[k,SCOL[k]]).concat(S.other.some(v=>v)?[['Menus & other','#d9d4e8']]:[]))}
   else h+='<p style="opacity:.7;font-size:.85rem">No time recorded yet in this period.</p>';
@@ -2445,6 +2520,60 @@ function renderWisdom(){
   const fin=()=>{if(w.m[t]&&w.g[t]&&!(prog.day.c.wisdom)){bump('wisdom');confetti();toast('🪔 Wisdom Corner complete for today!')}checkBadges()};
   if($('wisM'))$('wisM').onclick=()=>{w.m[t]=1;addXP(10,'mantra');SND.ok();save();fin();renderWisdom()};
   if($('wisG'))$('wisG').onclick=()=>{w.g[t]=1;addXP(10,'Gita verse');SND.ok();save();fin();renderWisdom()};
+}
+
+
+// ================= COMPLETION % =================
+const cntK=o=>Object.keys(o||{}).length;
+function quizPool(){return OLY.map((q,i)=>i).filter(i=>{const q=OLY[i];return WHO==='aaranya'?(!q.d&&(q.c!=='Maths'||q.y)):!q.y})}
+function worldPool(){return WHO==='aaranya'?COUNTRIES.filter(c=>FAMOUS.includes(c.n)):COUNTRIES}
+function completion(){
+  const P=prog,B=P.badges||{};
+  const lv=WHO==='aaranya'?[1,2]:[3,4];
+  const sprintDone=lv.reduce((a,l)=>a+Math.min(1,((P.sprintBest||{})[l]||0)/(SPRINT_BENCH[l]||20)),0);
+  const qp=quizPool(),qd=qp.filter(i=>(P.qok||{})[i]).length;
+  const wp=worldPool(),wd=wp.filter(c=>(P.wc||{})[c.n]).length,fd=wp.filter(c=>(P.fm||{})[c.n]).length;
+  const W=P.wis||{};
+  const items={
+    lessons:{d:cntK(P.lessons),t:LESSONS.length,s:'lessons'},
+    puzzles:{d:cntK(P.puzzles),t:PUZZLES.length,s:'puzzles'},
+    robo:{d:['w1','w2','w3'].filter(b=>B[b]).length,t:3,s:'levels beaten'},
+    hunt:{d:Math.min(5,cntK(P.best)),t:5,s:'pieces raced'},
+    sprint:{d:sprintDone,t:lv.length,s:'of target',pct:true},
+    oly:{d:qd,t:qp.length,s:'mastered'},
+    world:{d:wd,t:wp.length,s:'countries'},
+    mem:{d:Math.min(10,P.memBest||0),t:10,s:'levels'},
+    match:{d:fd,t:wp.length,s:'flags'},
+    wisdom:{d:cntK(W.seenM)+cntK(W.seenG),t:MANTRAS.length+GITA.length,s:'read'},
+    bot:{d:cntK(P.bot),t:BOT_LEVELS.length,s:'levels'},
+    teach:{d:cntK(P.teachModes),t:2,s:'lessons'},
+    cards:{d:cntK(P.cardsSeen)+cntK(P.myth),t:AI_CARDS.length+MYTHS.length,s:'cards'},
+  };
+  for(const k in items){const it=items[k];it.p=it.t?Math.min(100,Math.round(it.d/it.t*100)):0}
+  const avg=ks=>Math.round(ks.reduce((a,k)=>a+items[k].p,0)/ks.length);
+  const sec={chess:avg(['lessons','puzzles','robo','hunt']),brain:avg(['sprint','oly','world','mem','match','wisdom']),robo:avg(['bot','teach','cards'])};
+  sec.all=Math.round((sec.chess+sec.brain+sec.robo)/3);
+  return{items,sec};
+}
+function setPct(btn,it){
+  if(!btn||!it)return;let p=btn.querySelector('.pct');
+  if(!p){p=document.createElement('span');p.className='pct';btn.appendChild(p);const tr=document.createElement('span');tr.className='ptrack';tr.innerHTML='<i></i>';btn.appendChild(tr)}
+  const sub=it.pct?'':(Math.floor(it.d)+'/'+it.t);
+  p.innerHTML=(it.p>=100?'✅':it.p+'%')+(sub?'<small>'+sub+'</small>':'');btn.querySelector('.ptrack i').style.width=it.p+'%';
+}
+function setHub(viewId,label,p,left){
+  const card=$(viewId).querySelector('.card');if(!card)return;let d=card.querySelector('.hubpct');
+  if(!d){d=document.createElement('div');d.className='hubpct';card.insertBefore(d,card.querySelector('h2').nextSibling)}
+  d.innerHTML='🗺️ '+label+': '+p+'% complete'+(left?'<span style="float:right;font-weight:600;opacity:.7">'+left+'</span>':'')+'<div class="bar2"><i style="width:'+p+'%"></i></div>';
+}
+function updateProgressUI(){
+  if(!WHO)return;const C=completion(),I=C.items;
+  setPct($('goLessons'),I.lessons);setPct($('goPuzzles'),I.puzzles);setPct($('goPlay'),I.robo);setPct($('goHunt'),I.hunt);
+  ['sprint','oly','world','mem','match','wisdom'].forEach(k=>setPct(document.querySelector('#brainView [data-g="'+k+'"]'),I[k]));
+  {const ids=dailyQuizIds();setPct(document.querySelector('#brainView [data-g="dquiz"]'),{d:Math.min(prog.day.dqPos||0,ids.length),t:ids.length,p:Math.round(Math.min(prog.day.dqPos||0,ids.length)/ids.length*100)})}
+  setPct($('goBot'),I.bot);setPct($('goTeach'),I.teach);setPct($('goCards'),I.cards);
+  setHub('chessView','Chess journey',C.sec.chess);setHub('brainView','Brain games journey',C.sec.brain,'new questions arrive every Saturday');setHub('roboView','Robo Lab journey',C.sec.robo);
+  return C;
 }
 
 // ================= START =================

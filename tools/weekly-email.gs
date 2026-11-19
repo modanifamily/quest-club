@@ -132,6 +132,13 @@ function kidSection_(kid, rec) {
   if (hst.t >= 5) { const r = hst.r / hst.t; tips.push('🔥 <b>Challenge questions:</b> ' + Math.round(r * 100) + '% over ' + hst.t + (r >= 0.75 ? ' — ready for harder material.' : r < 0.5 ? ' — a mix of Standard rounds would build confidence.' : ' — a good stretch level.')); }
   const spW = (p.sh || []).filter(x => wk.includes(x.d));
   if (spW.length) { const best = spW.reduce((a, x) => x.s > a.s ? x : a, spW[0]); tips.push('⚡ <b>Math Sprint:</b> ' + spW.length + ' sprint' + (spW.length > 1 ? 's' : '') + ' this week, best ' + best.s + ' on ' + SPRINT_NAME[best.l] + ' (all-time best ' + ((p.sprintBest || {})[best.l] || best.s) + ').'); }
+  const pl = wk.map(d => (p.planLog || {})[d]).filter(Boolean);
+  const plFull = pl.filter(x => x._all >= 1).length, plAvg = Math.round(pl.reduce((a, x) => a + (x._all || 0), 0) / 7 * 100);
+  tips.unshift('📋 <b>Daily plan:</b> fully completed on ' + plFull + ' of 7 days; on average ' + plAvg + '% of each day\'s plan was done.' + (plFull >= 5 ? ' Great routine!' : plFull <= 2 ? ' A fixed daily slot could help.' : ''));
+  const cats = ['Chess', 'Maths', 'Quiz', 'Geography', 'Memory', 'Wisdom', 'Robo Lab'];
+  const catRows = cats.map(c => { const v = wk.map(d => ((p.planLog || {})[d] || {})[c]).filter(x => x !== undefined); if (!v.length) return ''; const pc = Math.round(v.reduce((a, x) => a + x, 0) / v.length * 100);
+    return '<tr><td style="padding:4px 6px">' + c + '</td><td style="padding:4px 6px;width:55%"><div style="background:#eee;border-radius:6px;height:10px"><div style="background:' + (pc >= 80 ? '#1d9a5b' : pc >= 50 ? '#d98c00' : '#d64545') + ';height:10px;border-radius:6px;width:' + pc + '%"></div></div></td><td align="right" style="padding:4px 6px"><b>' + pc + '%</b></td></tr>'; }).join('');
+  if (catRows) h += '<h3 style="margin:14px 0 6px;color:#2d2a4a">📋 Daily plan completion by category (this week)</h3><table style="border-collapse:collapse;width:100%;font-size:13px">' + catRows + '</table>';
   const wis = p.wis || {}, wisW = wk.filter(d => (wis.m || {})[d] || (wis.g || {})[d]).length;
   tips.push('🪔 <b>Wisdom Corner:</b> ' + (wisW ? 'mantra / Gita verse read on ' + wisW + ' of 7 days (' + cnt_(wis.seenG) + ' Gita verses so far).' : 'not visited this week.'));
   if (badgesW) tips.push('🏅 Earned <b>' + badgesW + ' new badge' + (badgesW > 1 ? 's' : '') + '</b> this week.');
