@@ -14,6 +14,7 @@ OLY.forEach((q, i) => {
   if (!Array.isArray(q.o) || q.o.length !== 4 || new Set(q.o).size !== 4) { console.error('Need 4 unique options', where); errors++; }
   if (!(q.a >= 0 && q.a <= 3)) { console.error('Bad answer index', where); errors++; }
   if (q.d !== undefined && q.d !== 2) { console.error('d must be 2 or absent', where); errors++; }
+  if (q.y !== undefined && q.y !== 1) { console.error('y must be 1 or absent', where); errors++; }
   const key = (q.q || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   if (seen.has(key)) { console.error('Duplicate question', where); errors++; }
   seen.add(key);

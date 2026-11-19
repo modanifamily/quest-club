@@ -216,7 +216,7 @@
   <section id="sprintView" class="hidden">
     <div class="card" id="sprintSetup">
       <h2>⚡ Math Sprint</h2><p>Solve as many as you can in 60 seconds. Type the answer — it checks by itself!</p>
-      <div class="lv" id="sprintLv"><button data-l="1">🌱 Starter</button><button data-l="2">🚀 Explorer</button><button data-l="3">🏅 Olympiad</button><button data-l="4">🏆 Champion</button></div>
+      <div class="lv" id="sprintLv"><button data-l="1">🌱 Class 3</button><button data-l="2">🚀 Explorer</button><button data-l="3">🏅 Olympiad</button><button data-l="4">🏆 Champion</button></div>
       <p class="tip" id="sprintBest"></p>
       <div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="sprintGo">▶ Start!</button></div>
     </div>
@@ -1013,6 +1013,39 @@ OLY.push(
  {d:2,c:'Space',q:'Roughly what speed must a rocket reach to escape Earth\'s gravity?',o:['1.1 km/s','11.2 km/s','112 km/s','300,000 km/s'],a:1,e:'Earth\'s escape velocity is about 11.2 km per second.'}
 );
 
+// ---------- CLASS 3 MATHS (age 8): y:1 ----------
+OLY.push(
+ {y:1,c:'Maths',q:'What is 345 + 132?',o:['467','477','487','377'],a:1,e:'Add ones (5 + 2 = 7), tens (4 + 3 = 7), hundreds (3 + 1 = 4): 477.'},
+ {y:1,c:'Maths',q:'What is 500 − 238?',o:['262','272','338','362'],a:0,e:'500 − 200 = 300, then 300 − 38 = 262.'},
+ {y:1,c:'Maths',q:'Which number has 6 hundreds, 0 tens and 4 ones?',o:['64','604','640','6004'],a:1,e:'6 hundreds = 600, 0 tens = 0, 4 ones = 4. Together: 604.'},
+ {y:1,c:'Maths',q:'What is 7 × 8?',o:['48','54','56','63'],a:2,e:'7 eights are 56. Remember: 5, 6, 7, 8 → 56 = 7 × 8!'},
+ {y:1,c:'Maths',q:'36 sweets are shared equally among 4 friends. How many does each friend get?',o:['8','9','10','12'],a:1,e:'36 ÷ 4 = 9, because 4 × 9 = 36.'},
+ {y:1,c:'Maths',q:'Riya has ₹100. She buys a pencil box for ₹65. How much money is left?',o:['₹25','₹35','₹45','₹165'],a:1,e:'₹100 − ₹65 = ₹35.'},
+ {y:1,c:'Maths',q:'What is half of 50?',o:['20','25','30','100'],a:1,e:'Half means 2 equal parts: 50 ÷ 2 = 25.'},
+ {y:1,c:'Maths',q:'What is one quarter of 20?',o:['4','5','10','15'],a:1,e:'A quarter means 4 equal parts: 20 ÷ 4 = 5.'},
+ {y:1,c:'Maths',q:'Which number is the greatest?',o:['789','798','879','897'],a:3,e:'All have 8 or 7 hundreds. 897 has 8 hundreds and 9 tens, so it is the greatest.'},
+ {y:1,c:'Maths',q:'What comes next? 5, 10, 15, 20, ?',o:['22','24','25','30'],a:2,e:'We add 5 each time: 20 + 5 = 25.'},
+ {y:1,c:'Maths',q:'How many corners does a rectangle have?',o:['3','4','5','6'],a:1,e:'A rectangle has 4 corners and 4 sides.'},
+ {y:1,c:'Maths',q:'1 metre is equal to how many centimetres?',o:['10','100','1000','12'],a:1,e:'1 m = 100 cm. Your ruler is usually 30 cm long.'},
+ {y:1,c:'Maths',q:'1 kilogram is equal to how many grams?',o:['10','100','500','1000'],a:3,e:'1 kg = 1000 g.'},
+ {y:1,c:'Maths',q:'The short hand of a clock is on 3 and the long hand is on 12. What time is it?',o:['12 o\'clock','3 o\'clock','12:15','3:30'],a:1,e:'When the long hand points to 12, it is "o\'clock". The short hand tells the hour: 3 o\'clock.'},
+ {y:1,c:'Maths',q:'What is 9 × 6?',o:['45','54','56','63'],a:1,e:'9 × 6 = 54. Trick: 10 × 6 = 60, minus one 6 = 54.'},
+ {y:1,c:'Maths',q:'Round 47 to the nearest ten.',o:['40','45','50','60'],a:2,e:'47 is closer to 50 than to 40.'},
+ {y:1,c:'Maths',q:'Which number comes just before 400?',o:['301','390','399','401'],a:2,e:'One less than 400 is 399.'},
+ {y:1,c:'Maths',q:'What is 25 + 25 + 25?',o:['50','65','75','100'],a:2,e:'Three 25s make 75 — like three 25-paise coins making 75 paise.'},
+ {y:1,c:'Maths',q:'A bus has 42 seats. 28 seats are filled. How many seats are empty?',o:['12','14','16','70'],a:1,e:'42 − 28 = 14.'},
+ {y:1,c:'Maths',q:'Which of these is an even number?',o:['23','35','48','51'],a:2,e:'Even numbers end in 0, 2, 4, 6 or 8. 48 ends in 8.'},
+ {y:1,c:'Maths',q:'There are 6 baskets with 5 apples in each. How many apples in all?',o:['11','25','30','35'],a:2,e:'6 groups of 5 = 6 × 5 = 30.'},
+ {y:1,c:'Maths',q:'What is 300 + 40 + 7?',o:['347','3407','374','30047'],a:0,e:'3 hundreds, 4 tens and 7 ones make 347.'},
+ {y:1,c:'Maths',q:'How many days are there in 3 weeks?',o:['14','18','21','24'],a:2,e:'1 week = 7 days, so 3 weeks = 3 × 7 = 21 days.'},
+ {y:1,c:'Maths',q:'Which shape has no corners at all?',o:['Square','Triangle','Circle','Rectangle'],a:2,e:'A circle is round, with no corners or straight sides.'},
+ {y:1,c:'Maths',q:'What is 81 ÷ 9?',o:['7','8','9','10'],a:2,e:'9 × 9 = 81, so 81 ÷ 9 = 9.'},
+ {y:1,c:'Maths',q:'How do you write "four hundred and six" in numbers?',o:['46','406','460','4006'],a:1,e:'4 hundreds, 0 tens and 6 ones = 406.'},
+ {y:1,c:'Maths',q:'What is 10 more than 395?',o:['396','400','405','495'],a:2,e:'395 + 10 = 405. The tens digit goes up by one, and 9 tens + 1 ten = 10 tens = 1 hundred.'},
+ {y:1,c:'Maths',q:'Today is Monday. What day will it be after 3 days?',o:['Wednesday','Thursday','Friday','Sunday'],a:1,e:'Monday → Tuesday (1) → Wednesday (2) → Thursday (3).'},
+ {y:1,c:'Maths',q:'1 litre is equal to how many millilitres?',o:['10','100','500','1000'],a:3,e:'1 L = 1000 mL. A big water bottle often holds 1 litre.'},
+ {y:1,c:'Maths',q:'A pencil costs ₹8. How much do 5 pencils cost?',o:['₹13','₹35','₹40','₹45'],a:2,e:'5 × ₹8 = ₹40.'}
+);
 // @@NEW-QUESTIONS-ABOVE@@ (weekly additions are appended just above this line; never edit or reorder existing questions)
 // ---------- Code-a-Bot levels: S start, B battery, # rock, * star to collect first ----------
 const BOT_LEVELS=[
@@ -1144,7 +1177,7 @@ function pushSoon(ms){if(!SYNC_URL||!WHO||READY!==WHO)return;clearTimeout(pushT)
 function pushNow(){
   if(!SYNC_URL||!WHO||READY!==WHO)return;clearTimeout(pushT);
   const r=RANKS[rankOf(prog.xp)];
-  const body=JSON.stringify({key:FAMILY_KEY,id:WHO,updated:prog.updated||Date.now(),summary:r.n+' · '+prog.xp+' XP · streak '+(prog.streak||0)+' · last played '+(prog.lastDay||''),data:prog});
+  const body=JSON.stringify({key:FAMILY_KEY,id:WHO,updated:prog.updated||Date.now(),summary:r.n+' · '+prog.xp+' XP · streak '+(prog.streak||0)+' · last played '+(prog.lastDay||''),data:Object.assign({},prog,{wq:(prog.wrong||[]).slice(-6).reverse().map(id=>OLY[id]?{c:OLY[id].c,q:OLY[id].q,a:OLY[id].o[OLY[id].a]}:null).filter(Boolean)})});
   try{fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:body.length<60000}).then(()=>{syncOK=true},()=>{syncOK=false})}catch(e){syncOK=false}
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pushNow()});
@@ -1570,10 +1603,16 @@ function sprintQ(L){
     if(u===5){const den=pick([7,8,9,12]);const num=rint(2,den-1);const k=rint(4,15);return{text:num+'/'+den+' of '+(den*k),ans:String(num*k)}}
     a=rint(21,60);b=rint(3,9);const c=rint(10,60);return{text:a+' × '+b+' − '+c,ans:String(a*b-c)}
   }
-  if(L===1){
-    if(t===0){a=rint(1,20);b=rint(1,20);text=a+' + '+b;ans=a+b}
-    else if(t===1){a=rint(5,30);b=rint(1,a);text=a+' − '+b;ans=a-b}
-    else{a=rint(2,5);b=rint(1,10);text=a+' × '+b;ans=a*b}
+  if(L===1){ // NCERT Class 3 level
+    const u=rint(0,7);
+    if(u===0){a=rint(11,59);b=rint(10,39);text=a+' + '+b;ans=a+b}
+    else if(u===1){a=rint(100,500);b=rint(10,99);text=a+' + '+b;ans=a+b}
+    else if(u===2){a=rint(30,99);b=rint(10,a-1);text=a+' − '+b;ans=a-b}
+    else if(u===3){a=rint(2,10);b=rint(1,10);text=a+' × '+b;ans=a*b}
+    else if(u===4){b=rint(2,10);ans=rint(1,10);text=(b*ans)+' ÷ '+b}
+    else if(u===5){b=rint(5,30);ans=rint(5,40);text='? + '+b+' = '+(ans+b)}
+    else if(u===6){if(Math.random()<.5){a=rint(12,49);text='Double '+a;ans=a*2}else{a=rint(5,49)*2;text='Half of '+a;ans=a/2}}
+    else{const H=rint(1,9),Tn=rint(0,9),O=rint(0,9);text=H+' hundreds '+Tn+' tens '+O+' ones';ans=H*100+Tn*10+O}
   } else if(L===2){
     if(t===0){a=rint(10,99);b=rint(10,99);text=a+' + '+b;ans=a+b}
     else if(t===1){a=rint(30,150);b=rint(10,a);text=a+' − '+b;ans=a-b}
@@ -1608,7 +1647,7 @@ function checkSprint(force){
   if(SP.ans===SP.q.ans){SP.score++;SND.ok();$('spA').className='sprinta good';$('spScore').textContent='✅ '+SP.score;setTimeout(nextSprintQ,180);return}
   if(force||SP.ans.length>=SP.q.ans.length){$('spA').className='sprinta bad';SND.bad();setTimeout(()=>{SP.ans='';$('spA').textContent='';$('spA').className='sprinta'},350)}
 }
-function nextSprintQ(){SP.q=sprintQ(SP.level);SP.ans='';$('spQ').textContent=SP.q.text+' = ?';$('spA').textContent='';$('spA').className='sprinta'}
+function nextSprintQ(){SP.q=sprintQ(SP.level);SP.ans='';$('spQ').textContent=/[=→]/.test(SP.q.text)?SP.q.text.replace('→  x','→ x = ?'):SP.q.text+' = ?';$('spA').textContent='';$('spA').className='sprinta'}
 $('sprintGo').onclick=()=>{
   SP.run=true;SP.score=0;SP.t=60;$('sprintSetup').classList.add('hidden');$('sprintRun').classList.remove('hidden');
   $('spScore').textContent='✅ 0';$('spTime').textContent='⏱ 60';nextSprintQ();
@@ -1704,6 +1743,15 @@ function startWorld(){
 
 // ---------- QUIZ MASTER ----------
 let QM={cat:'Mixed',lvl:null};
+// Which questions suit the chosen level and the player's age (Aaranya: Class 3 maths only, unless she picks Challenge)
+function qmOk(q){
+  if(QM.lvl==='hard')return q.d===2;
+  if(QM.lvl==='std'&&q.d)return false;
+  if(WHO==='aaranya'&&q.c==='Maths'&&!q.y&&!q.d)return false;
+  if(WHO==='aaranya'&&q.c==='Maths'&&q.d&&QM.lvl!=='mix')return false;
+  if(WHO!=='aaranya'&&q.y)return false;
+  return true;
+}
 function openQuizSetup(){
   stopAll();show('quizView');$('quizRun').classList.add('hidden');$('quizSetup').classList.remove('hidden');
   const cats=['Mixed'].concat(QCATS);
@@ -1713,7 +1761,7 @@ function openQuizSetup(){
   if(played.length){report='<h3>📊 Your topic report</h3>'+rep.filter(r=>r.t).map(r=>'<div class="mission"><span class="ic">'+QICON[r.c]+'</span><div class="tx">'+r.c+' <span style="float:right">'+r.pct+'% · '+r.t+' Qs</span><div class="mb"><i style="width:'+r.pct+'%;background:'+(r.pct>=80?'#2fbf71':r.pct>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>').join('')+
     (played.length>=2?'<p class="tip">💪 Strongest: <b>'+played[0].c+'</b> · 🎯 Practise more: <b>'+played[played.length-1].c+'</b></p>':'');}
   if(!QM.lvl)QM.lvl=WHO==='avanya'?'hard':'std';
-  const unseen=OLY.filter((q,i)=>!prog.seen[i]&&(QM.lvl==='hard'?q.d===2:QM.lvl==='std'?!q.d:true)).length;
+  const unseen=OLY.filter((q,i)=>!prog.seen[i]&&qmOk(q)).length;
   $('quizSetup').innerHTML='<h2>🏅 Quiz Master</h2><p>10 questions per round, with an explanation after every answer. New questions come first — '+unseen+' of '+OLY.length+' still new for you!</p>'+
     '<h3>Level</h3><div class="lv" id="qmLvl"><button data-v="std" class="'+(QM.lvl==='std'?'on':'')+'">⭐ Standard</button><button data-v="hard" class="'+(QM.lvl==='hard'?'on':'')+'">🔥 Challenge</button><button data-v="mix" class="'+(QM.lvl==='mix'?'on':'')+'">🎲 Both</button></div>'+
     '<h3>Pick a topic</h3><div class="lv" id="qmCats">'+cats.map(c=>'<button data-c="'+c+'" class="'+(QM.cat===c?'on':'')+'">'+(QICON[c]||'🎲')+' '+c+'</button>').join('')+'</div>'+
@@ -1723,7 +1771,7 @@ function openQuizSetup(){
   $('qmGo').onclick=startQuizMaster;
 }
 function startQuizMaster(){
-  const lvOk=q=>QM.lvl==='hard'?q.d===2:QM.lvl==='std'?!q.d:true;
+  const lvOk=qmOk;
   let idx=OLY.map((q,i)=>i).filter(i=>(QM.cat==='Mixed'||OLY[i].c===QM.cat)&&lvOk(OLY[i]));
   if(idx.length<10)idx=idx.concat(shuffle(OLY.map((q,i)=>i).filter(i=>(QM.cat==='Mixed'||OLY[i].c===QM.cat)&&!lvOk(OLY[i]))).slice(0,10-idx.length));
   const fresh=shuffle(idx.filter(i=>!prog.seen[i])),old=shuffle(idx.filter(i=>prog.seen[i]));
@@ -1971,7 +2019,7 @@ function reportText(){
   t+='📅 Last 7 days: '+wmin+' min played, '+wxp+' XP earned\n';
   t+='♞ Chess: '+s.lessons+'/10 lessons, '+s.puzzles+'/20 puzzles, games W'+s.score.w+' D'+s.score.d+' L'+s.score.l+'\n';
   if(q.length)t+='🧠 Quiz: '+s.ct+' correct · strongest '+q[0].c+' ('+q[0].pct+'%)'+(q.length>1?' · practise '+q[q.length-1].c+' ('+q[q.length-1].pct+'%)':'')+'\n';
-  if(s.sb[3]||s.sb[2]||s.sb[1])t+='⚡ Math Sprint best: '+[1,2,3].filter(l=>s.sb[l]).map(l=>['','Starter','Explorer','Olympiad'][l]+' '+s.sb[l]).join(', ')+'\n';
+  if(s.sb[3]||s.sb[2]||s.sb[1])t+='⚡ Math Sprint best: '+[1,2,3].filter(l=>s.sb[l]).map(l=>['','Class 3','Explorer','Olympiad'][l]+' '+s.sb[l]).join(', ')+'\n';
   t+='🤖 Robo Lab: '+s.bot+'/8 coding levels, '+s.cards+'/12 AI cards\n\n';
   t+='Paste this whole message into the Parent board:\n'+enc(s);
   return t;
@@ -2034,7 +2082,7 @@ function renderParent(){
     if(q.length){h+=q.map(x=>'<div class="mission"><span class="ic">'+QICON[x.c]+'</span><div class="tx">'+x.c+'<span style="float:right">'+x.pct+'% · '+x.t+' Qs</span><div class="mb"><i style="width:'+x.pct+'%;background:'+(x.pct>=80?'#2fbf71':x.pct>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>').join('');
       if(q.length>1)h+='<p class="tip">💪 Strongest: <b>'+q[0].c+'</b> · 🎯 Needs practice: <b>'+q[q.length-1].c+'</b></p>'}
     else h+='<p style="opacity:.7">Not enough quiz answers yet (3+ per topic).</p>';
-    h+='<h3>🧠 Brain games</h3><p>Math Sprint best — Starter '+(s.sb[1]||0)+', Explorer '+(s.sb[2]||0)+', Olympiad '+(s.sb[3]||0)+' · Memory Grid best level '+s.mem+'<br>Rounds played: '+(s.rounds.sprint||0)+' sprints, '+(s.rounds.quiz||0)+' quizzes, '+(s.rounds.world||0)+' World Explorer, '+(s.rounds.match||0)+' Flag Match</p>';
+    h+='<h3>🧠 Brain games</h3><p>Math Sprint best — Class 3 '+(s.sb[1]||0)+', Explorer '+(s.sb[2]||0)+', Olympiad '+(s.sb[3]||0)+' · Memory Grid best level '+s.mem+'<br>Rounds played: '+(s.rounds.sprint||0)+' sprints, '+(s.rounds.quiz||0)+' quizzes, '+(s.rounds.world||0)+' World Explorer, '+(s.rounds.match||0)+' Flag Match</p>';
     h+='<h3>🤖 Robo Lab</h3><p>'+s.bot+'/8 coding levels · '+s.cards+'/12 AI story cards read</p>';
     h+='</details><p class="tip">🎯 Today\'s missions done: '+s.today+'/3</p></div>';
   }
@@ -2047,12 +2095,12 @@ function renderParent(){
 // ================= PARENT INSIGHTS =================
 const STREAM_TIPS={'Maths & Logic':'a daily Math Sprint plus Maths and Reasoning rounds in Quiz Master','Science':'a Physics, Chemistry or Biology round a few times a week','General Knowledge':'one Mixed Quiz Master round a day','Geography':'World Explorer in Capital mode','Memory':'one Memory Grid game a day','Chess':'chess puzzles — aim to solve them on the first try, without hints','Coding & AI':'the next Code-a-Bot level in Robo Lab'};
 function accOf(qs,cats){let r=0,t=0;cats.forEach(c=>{const v=(qs||{})[c];if(v){r+=v[0];t+=v[1]}});return t>=5?{pct:Math.round(r/t*100),t}:null}
-const SPRINT_BENCH={1:30,2:25,3:18,4:15};
+const SPRINT_BENCH={1:20,2:25,3:18,4:15};
 function streams(s){
   const out=[];const avg=a=>{a=a.filter(x=>x!==null&&x!==undefined);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null};
   const ml=accOf(s.qs,['Maths','Reasoning']);let sp=null;
   const lv=[4,3,2,1].find(l=>s.sb&&s.sb[l]);if(lv)sp=Math.min(100,Math.round(s.sb[lv]/SPRINT_BENCH[lv]*100));
-  out.push({n:'Maths & Logic',e:'➗',v:avg([ml&&ml.pct,sp]),why:[ml?'quiz '+ml.pct+'%':null,lv?'sprint best '+s.sb[lv]+' ('+['','Starter','Explorer','Olympiad','Champion'][lv]+')':null].filter(Boolean).join(' · ')});
+  out.push({n:'Maths & Logic',e:'➗',v:avg([ml&&ml.pct,sp]),why:[ml?'quiz '+ml.pct+'%':null,lv?'sprint best '+s.sb[lv]+' ('+['','Class 3','Explorer','Olympiad','Champion'][lv]+')':null].filter(Boolean).join(' · ')});
   const sc=accOf(s.qs,['Physics','Chemistry','Biology']);out.push({n:'Science',e:'🔬',v:sc&&sc.pct,why:sc?sc.t+' questions':''});
   const gk=accOf(s.qs,['India','History','World','Nature','Animals','Space']);out.push({n:'General Knowledge',e:'🌏',v:gk&&gk.pct,why:gk?gk.t+' questions':''});
   let wr=0,wt=0;Object.values(s.ws||{}).forEach(w=>{wr+=w.r;wt+=w.t});out.push({n:'Geography',e:'🗺️',v:wt>=10?Math.round(wr/wt*100):null,why:wt>=10?wt+' flag/capital answers':''});
@@ -2083,7 +2131,7 @@ function insightsHTML(s,name){
   const a1=sumq(wk),a0=sumq(pw);
   if(a1[1]>=5&&a0[1]>=5){const p1=Math.round(a1[0]/a1[1]*100),p0=Math.round(a0[0]/a0[1]*100);tips.push((p1>=p0?'📈':'📉')+' <b>Quiz accuracy:</b> '+p0+'% last week → '+p1+'% this week.')}
   if(s.sh&&s.sh.length>=4){const L=s.sh[s.sh.length-1].l,same=s.sh.filter(x=>x.l===L);if(same.length>=4){const r=same.slice(-3),e=same.slice(0,-3),ar=r.reduce((a,x)=>a+x.s,0)/r.length,ae=e.reduce((a,x)=>a+x.s,0)/e.length;
-    tips.push((ar>=ae?'⚡📈':'⚡')+' <b>Math Sprint ('+['','Starter','Explorer','Olympiad','Champion'][L]+'):</b> recent average '+ar.toFixed(1)+' vs '+ae.toFixed(1)+' earlier.')}}
+    tips.push((ar>=ae?'⚡📈':'⚡')+' <b>Math Sprint ('+['','Class 3','Explorer','Olympiad','Champion'][L]+'):</b> recent average '+ar.toFixed(1)+' vs '+ae.toFixed(1)+' earlier.')}}
   tips.push('🗓️ <b>Consistency:</b> played on '+active.length+' of the last 14 days'+(active.length?', about '+Math.round(mins/active.length)+' min per playing day':'')+(active.length>=10?' — excellent habit!':active.length<=3?' — a short daily slot would help build the habit.':'.'));
   const ar=s.area||{},atot=Object.values(ar).reduce((a,b)=>a+b,0);
   if(atot>=15){const parts=['Chess','Brain games','Robo Lab'].map(k=>({k,p:Math.round((ar[k]||0)/atot*100)})).sort((a,b)=>b.p-a.p);
