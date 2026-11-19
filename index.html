@@ -1426,7 +1426,7 @@ function bump(k,n){
 // ================= NAVIGATION =================
 const VIEWS=['wisdomView','parentView','pickView','homeView','chessView','learnList','puzzleList','brainView','sprintView','quizView','memView','matchView','roboView','botView','teachView','cardsView','trophyView','taskView','playView'];
 function show(id){for(const v of VIEWS)$(v).classList.toggle('hidden',v!==id);$('nav').classList.toggle('hidden',id==='pickView'||id==='parentView');window.scrollTo(0,0)}
-function stopAll(){stopTimer();stopSprint();memStop()}
+function stopAll(){stopTimer();stopSprint();memStop();try{if(typeof ttsStop==='function')ttsStop()}catch(e){}}
 function tab(name){
   stopAll();
   for(const[b,n]of[['tabHome','home'],['tabChess','chess'],['tabBrain','brain'],['tabRobo','robo'],['tabTrophy','trophy']])$(b).classList.toggle('on',n===name);
@@ -2368,6 +2368,45 @@ document.addEventListener('click',e=>{const b=e.target.closest('.pbmode [data-m]
 
 
 // ================= WISDOM CORNER =================
+// ---------- Read-aloud (device voices: Hindi for Sanskrit, Indian English for meanings) ----------
+const TTS={voices:[],on:'speechSynthesis' in window,playing:null};
+function ttsLoad(){try{TTS.voices=speechSynthesis.getVoices()||[]}catch(e){}}
+if(TTS.on){ttsLoad();try{speechSynthesis.onvoiceschanged=ttsLoad}catch(e){}}
+function ttsVoice(langs){ttsLoad();for(const l of langs){const v=TTS.voices.find(v=>(v.lang||'').replace('_','-').toLowerCase().startsWith(l));if(v)return v}return null}
+function ttsStop(){if(TTS.on){try{speechSynthesis.cancel()}catch(e){}}TTS.playing=null;document.querySelectorAll('[data-say]').forEach(b=>b.classList.remove('on'))}
+function ttsSay(items,btnKey){
+  if(!TTS.on){toast('Read-aloud is not available on this device');return}
+  ttsStop();TTS.playing=btnKey;const b=document.querySelector('[data-say="'+btnKey+'"]');if(b)b.classList.add('on');
+  items.forEach((it,i)=>{const u=new SpeechSynthesisUtterance(it.text);u.lang=it.lang;u.rate=it.rate||0.85;u.pitch=1;if(it.voice)u.voice=it.voice;
+    if(i===items.length-1)u.onend=()=>{if(TTS.playing===btnKey)ttsStop()};speechSynthesis.speak(u)});
+}
+function sanskritItems(sa,tr,times,rate){
+  const hi=ttsVoice(['hi','mr','sa','ne']);const clean=x=>x.replace(/\n/g,' ').replace(/॥/g,'। ').replace(/\s+/g,' ').trim();
+  const one=hi?{text:clean(sa),lang:hi.lang,voice:hi,rate}:{text:clean(tr).replace(/,/g,', '),lang:'en-IN',voice:ttsVoice(['en-in','en-gb','en']),rate};
+  const out=[];for(let k=0;k<times;k++)out.push(Object.assign({},one));
+  if(!hi&&!sanskritItems.warned){sanskritItems.warned=1;toast('No Hindi voice found — reading the English transliteration. Tip: add a Hindi voice in device Settings.')}
+  return out;
+}
+function meaningItems(text){const v=ttsVoice(['en-in','en-gb','en']);return[{text:text.replace(/[—–]/g,', '),lang:v?v.lang:'en-IN',voice:v,rate:0.92}]}
+function sayButtons(kind,i,isMantra){
+  const k=kind+':'+i;
+  return '<div class="lv" style="margin:6px 0 10px">'+
+    '<button data-say="'+k+':sa">🔊 Listen</button>'+
+    '<button data-say="'+k+':slow">🐢 Slowly</button>'+
+    (isMantra?'<button data-say="'+k+':x3">🔁 Chant 3×</button>':'')+
+    '<button data-say="'+k+':mean">💬 Meaning</button>'+
+    '<button data-say="stop">⏹ Stop</button></div>';
+}
+function handleSay(key){
+  if(key==='stop'){ttsStop();return}
+  const [kind,i,mode]=key.split(':');const X=kind==='m'?MANTRAS[+i]:GITA[+i];
+  if(mode==='mean')return ttsSay(meaningItems(X.m),key);
+  if(mode==='slow')return ttsSay(sanskritItems(X.sa,X.tr,1,0.6),key);
+  if(mode==='x3')return ttsSay(sanskritItems(X.sa,X.tr,3,0.8),key);
+  ttsSay(sanskritItems(X.sa,X.tr,1,0.82),key);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b){handleSay(b.dataset.say)}});
+
 const wIdx=()=>{const n=dayNum(today());return{m:n%MANTRAS.length,g:(n*7+3)%GITA.length}};
 function wisSub(){const t=today(),w=prog.wis||{},done=(w.m||{})[t]&&(w.g||{})[t];const i=wIdx();return done?'Done today ✅ — '+MANTRAS[i.m].n:MANTRAS[i.m].n+' · Gita '+GITA[i.g].v}
 let WIS={view:'today',mi:null,gi:null};
@@ -2379,16 +2418,17 @@ function wisCard(title,badge,sa,tr,meaning,extra){
     '<p class="tip"><b>Meaning:</b> '+meaning+'</p>'+(extra||'')+'</div>';
 }
 function renderWisdom(){
+  ttsStop();
   const t=today(),w=prog.wis||(prog.wis={m:{},g:{},seenM:{},seenG:{}});['m','g','seenM','seenG'].forEach(k=>w[k]=w[k]||{});
   let h='<div class="card"><h2>🪔 Wisdom Corner</h2><div class="seg"><button data-wv="today" class="'+(WIS.view==='today'?'on':'')+'">Today</button><button data-wv="mantras" class="'+(WIS.view==='mantras'?'on':'')+'">All mantras</button><button data-wv="gita" class="'+(WIS.view==='gita'?'on':'')+'">Gita verses</button></div></div>';
   if(WIS.view==='today'||WIS.mi!==null||WIS.gi!==null){
     const i=wIdx();const mi=WIS.mi!==null&&WIS.mi!==undefined?WIS.mi:(WIS.view==='today'?i.m:null),gi=WIS.gi!==null&&WIS.gi!==undefined?WIS.gi:(WIS.view==='today'?i.g:null);
     if(mi!==null){const M=MANTRAS[mi];w.seenM[mi]=1;
       h+=wisCard('🕉️ '+(WIS.view==='today'?'Mantra of the day':'Mantra'),M.src,M.n?'<b style="font-size:1rem;display:block;margin-bottom:6px">'+M.n+'</b>'+M.sa:M.sa,M.tr,M.m,
-        '<p class="tip">🕰️ <b>When:</b> '+M.w+'</p>'+(WIS.view==='today'?(w.m[t]?'<p class="msg ok">🙏 Done for today!</p>':'<div class="row"><button class="btn" id="wisM">🙏 I said it 3 times (+10 XP)</button></div>'):''));}
+        sayButtons('m',mi,true)+'<p class="tip">🕰️ <b>When:</b> '+M.w+'</p>'+(WIS.view==='today'?(w.m[t]?'<p class="msg ok">🙏 Done for today!</p>':'<div class="row"><button class="btn" id="wisM">🙏 I said it 3 times (+10 XP)</button></div>'):''));}
     if(gi!==null){const V=GITA[gi];w.seenG[gi]=1;
       h+=wisCard('📜 '+(WIS.view==='today'?'Gita verse of the day':'Gita verse'),'Bhagavad Gita '+V.v,V.sa,V.tr,V.m,
-        '<p class="tip">🤔 <b>Think about it:</b> '+V.q+'</p>'+(WIS.view==='today'?(w.g[t]?'<p class="msg ok">📜 Done for today!</p>':'<div class="row"><button class="btn" id="wisG">✅ I read it and thought about it (+10 XP)</button></div>'):''));}
+        sayButtons('g',gi,false)+'<p class="tip">🤔 <b>Think about it:</b> '+V.q+'</p>'+(WIS.view==='today'?(w.g[t]?'<p class="msg ok">📜 Done for today!</p>':'<div class="row"><button class="btn" id="wisG">✅ I read it and thought about it (+10 XP)</button></div>'):''));}
     if(WIS.view==='today')h+='<div class="card"><p>Talk about today\'s verse with Papa or Mumma at dinner! 🍽️</p><div class="row"><button class="btn alt" id="wisQuiz">🪔 Spirituality quiz</button><button class="btn alt" data-back="brain">⬅ Back</button></div></div>';
     else h+='<div class="row"><button class="btn alt" id="wisBack">⬅ Back to list</button></div>';
   } else if(WIS.view==='mantras'){
