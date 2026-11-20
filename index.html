@@ -1377,7 +1377,7 @@ function buildPlan(){
   plan.push({k:'wisdom',n:1,e:'🪔',t:'Today\'s mantra & Gita verse'});
   plan.push({k:'robofact',n:1,e:'💡',t:'Robo fact of the day'});
   plan.push({k:'robomaze',n:1,e:'🧭',t:'Today\'s robot maze'});
-  if(WT_OPEN()&&!wtDone())plan.unshift({k:'wtest',n:1,e:'📋',t:'Weekly Olympiad test ('+WT_MINS+' min)'});
+  if(WT_OPEN()&&!wtDone())plan.unshift({k:'wtest',n:1,e:'📋',t:'Weekly Olympiad test ('+WT_MINS()+' min)'});
   return plan;
 }
 function todaysMissions(){ensureDayBase();if(!prog.day.plan){prog.day.plan=buildPlan();prog.day.claimed={};prog.day.chest=false}
@@ -1571,7 +1571,7 @@ function renderHome(){
   $('quick').innerHTML='';
   const di=dailyIdx(),dSub=PUZZLES[di].title.replace(/^\d+\.\s*/,'')+(prog.day.c.daily?' — solved today ✅':' — double XP today!');
   const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);
-  if(WT_OPEN()||(prog.wtCur&&prog.wtCur.wk===weekKey()))quickBtn('g5','📋 Weekly Olympiad Test',wtDone()?'Done this week ✅ '+wtDone().p+'% — see explanations':prog.wtCur&&prog.wtCur.wk===weekKey()?'In progress — tap to carry on':'Open today · '+WT_MINS+' minutes',()=>openWeeklyTest());
+  if(WT_OPEN()||(prog.wtCur&&prog.wtCur.wk===weekKey()))quickBtn('g5','📋 Weekly Olympiad Test',wtDone()?'Done this week ✅ '+wtDone().p+'% — see explanations':prog.wtCur&&prog.wtCur.wk===weekKey()?'In progress — tap to carry on':'Open today · '+WT_MINS()+' minutes',()=>openWeeklyTest());
   quickBtn('g2','📝 Today\'s Quiz',(prog.day.dqPos||0)>=DQ_SIZE()?'Done for today ✅':(prog.day.dqPos||0)+'/'+DQ_SIZE()+' done — new set every day',()=>openDailyQuiz());
   if(WHO==='aaranya'){
     quickBtn('g1','✨ Chess Puzzle of the Day',dSub,()=>openTask('puzzle',di));
@@ -1975,12 +1975,14 @@ function openDailyQuiz(){
 const fmtD=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
 function weekKey(d){const x=d?new Date(d+'T00:00:00'):new Date();x.setDate(x.getDate()-(x.getDay()+6)%7);return fmtD(x)} // Monday of the week
 function weekDays(wk){const x=new Date(wk+'T00:00:00');return [0,1,2,3,4,5,6].map(i=>{const y=new Date(x);y.setDate(x.getDate()+i);return fmtD(y)})}
-const WT_MINS=45; // test length in minutes (raise to 60 later)
+// Test length ramps up: 30 min for the first 4 weeks, 45 for the next 4, then 60.
+const WT_START='2026-11-16'; // Monday of the first test week
+function WT_MINS(){const w=Math.floor((new Date(weekKey()+'T00:00:00')-new Date(WT_START+'T00:00:00'))/(7*864e5));return w<4?30:w<8?45:60}
 const WT_OPEN=()=>[0,6].includes(new Date().getDay()); // Saturday & Sunday
 const wtDone=()=>(prog.wt||{})[weekKey()];
 function WT_SPEC(){return WHO==='aaranya'?
-  {mins:WT_MINS,secs:[{k:'lr',n:'Logical Reasoning',q:10,m:1},{k:'mr',n:'Mathematical Reasoning',q:10,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers — think harder!',q:5,m:2}]}:
-  {mins:WT_MINS,secs:[{k:'lr',n:'Logical Reasoning',q:15,m:1},{k:'mr',n:'Mathematical Reasoning',q:20,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers',q:5,m:3}]}}
+  {mins:WT_MINS(),secs:[{k:'lr',n:'Logical Reasoning',q:10,m:1},{k:'mr',n:'Mathematical Reasoning',q:10,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers — think harder!',q:5,m:2}]}:
+  {mins:WT_MINS(),secs:[{k:'lr',n:'Logical Reasoning',q:15,m:1},{k:'mr',n:'Mathematical Reasoning',q:20,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers',q:5,m:3}]}}
 
 // --- question builders ---
 function mcqNum(text,ans,steps,explain){ans=Number(ans);const ds=shuffle([1,-1,2,-2,10,-10,5,-5,3,-3,ans>=20?Math.round(ans/10):4,ans>=300?100:6,ans>=300?-100:-6]);const o=[ans];

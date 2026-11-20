@@ -2,12 +2,14 @@
 const fmtD=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
 function weekKey(d){const x=d?new Date(d+'T00:00:00'):new Date();x.setDate(x.getDate()-(x.getDay()+6)%7);return fmtD(x)} // Monday of the week
 function weekDays(wk){const x=new Date(wk+'T00:00:00');return [0,1,2,3,4,5,6].map(i=>{const y=new Date(x);y.setDate(x.getDate()+i);return fmtD(y)})}
-const WT_MINS=45; // test length in minutes (raise to 60 later)
+// Test length ramps up: 30 min for the first 4 weeks, 45 for the next 4, then 60.
+const WT_START='2026-11-16'; // Monday of the first test week
+function WT_MINS(){const w=Math.floor((new Date(weekKey()+'T00:00:00')-new Date(WT_START+'T00:00:00'))/(7*864e5));return w<4?30:w<8?45:60}
 const WT_OPEN=()=>[0,6].includes(new Date().getDay()); // Saturday & Sunday
 const wtDone=()=>(prog.wt||{})[weekKey()];
 function WT_SPEC(){return WHO==='aaranya'?
-  {mins:WT_MINS,secs:[{k:'lr',n:'Logical Reasoning',q:10,m:1},{k:'mr',n:'Mathematical Reasoning',q:10,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers — think harder!',q:5,m:2}]}:
-  {mins:WT_MINS,secs:[{k:'lr',n:'Logical Reasoning',q:15,m:1},{k:'mr',n:'Mathematical Reasoning',q:20,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers',q:5,m:3}]}}
+  {mins:WT_MINS(),secs:[{k:'lr',n:'Logical Reasoning',q:10,m:1},{k:'mr',n:'Mathematical Reasoning',q:10,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers — think harder!',q:5,m:2}]}:
+  {mins:WT_MINS(),secs:[{k:'lr',n:'Logical Reasoning',q:15,m:1},{k:'mr',n:'Mathematical Reasoning',q:20,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers',q:5,m:3}]}}
 
 // --- question builders ---
 function mcqNum(text,ans,steps,explain){ans=Number(ans);const ds=shuffle([1,-1,2,-2,10,-10,5,-5,3,-3,ans>=20?Math.round(ans/10):4,ans>=300?100:6,ans>=300?-100:-6]);const o=[ans];
