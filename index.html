@@ -1571,7 +1571,7 @@ function renderHome(){
   $('quick').innerHTML='';
   const di=dailyIdx(),dSub=PUZZLES[di].title.replace(/^\d+\.\s*/,'')+(prog.day.c.daily?' — solved today ✅':' — double XP today!');
   const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);
-  if(WT_OPEN()||(prog.wtCur&&prog.wtCur.wk===weekKey()))quickBtn('g5','📋 Weekly Olympiad Test',wtDone()?'Done this week ✅ '+wtDone().p+'% — see explanations':prog.wtCur&&prog.wtCur.wk===weekKey()?'In progress — tap to carry on':'Open today · '+WT_MINS()+' minutes',()=>openWeeklyTest());
+  if(WT_OPEN()||(prog.wtCur&&prog.wtCur.wk===weekKey()))quickBtn('g5','📋 Weekly Olympiad Test',wtDone()?'Done this week ✅ — learn from it':prog.wtCur&&prog.wtCur.wk===weekKey()?'In progress — tap to carry on':'Open today · '+WT_MINS()+' minutes',()=>openWeeklyTest());
   quickBtn('g2','📝 Today\'s Quiz',(prog.day.dqPos||0)>=DQ_SIZE()?'Done for today ✅':(prog.day.dqPos||0)+'/'+DQ_SIZE()+' done — new set every day',()=>openDailyQuiz());
   if(WHO==='aaranya'){
     quickBtn('g1','✨ Chess Puzzle of the Day',dSub,()=>openTask('puzzle',di));
@@ -1980,9 +1980,10 @@ const WT_START='2026-11-16'; // Monday of the first test week
 function WT_MINS(){const w=Math.floor((new Date(weekKey()+'T00:00:00')-new Date(WT_START+'T00:00:00'))/(7*864e5));return w<4?30:w<8?45:60}
 const WT_OPEN=()=>[0,6].includes(new Date().getDay()); // Saturday & Sunday
 const wtDone=()=>(prog.wt||{})[weekKey()];
-function WT_SPEC(){return WHO==='aaranya'?
-  {mins:WT_MINS(),secs:[{k:'lr',n:'Logical Reasoning',q:10,m:1},{k:'mr',n:'Mathematical Reasoning',q:10,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers — think harder!',q:5,m:2}]}:
-  {mins:WT_MINS(),secs:[{k:'lr',n:'Logical Reasoning',q:15,m:1},{k:'mr',n:'Mathematical Reasoning',q:20,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers',q:5,m:3}]}}
+// Questions per section scale with the test length (60 min = the full Olympiad paper).
+const WT_Q={aaranya:{30:[5,5,5,3],45:[7,8,7,4],60:[10,10,10,5]},avanya:{30:[7,10,5,3],45:[11,15,8,4],60:[15,20,10,5]}};
+function WT_SPEC(){const A=WHO==='aaranya',mins=WT_MINS(),n=WT_Q[A?'aaranya':'avanya'][mins];
+  return{mins,secs:[{k:'lr',n:'Logical Reasoning',q:n[0],m:1},{k:'mr',n:'Mathematical Reasoning',q:n[1],m:1},{k:'wk',n:'This week\'s topics',q:n[2],m:1},{k:'ach',n:A?'Achievers — think harder!':'Achievers',q:n[3],m:A?2:3}]}}
 
 // --- question builders ---
 function mcqNum(text,ans,steps,explain){ans=Number(ans);const ds=shuffle([1,-1,2,-2,10,-10,5,-5,3,-3,ans>=20?Math.round(ans/10):4,ans>=300?100:6,ans>=300?-100:-6]);const o=[ans];
@@ -2065,7 +2066,7 @@ function buildWeeklyTest(){
     if(sec.k==='mr'){qs=take(pool.filter(i=>OLY[i].c==='Maths'&&!OLY[i].d),Math.round(sec.q*0.4));fill(qs,qs.length+Math.ceil((sec.q-qs.length)/2),()=>genWord(!A));fill(qs,sec.q,()=>genMR(!A))}
     if(sec.k==='wk'){const gk=pool.filter(i=>!['Maths','Reasoning'].includes(OLY[i].c)&&(A||true));
       const inWeek=gk.filter(i=>weekIds.has(i)||wrongSet.has(i));qs=take(inWeek.length>=sec.q?inWeek:gk,sec.q);if(qs.length<sec.q)qs=qs.concat(take(gk,sec.q-qs.length))}
-    if(sec.k==='ach'){if(A){qs=take(pool.filter(i=>OLY[i].c==='Maths'&&OLY[i].y),2);fill(qs,4,()=>genWord(false));fill(qs,sec.q,()=>{const g=genLR(true);return g})}
+    if(sec.k==='ach'){if(A){qs=take(pool.filter(i=>OLY[i].c==='Maths'&&OLY[i].y),2);fill(qs,Math.min(sec.q-1,4),()=>genWord(false));fill(qs,sec.q,()=>{const g=genLR(true);return g})}
       else{qs=take(OLY.map((q,i)=>i).filter(i=>OLY[i].d===2&&['Maths','Reasoning'].includes(OLY[i].c)),3);fill(qs,sec.q,()=>{if(Math.random()<.5)return genWord(true);const q=sprintQ(4);return mcqNum(q.text.replace('→  x','→ x = ?')+(/[=→]/.test(q.text)?'':' = ?'),q.ans,q.steps)})}}
     qs=sec.k==='wk'?qs:shuffle(qs);qs.forEach(q=>{q.sec=sec.k;out.push(q)})});
   return{wk:weekKey(),qs:out,a:out.map(()=>-1),f:out.map(()=>0),i:0,el:0,start:Date.now()};
@@ -2078,12 +2079,12 @@ function renderTestHome(){
   const S=WT_SPEC(),tq=S.secs.reduce((a,s)=>a+s.q,0),tm=S.secs.reduce((a,s)=>a+s.q*s.m,0),done=wtDone(),cur=prog.wtCur&&prog.wtCur.wk===weekKey()?prog.wtCur:null;
   const hist=Object.keys(prog.wt||{}).sort().reverse().slice(0,6);
   let h='<div class="card"><h2>📋 Weekly Olympiad Test</h2>';
-  if(done)h+='<p class="tip">✅ Done this week: <b>'+done.s+' / '+done.m+'</b> ('+done.p+'%). A new test opens next Saturday.</p><button class="btn" id="wtRev" style="width:100%">🔎 See my answers & explanations</button>';
+  if(done)h+='<p class="tip">✅ Test done this week — well done for finishing it! A new test opens next Saturday.</p><button class="btn" id="wtRev" style="width:100%">🔎 Learn from this week\'s test</button>';
   else if(cur)h+='<p class="tip">You have a test in progress: '+cur.a.filter(x=>x>=0).length+' of '+cur.qs.length+' answered, '+Math.max(0,Math.ceil((S.mins*60-cur.el)/60))+' minutes left.</p><button class="btn" id="wtGo" style="width:100%">▶ Carry on</button>';
   else if(!WT_OPEN())h+='<p class="tip">🗓️ The test opens on <b>Saturday and Sunday</b>. During the week, your daily quizzes get you ready — the test wraps up the week.</p>';
   else h+='<p>Olympiad-style paper: <b>'+tq+' questions · '+tm+' marks · '+S.mins+' minutes</b>. No hints during the test — you can go back, change answers and 🚩 flag questions to check later. Explanations come at the end.</p><button class="btn" id="wtGo" style="width:100%">▶ Start the test</button>';
   h+='<h3>Sections</h3>'+S.secs.map((s,i)=>'<div class="mission"><span class="ic">'+(i+1)+'</span><div class="tx">'+s.n+'<span style="float:right">'+s.q+' Q × '+s.m+' mark'+(s.m>1?'s':'')+'</span></div></div>').join('');
-  if(hist.length)h+='<h3>📈 My results</h3>'+hist.map(k=>{const r=prog.wt[k];return '<div class="mission"><span class="ic">'+(r.p>=80?'🏆':r.p>=60?'🌟':'💪')+'</span><div class="tx">Week of '+shortDay(k)+'<span style="float:right">'+r.s+'/'+r.m+' · '+r.p+'%</span><div class="mb"><i style="width:'+r.p+'%;background:'+(r.p>=80?'#2fbf71':r.p>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>'}).join('');
+  if(hist.length)h+='<h3>🗓️ Tests I have done</h3>'+hist.map(k=>'<div class="mission"><span class="ic">✅</span><div class="tx">Week of '+shortDay(k)+'<span style="float:right">'+(prog.wt[k].mins||'')+' min</span></div></div>').join('');
   h+='<button class="btn alt" data-back="brain" style="width:100%;margin-top:10px">⬅ Back</button></div>';
   $('testBody').innerHTML=h;
   if($('wtGo'))$('wtGo').onclick=()=>{if(!prog.wtCur||prog.wtCur.wk!==weekKey()){prog.wtCur=buildWeeklyTest();save()}runTest()};
@@ -2128,16 +2129,15 @@ function submitTest(auto){
     wq:rev.filter(r=>r.why).slice(0,8).map(r=>({q:r.q,a:r.right}))};
   prog.wtRev={wk:C.wk,score,max,pct,mins,sec,rev};prog.wtCur=null;
   bump('wtest');roundDone('wtest');save();
-  addXP(score+30,'Weekly test');SND.win();if(pct>=80)confetti();
-  modal(pct>=80?'🏆':pct>=60?'🌟':'💪',score+' / '+max+' ('+pct+'%)',(auto?'Time is up! ':'')+(pct>=80?'Olympiad-ready work!':pct>=60?'Strong effort — check the explanations to grow even more.':'Good practice! The explanations will help a lot.'));
+  addXP(50,'Weekly test');SND.win();confetti();
+  modal('🎉','Test complete!',(auto?'Time is up — and you kept going till the end! ':'You finished the whole test! ')+'Every week you practise, your brain gets stronger. Now let\'s learn from a few questions.');
   renderTestResult(prog.wtRev);
 }
 function renderTestResult(R){
   if(!R){renderTestHome();return}show('testView');
-  let h='<div class="card"><h2>📋 Test result</h2><div class="score" style="margin:8px 0"><div>Score<span>'+R.score+'/'+R.max+'</span></div><div>Percent<span>'+R.pct+'%</span></div><div>Time<span>'+R.mins+'m</span></div></div>'+
-    '<h3>By section</h3>'+R.sec.map(s=>{const p=Math.round(s.r/s.t*100);return '<div class="mission"><span class="ic">'+(p>=80?'🟢':p>=50?'🟡':'🔴')+'</span><div class="tx">'+s.n+'<span style="float:right">'+s.r+'/'+s.t+' right · '+s.s+'/'+s.m+' marks</span><div class="mb"><i style="width:'+p+'%;background:'+(p>=80?'#2fbf71':p>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>'}).join('');
-  if(R.rev.length)h+='<h3>🔎 Learn from these ('+R.rev.length+')</h3>'+R.rev.map((r,j)=>'<div class="mission" data-rv="'+j+'" style="cursor:pointer"><span class="ic">Q'+r.n+'</span><div class="tx" style="font-weight:500">'+esc(r.q.length>90?r.q.slice(0,88)+'…':r.q)+'<br><small style="color:#137a46">✅ '+esc(r.right)+'</small> <small style="opacity:.6">· tap for why</small></div></div>').join('');
-  else h+='<p class="tip">🏆 Every answer correct — amazing!</p>';
+  let h='<div class="card"><h2>🌱 Learn from this week\'s test</h2><p>You finished in '+R.mins+' minute'+(R.mins===1?'':'s')+' — brilliant effort! Tap a question below to see the answer and how to work it out.</p>';
+  if(R.rev.length)h+=R.rev.map((r,j)=>'<div class="mission" data-rv="'+j+'" style="cursor:pointer"><span class="ic">💡</span><div class="tx" style="font-weight:500">'+esc(r.q.length>90?r.q.slice(0,88)+'…':r.q)+'<br><small style="opacity:.6">tap to learn</small></div></div>').join('');
+  else h+='<p class="tip">🏆 Nothing to fix this week — amazing!</p>';
   h+='<button class="btn alt" id="wtBack" style="width:100%;margin-top:10px">⬅ Back</button></div>';
   $('testBody').innerHTML=h;
   document.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{const r=R.rev[+b.dataset.rv];showLearn({q:r.q,mine:r.mine,right:r.right,why:r.why,steps:r.steps})});
