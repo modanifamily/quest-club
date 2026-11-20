@@ -115,6 +115,9 @@
   .opt.right{background:#2fbf71;color:#fff} .opt.wrong{background:#ff5d5d;color:#fff}
   .qbar{display:flex;justify-content:space-between;font-weight:800;color:var(--accent);margin-bottom:6px}
   .explain{margin-top:10px}
+  .learnbox{max-height:88vh;overflow:auto;text-align:left} .learnbox h2,.learnbox .em{text-align:center}
+  .ln{border-radius:12px;padding:8px 10px;margin:6px 0;font-weight:600} .ln.no{background:#ffe3e3;color:#b42318} .ln.yes{background:#dcf7e8;color:#137a46}
+  .lnwhy{text-align:left;background:#fff6dc;border-radius:12px;padding:8px 10px;margin:8px 0;line-height:1.45} .lnsteps{margin:4px 0 0 18px;padding:0} .lnsteps li{margin:3px 0}
   .sprintq{font-size:2.3rem;font-weight:800;text-align:center;margin:10px 0 4px}
   .sprinta{font-size:2rem;font-weight:800;text-align:center;min-height:52px;border-radius:14px;background:#f2efff;margin:6px auto;max-width:220px;padding:4px}
   .sprinta.bad{background:#ffd6d6} .sprinta.good{background:#c9f2db}
@@ -386,6 +389,7 @@
     </div>
   </section>
 </main>
+<div class="modal hidden" id="learn"><div class="box learnbox"><div class="em">🤔</div><h2>Let's learn this one</h2><div id="lnBody"></div><div class="row" style="justify-content:center;margin-top:10px"><button class="btn alt" id="lnSay">🔊 Read to me</button><button class="btn" id="lnOk">Got it! 👍</button></div></div></div>
 <div class="modal hidden" id="modal"><div class="box"><div class="em" id="mEm"></div><h2 id="mTitle"></h2><p id="mText"></p><button class="btn" id="mOk">Yay! 🎉</button></div></div>
 
 <script>
@@ -1355,7 +1359,7 @@ function rankOf(xp){let r=0;for(let i=0;i<RANKS.length;i++)if(xp>=RANKS[i].xp)r=
 function seeded(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647}
 // ---------- TODAY'S PLAN (daily portions; replaces random missions) ----------
 const PLAN_CAT={robofact:'Robo Lab',robomaze:'Robo Lab',lessons:'Chess',puzzles:'Chess',games:'Chess',sprints:'Maths',dquiz:'Quiz',world:'Geography',match:'Geography',mem:'Memory',wisdom:'Wisdom',robo:'Robo Lab'};
-const DQ_SIZE=()=>WHO==='avanya'?15:10;
+const DQ_SIZE=()=>20;
 function buildPlan(){
   const n=dayNum(today()),alt=n%2===0,roboDay=[2,5].includes(n%7),A=WHO==='aaranya';
   const plan=[];
@@ -1372,6 +1376,7 @@ function buildPlan(){
 }
 function todaysMissions(){ensureDayBase();if(!prog.day.plan){prog.day.plan=buildPlan();prog.day.claimed={};prog.day.chest=false}
   if(!prog.day.plan.some(m=>m.k==='robofact')){prog.day.plan=prog.day.plan.filter(m=>m.k!=='robo').concat([{k:'robofact',n:1,e:'💡',t:'Robo fact of the day'},{k:'robomaze',n:1,e:'🧭',t:'Today\'s robot maze'}]);const cl={};prog.day.plan.forEach((m,i)=>{if((prog.day.c[m.k]||0)>=m.n)cl[i]=1});prog.day.claimed=cl;prog.day.chest=false}
+  const dq=prog.day.plan.find(m=>m.k==='dquiz');if(dq&&dq.n!==DQ_SIZE()){dq.n=DQ_SIZE();dq.t='Today\'s Quiz ('+DQ_SIZE()+' questions)';const cl={};prog.day.plan.forEach((m,i)=>{if((prog.day.c[m.k]||0)>=m.n)cl[i]=1});prog.day.claimed=cl;prog.day.chest=false}
   return prog.day.plan}
 function planGo(k){({lessons:()=>{const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);openTask('lesson',nl<0?0:nl)},puzzles:()=>tab('puzzle'),games:()=>tab('play'),sprints:()=>openSprint(),dquiz:()=>openDailyQuiz(),robofact:()=>openRoboFact(),robomaze:()=>openDailyMaze(),
   world:()=>openWorldSetup(),match:()=>openMatch(),mem:()=>openMem(),wisdom:()=>openWisdom(),robo:()=>tab('robo')}[k]||(()=>tab('brain')))()}
@@ -1409,6 +1414,22 @@ function modal(em,title,text){modalQ.push([em,title,text]);if(!modalOpen)nextMod
 function nextModal(){const m=modalQ.shift();if(!m){modalOpen=false;$('modal').classList.add('hidden');return}
   modalOpen=true;$('mEm').textContent=m[0];$('mTitle').textContent=m[1];$('mText').textContent=m[2];$('modal').classList.remove('hidden')}
 $('mOk').onclick=nextModal;
+// ---- Learn-from-mistakes pop-up ----
+let LN=null;
+function esc(t){return String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[c])}
+function showLearn(o){ // o:{q,mine,right,why,steps[],done}
+  LN=o;let h='';
+  if(o.q)h+='<p style="margin:4px 0 8px"><b>'+esc(o.q)+'</b></p>';
+  if(o.mine!==undefined&&o.mine!=='')h+='<div class="ln no">❌ You said: '+esc(o.mine)+'</div>';
+  h+='<div class="ln yes">✅ Correct answer: '+esc(o.right)+'</div>';
+  if(o.steps&&o.steps.length)h+='<div class="lnwhy"><b>🧮 How to work it out</b><ol class="lnsteps">'+o.steps.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div>';
+  if(o.why)h+='<div class="lnwhy"><b>💡 Why?</b> '+esc(o.why)+'</div>';
+  h+='<p style="font-size:.85rem;opacity:.7;text-align:center">Mistakes help your brain grow 🌱 Read it once more, out loud.</p>';
+  $('lnBody').innerHTML=h;$('lnSay').classList.toggle('hidden',!TTS.on);$('learn').classList.remove('hidden');
+  prog.learnSeen=(prog.learnSeen||0)+1;
+}
+$('lnSay').onclick=()=>{if(!LN)return;const t='The correct answer is '+LN.right+'. '+(LN.steps||[]).join('. ')+' '+(LN.why||'');ttsSay(meaningItems(t),'learn')};
+$('lnOk').onclick=()=>{try{ttsStop()}catch(e){}$('learn').classList.add('hidden');const d=LN&&LN.done;LN=null;if(d)d()};
 function setMsg(id,cls,txt){const m=$(id);m.className='msg '+cls;m.textContent=txt}
 const PRAISE=['Amazing! 🎉','Super star! ⭐','Brilliant! 🌟','You got it! 🏆','Fantastic! 🚀','Genius move! 🧠'];
 const praise=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
@@ -1784,43 +1805,55 @@ document.querySelectorAll('#brainView [data-g]').forEach(b=>b.onclick=()=>{
 
 // ---------- MATH SPRINT ----------
 let SP={level:2,run:false,t:0,score:0,q:null,ans:'',iv:null};
+// step-by-step helpers for the "Let's learn" pop-up
+const T10=n=>Math.floor(n/10)*10, O1=n=>n%10;
+function hAdd(a,b){if(b<10)return[a+' + '+b+' = '+(a+b)];const t=T10(b),o=O1(b);return['Split '+b+' into '+t+' and '+o+'.','First add the tens: '+a+' + '+t+' = '+(a+t)+'.',o?'Then add the ones: '+(a+t)+' + '+o+' = '+(a+b)+'.':'There are no ones left, so the answer is '+(a+b)+'.']}
+function hSub(a,b){if(b<10)return['Count back '+b+' from '+a+': '+(a-b)+'.'];const t=T10(b),o=O1(b);return['Split '+b+' into '+t+' and '+o+'.','First take away the tens: '+a+' − '+t+' = '+(a-t)+'.',o?'Then take away the ones: '+(a-t)+' − '+o+' = '+(a-b)+'.':'No ones to take away, so the answer is '+(a-b)+'.']}
+function hMul(a,b){if(a<b)[a,b]=[b,a];if(a<=12)return[a+' × '+b+' means '+b+' groups of '+a+'.',b<=5?Array(b).fill(a).join(' + ')+' = '+(a*b)+'.':'From the '+a+' times table: '+a+' × '+b+' = '+(a*b)+'.'];
+  if(b>=10){const t=T10(b),o=O1(b);return['Split '+b+' into '+t+' and '+o+'.',a+' × '+t+' = '+(a*t)+'.',o?a+' × '+o+' = '+(a*o)+'.':'No ones part.','Add them: '+(a*t)+' + '+(a*o)+' = '+(a*b)+'.']}
+  const t=T10(a),o=O1(a);return['Split '+a+' into '+t+' and '+o+'.',t+' × '+b+' = '+(t*b)+'.',o+' × '+b+' = '+(o*b)+'.','Add them: '+(t*b)+' + '+(o*b)+' = '+(a*b)+'.']}
+function hDiv(n,b){const q=n/b;return['Ask: '+b+' × what = '+n+'?',q<=12?'From the '+b+' times table: '+b+' × '+q+' = '+n+'.':'Split '+n+' into '+(b*T10(q))+' + '+(n-b*T10(q))+'. '+(b*T10(q))+' ÷ '+b+' = '+T10(q)+' and '+(n-b*T10(q))+' ÷ '+b+' = '+O1(q)+'.','So '+n+' ÷ '+b+' = '+q+'.']}
+function hPct(p,b){const ans=p*b/100;const easy={10:'10% means divide by 10',20:'20% = 2 × 10%',25:'25% = one quarter, so divide by 4',50:'50% = half, so divide by 2',75:'75% = three quarters: divide by 4, then × 3',12.5:'12.5% = one eighth, so divide by 8',5:'5% = half of 10%'}[p];
+  return[p+'% means '+p+' out of every 100.',easy?easy+'.':'Find 1% first: '+b+' ÷ 100 = '+(b/100)+'.',easy?'So '+p+'% of '+b+' = '+ans+'.':'Then × '+p+': '+(b/100)+' × '+p+' = '+ans+'.']}
+function hFrac(num,den,N){const k=N/den;return['Find one part first: '+N+' ÷ '+den+' = '+k+' (that is 1/'+den+').',num===1?'We need just 1 part, so the answer is '+k+'.':'We need '+num+' parts: '+k+' × '+num+' = '+(k*num)+'.']}
 function sprintQ(L){
-  let a,b,text,ans;const t=rint(0,L===1?2:L===2?3:6);
+  let a,b;const t=rint(0,L===1?2:L===2?3:6);const R=(text,ans,steps)=>({text,ans:String(ans),steps});
   if(L===4){
     const u=rint(0,6);
-    if(u===0){a=rint(12,35);b=rint(12,29);return{text:a+' × '+b,ans:String(a*b)}}
-    if(u===1){a=rint(3,12);return{text:a+'³',ans:String(a*a*a)}}
-    if(u===2){const p=pick([5,15,35,45,65,85,12.5]);b=p===12.5?pick([80,160,240,320]):pick([60,140,180,220,260,340]);return{text:p+'% of '+b,ans:String(p*b/100)}}
-    if(u===3){a=rint(3,9);const x=rint(4,25);b=rint(5,60);return{text:a+'x + '+b+' = '+(a*x+b)+'  →  x',ans:String(x)}}
-    if(u===4){const pr=pick([[4,6],[6,8],[8,12],[9,12],[10,15],[12,18],[14,21],[15,20],[16,24],[18,24]]);const g=(x,y)=>y?g(y,x%y):x;return{text:'LCM('+pr[0]+', '+pr[1]+')',ans:String(pr[0]*pr[1]/g(pr[0],pr[1]))}}
-    if(u===5){const den=pick([7,8,9,12]);const num=rint(2,den-1);const k=rint(4,15);return{text:num+'/'+den+' of '+(den*k),ans:String(num*k)}}
-    a=rint(21,60);b=rint(3,9);const c=rint(10,60);return{text:a+' × '+b+' − '+c,ans:String(a*b-c)}
+    if(u===0){a=rint(12,35);b=rint(12,29);return R(a+' × '+b,a*b,hMul(a,b))}
+    if(u===1){a=rint(3,12);return R(a+'³',a*a*a,[a+'³ means '+a+' × '+a+' × '+a+'.','First '+a+' × '+a+' = '+(a*a)+'.','Then '+(a*a)+' × '+a+' = '+(a*a*a)+'.'])}
+    if(u===2){const p=pick([5,15,35,45,65,85,12.5]);b=p===12.5?pick([80,160,240,320]):pick([60,140,180,220,260,340]);
+      const st=p===12.5?hPct(p,b):[p+'% means '+p+' out of every 100.','Find 10%: '+b+' ÷ 10 = '+(b/10)+', and 5% is half of that = '+(b/20)+'.',p>=10?p+'% = '+Math.floor(p/10)+' × 10% + 5% = '+(Math.floor(p/10)*b/10)+' + '+(b/20)+' = '+(p*b/100)+'.':'So 5% of '+b+' = '+(p*b/100)+'.'];return R(p+'% of '+b,p*b/100,st)}
+    if(u===3){a=rint(3,9);const x=rint(4,25);b=rint(5,60);const c=a*x+b;return R(a+'x + '+b+' = '+c+'  →  x',x,['Take '+b+' away from both sides: '+a+'x = '+c+' − '+b+' = '+(a*x)+'.','Divide both sides by '+a+': x = '+(a*x)+' ÷ '+a+' = '+x+'.','Check: '+a+' × '+x+' + '+b+' = '+c+' ✓'])}
+    if(u===4){const pr=pick([[4,6],[6,8],[8,12],[9,12],[10,15],[12,18],[14,21],[15,20],[16,24],[18,24]]);const g=(x,y)=>y?g(y,x%y):x;const h=g(pr[0],pr[1]),l=pr[0]*pr[1]/h;
+      return R('LCM('+pr[0]+', '+pr[1]+')',l,['LCM = the smallest number both '+pr[0]+' and '+pr[1]+' divide into.','Multiples of '+pr[1]+': '+[1,2,3,4].map(k=>pr[1]*k).filter(m=>m<=l).join(', ')+' …','The first one that '+pr[0]+' also divides into is '+l+'.','Shortcut: '+pr[0]+' × '+pr[1]+' ÷ HCF '+h+' = '+l+'.'])}
+    if(u===5){const den=pick([7,8,9,12]);const num=rint(2,den-1);const k=rint(4,15);return R(num+'/'+den+' of '+(den*k),num*k,hFrac(num,den,den*k))}
+    a=rint(21,60);b=rint(3,9);const c=rint(10,60);return R(a+' × '+b+' − '+c,a*b-c,['Multiply first (BODMAS).'].concat(hMul(a,b),['Then subtract: '+(a*b)+' − '+c+' = '+(a*b-c)+'.']))
   }
   if(L===1){ // NCERT Class 3 level
     const u=rint(0,7);
-    if(u===0){a=rint(11,59);b=rint(10,39);text=a+' + '+b;ans=a+b}
-    else if(u===1){a=rint(100,500);b=rint(10,99);text=a+' + '+b;ans=a+b}
-    else if(u===2){a=rint(30,99);b=rint(10,a-1);text=a+' − '+b;ans=a-b}
-    else if(u===3){a=rint(2,10);b=rint(1,10);text=a+' × '+b;ans=a*b}
-    else if(u===4){b=rint(2,10);ans=rint(1,10);text=(b*ans)+' ÷ '+b}
-    else if(u===5){b=rint(5,30);ans=rint(5,40);text='? + '+b+' = '+(ans+b)}
-    else if(u===6){if(Math.random()<.5){a=rint(12,49);text='Double '+a;ans=a*2}else{a=rint(5,49)*2;text='Half of '+a;ans=a/2}}
-    else{const H=rint(1,9),Tn=rint(0,9),O=rint(0,9);text=H+' hundreds '+Tn+' tens '+O+' ones';ans=H*100+Tn*10+O}
-  } else if(L===2){
-    if(t===0){a=rint(10,99);b=rint(10,99);text=a+' + '+b;ans=a+b}
-    else if(t===1){a=rint(30,150);b=rint(10,a);text=a+' − '+b;ans=a-b}
-    else if(t===2){a=rint(2,12);b=rint(2,12);text=a+' × '+b;ans=a*b}
-    else{b=rint(2,12);ans=rint(2,12);text=(b*ans)+' ÷ '+b}
-  } else {
-    if(t===0){a=rint(12,99);b=rint(3,9);text=a+' × '+b;ans=a*b}
-    else if(t===1){a=rint(11,25);text=a+'²';ans=a*a}
-    else if(t===2){const p=pick([10,20,25,50,75]);b=pick([40,60,80,120,200,240,360,400]);text=p+'% of '+b;ans=p*b/100;if(ans%1){b=400;ans=p*4}text=p+'% of '+b}
-    else if(t===3){const den=pick([3,4,5,6,8]);const num=rint(1,den-1);const k=rint(2,12);b=den*k;text=num+'/'+den+' of '+b;ans=num*k}
-    else if(t===4){b=rint(15,80);ans=rint(10,90);text='? + '+b+' = '+(ans+b)}
-    else if(t===5){a=rint(2,20);b=rint(2,9);const c=rint(2,9);text=a+' + '+b+' × '+c;ans=a+b*c}
-    else{b=rint(3,9);ans=rint(11,40);text=(b*ans)+' ÷ '+b}
+    if(u===0){a=rint(11,59);b=rint(10,39);return R(a+' + '+b,a+b,hAdd(a,b))}
+    if(u===1){a=rint(100,500);b=rint(10,99);return R(a+' + '+b,a+b,hAdd(a,b))}
+    if(u===2){a=rint(30,99);b=rint(10,a-1);return R(a+' − '+b,a-b,hSub(a,b))}
+    if(u===3){a=rint(2,10);b=rint(1,10);return R(a+' × '+b,a*b,b===1?['Any number × 1 stays the same: '+a+'.']:hMul(a,b))}
+    if(u===4){b=rint(2,10);const q=rint(1,10);return R((b*q)+' ÷ '+b,q,hDiv(b*q,b))}
+    if(u===5){b=rint(5,30);const x=rint(5,40);return R('? + '+b+' = '+(x+b),x,['To find the missing number, take away: '+(x+b)+' − '+b+'.'].concat(hSub(x+b,b)))}
+    if(u===6){if(Math.random()<.5){a=rint(12,49);return R('Double '+a,a*2,['Double means add it to itself: '+a+' + '+a+'.'].concat(hAdd(a,a)))}a=rint(5,49)*2;return R('Half of '+a,a/2,['Half means split into 2 equal parts: '+a+' ÷ 2.',T10(a)?'Half of '+T10(a)+' is '+T10(a)/2+', half of '+O1(a)+' is '+O1(a)/2+'.':'',T10(a)/2+' + '+O1(a)/2+' = '+a/2+'.'].filter(Boolean))}
+    const H=rint(1,9),Tn=rint(0,9),O=rint(0,9);return R(H+' hundreds '+Tn+' tens '+O+' ones',H*100+Tn*10+O,[H+' hundreds = '+H*100+'.',Tn+' tens = '+Tn*10+'.',O+' ones = '+O+'.','Put them together: '+H*100+' + '+Tn*10+' + '+O+' = '+(H*100+Tn*10+O)+'.'])
   }
-  return{text,ans:String(ans)};
+  if(L===2){
+    if(t===0){a=rint(10,99);b=rint(10,99);return R(a+' + '+b,a+b,hAdd(a,b))}
+    if(t===1){a=rint(30,150);b=rint(10,a);return R(a+' − '+b,a-b,hSub(a,b))}
+    if(t===2){a=rint(2,12);b=rint(2,12);return R(a+' × '+b,a*b,hMul(a,b))}
+    b=rint(2,12);const q=rint(2,12);return R((b*q)+' ÷ '+b,q,hDiv(b*q,b))
+  }
+  if(t===0){a=rint(12,99);b=rint(3,9);return R(a+' × '+b,a*b,hMul(a,b))}
+  if(t===1){a=rint(11,25);return R(a+'²',a*a,[a+'² means '+a+' × '+a+'.'].concat(hMul(a,a)))}
+  if(t===2){const p=pick([10,20,25,50,75]);b=pick([40,60,80,120,200,240,360,400]);if((p*b/100)%1)b=400;return R(p+'% of '+b,p*b/100,hPct(p,b))}
+  if(t===3){const den=pick([3,4,5,6,8]);const num=rint(1,den-1);const k=rint(2,12);return R(num+'/'+den+' of '+(den*k),num*k,hFrac(num,den,den*k))}
+  if(t===4){b=rint(15,80);const x=rint(10,90);return R('? + '+b+' = '+(x+b),x,['Missing number = '+(x+b)+' − '+b+'.'].concat(hSub(x+b,b)))}
+  if(t===5){a=rint(2,20);b=rint(2,9);const c=rint(2,9);return R(a+' + '+b+' × '+c,a+b*c,['Multiply before you add (BODMAS).',b+' × '+c+' = '+(b*c)+'.','Then '+a+' + '+(b*c)+' = '+(a+b*c)+'.'])}
+  b=rint(3,9);const q=rint(11,40);return R((b*q)+' ÷ '+b,q,hDiv(b*q,b))
 }
 function openSprint(){
   stopAll();if(!SP.picked){SP.level=WHO==='avanya'?4:1}
@@ -1833,18 +1866,19 @@ function renderSprintLv(){
 }
 const KEYS=['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
 $('keypad').innerHTML=KEYS.map(k=>'<button class="key" data-k="'+k+'">'+k+'</button>').join('');
-$('keypad').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b||!SP.run)return;const k=b.dataset.k;
+$('keypad').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b||!SP.run||SP.paused)return;const k=b.dataset.k;
   if(k==='⌫')SP.ans=SP.ans.slice(0,-1);else if(k==='✓'){checkSprint(true);return}else if(SP.ans.length<6)SP.ans+=k;
   SND.tick();$('spA').textContent=SP.ans;$('spA').className='sprinta';checkSprint(false)});
 function checkSprint(force){
   if(SP.ans===SP.q.ans){SP.score++;SND.ok();$('spA').className='sprinta good';$('spScore').textContent='✅ '+SP.score;setTimeout(nextSprintQ,180);return}
-  if(force||SP.ans.length>=SP.q.ans.length){$('spA').className='sprinta bad';SND.bad();setTimeout(()=>{SP.ans='';$('spA').textContent='';$('spA').className='sprinta'},350)}
+  if(force||SP.ans.length>=SP.q.ans.length){$('spA').className='sprinta bad';SND.bad();if(SP.paused)return;SP.paused=true;const q=SP.q,mine=SP.ans;
+    setTimeout(()=>showLearn({q:q.text.replace('→  x','→ x = ?')+(/[=→]/.test(q.text)?'':' = ?'),mine,right:q.ans,steps:q.steps,why:'',done:()=>{SP.paused=false;if(SP.run)nextSprintQ()}}),300)}
 }
 function nextSprintQ(){SP.q=sprintQ(SP.level);SP.ans='';$('spQ').textContent=/[=→]/.test(SP.q.text)?SP.q.text.replace('→  x','→ x = ?'):SP.q.text+' = ?';$('spA').textContent='';$('spA').className='sprinta'}
 $('sprintGo').onclick=()=>{
   SP.run=true;SP.score=0;SP.t=60;$('sprintSetup').classList.add('hidden');$('sprintRun').classList.remove('hidden');
   $('spScore').textContent='✅ 0';$('spTime').textContent='⏱ 60';nextSprintQ();
-  SP.iv=setInterval(()=>{SP.t--;$('spTime').textContent='⏱ '+SP.t;if(SP.t<=5&&SP.t>0)SND.tick();if(SP.t<=0)endSprint()},1000);
+  SP.paused=false;SP.iv=setInterval(()=>{if(SP.paused)return;SP.t--;$('spTime').textContent='⏱ '+SP.t;if(SP.t<=5&&SP.t>0)SND.tick();if(SP.t<=0)endSprint()},1000);
 };
 $('spSkip').onclick=()=>{if(SP.run)nextSprintQ()};
 function stopSprint(){if(SP.iv){clearInterval(SP.iv);SP.iv=null}SP.run=false}
@@ -1890,6 +1924,7 @@ function answerQ(k,btn){
   $('qScore').textContent='✅ '+Q.score;
   const ex=(ok?'✅ Correct! ':'❌ The answer is: '+it.opts[it.ans]+'. ')+(it.explain||'');
   $('qExplain').textContent=ex;$('qExplain').classList.remove('hidden');
+  if(!ok)setTimeout(()=>showLearn({q:it.text,mine:it.opts[k],right:it.opts[it.ans],why:it.explain||'',steps:it.steps}),650);
   $('qNext').textContent=Q.i<Q.qs.length-1?'Next ➡':'Finish 🏁';$('qNext').classList.remove('hidden');
 }
 $('qNext').onclick=()=>{if(Q.i<Q.qs.length-1){Q.i++;showQ()}else finishQuiz()};
@@ -1907,7 +1942,8 @@ function finishQuiz(){roundDone(Q.kind==='dquiz'?'quiz':Q.kind);
 
 // ---------- TODAY'S QUIZ (fixed daily set) ----------
 function dailyQuizIds(){
-  ensureDayBase();if(prog.day.dqIds)return prog.day.dqIds;
+  ensureDayBase();if(prog.day.dqIds&&prog.day.dqIds.length>=DQ_SIZE())return prog.day.dqIds;
+  const prev=prog.day.dqIds||null,prevPos=prog.day.dqPos||0;
   const rnd=seeded(dayNum(today())*31+(WHO==='avanya'?7:13));const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   const pool=quizPool(),N=DQ_SIZE(),A=WHO==='aaranya';
   const want=A?{std:N}:{hard:Math.round(N*0.6),std:N-Math.round(N*0.6)};
@@ -1917,6 +1953,7 @@ function dailyQuizIds(){
   let ids=[];
   if(want.hard)ids=ids.concat(pickFrom(pool.filter(i=>OLY[i].d===2),want.hard));
   ids=ids.concat(pickFrom(pool.filter(i=>!OLY[i].d&&!ids.includes(i)),N-ids.length));
+  if(prev){const extra=sh(pool.filter(i=>!prev.includes(i))).sort((x,y)=>(prog.seen[x]?1:0)-(prog.seen[y]?1:0)).slice(0,N-prev.length);prog.day.dqIds=prev.concat(extra);prog.day.dqPos=prevPos;save();return prog.day.dqIds}
   prog.day.dqIds=sh(ids);prog.day.dqPos=0;save();return prog.day.dqIds;
 }
 function openDailyQuiz(){
@@ -1942,6 +1979,7 @@ function openWorldSetup(){
   document.querySelectorAll('#wxPool button').forEach(b=>b.onclick=()=>{WX.pool=b.dataset.p;openWorldSetup()});
   $('wxGo').onclick=startWorld;
 }
+function wFact(c){return c.n+' '+c.f+' is in '+c.cont+(c.cap?' and its capital is '+c.cap:'')+'. Memory tip: picture the flag and say "'+(c.cap?c.cap+', '+c.n:c.n+', '+c.cont)+'" out loud three times.'}
 function startWorld(){
   let pool=wPool();if(WX.mode==='capital'||WX.mode==='rcap')pool=pool.filter(c=>c.cap);
   const chosen=shuffle(pool).slice(0,10);
@@ -1952,12 +1990,12 @@ function startWorld(){
     if(WX.mode==='cont'){
       const conts=['Asia','Africa','Europe','North America','South America','Oceania'];
       const opts=shuffle([c.cont].concat(shuffle(conts.filter(x=>x!==c.cont)).slice(0,3)));
-      return{big:c.f,text:'Which continent is '+c.n+' in?',opts,ans:opts.indexOf(c.cont)};
+      return{big:c.f,text:'Which continent is '+c.n+' in?',opts,ans:opts.indexOf(c.cont),explain:wFact(c)};
     }
     const all=shuffle([c].concat(wrong));
-    if(WX.mode==='flag')return{big:c.f,text:'Which country has this flag?',opts:all.map(x=>x.n),ans:all.indexOf(c)};
-    if(WX.mode==='capital')return{big:c.f,text:'What is the capital of '+c.n+'?',opts:all.map(x=>x.cap),ans:all.indexOf(c),explain:c.cap+' is the capital of '+c.n+'.'};
-    return{big:'🏙️',text:c.cap+' is the capital of which country?',opts:all.map(x=>x.n),ans:all.indexOf(c),explain:c.cap+' is the capital of '+c.n+' '+c.f+'.'};
+    if(WX.mode==='flag')return{big:c.f,text:'Which country has this flag?',opts:all.map(x=>x.n),ans:all.indexOf(c),explain:'This '+c.f+' is the flag of '+c.n+'. '+wFact(c)};
+    if(WX.mode==='capital')return{big:c.f,text:'What is the capital of '+c.n+'?',opts:all.map(x=>x.cap),ans:all.indexOf(c),explain:wFact(c)};
+    return{big:'🏙️',text:c.cap+' is the capital of which country?',opts:all.map(x=>x.n),ans:all.indexOf(c),explain:wFact(c)};
   });
   qs.forEach((q,k)=>q.cn=chosen[k].n);
   runQuiz({kind:'world',mode:WX.mode,title:'🌍',qs});
@@ -1987,10 +2025,12 @@ function openQuizSetup(){
   $('quizSetup').innerHTML='<h2>🏅 Quiz Master</h2><p>10 questions per round, with an explanation after every answer. New questions come first — '+unseen+' of '+OLY.length+' still new for you!</p>'+
     '<h3>Level</h3><div class="lv" id="qmLvl"><button data-v="std" class="'+(QM.lvl==='std'?'on':'')+'">⭐ Standard</button><button data-v="hard" class="'+(QM.lvl==='hard'?'on':'')+'">🔥 Challenge</button><button data-v="mix" class="'+(QM.lvl==='mix'?'on':'')+'">🎲 Both</button></div>'+
     '<h3>Pick a topic</h3><div class="lv" id="qmCats">'+cats.map(c=>'<button data-c="'+c+'" class="'+(QM.cat===c?'on':'')+'">'+(QICON[c]||'🎲')+' '+c+'</button>').join('')+'</div>'+
-    '<div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="qmGo">▶ Start</button></div>'+report;
+    '<div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="qmGo">▶ Start</button></div>'+((prog.wrong||[]).length?'<button class="btn alt" id="qmMis" style="width:100%;margin-top:8px">🔁 Practise my mistakes ('+prog.wrong.length+')</button>':'')+report;
   document.querySelectorAll('#qmCats button').forEach(b=>b.onclick=()=>{QM.cat=b.dataset.c;openQuizSetup()});
   document.querySelectorAll('#qmLvl button').forEach(b=>b.onclick=()=>{QM.lvl=b.dataset.v;openQuizSetup()});
   $('qmGo').onclick=startQuizMaster;
+  if($('qmMis'))$('qmMis').onclick=()=>{const ids=shuffle(prog.wrong.slice()).slice(0,10);
+    runQuiz({kind:'quiz',title:'🔁 My mistakes',qs:ids.map(i=>{const q=OLY[i];const o=shuffle([0,1,2,3]);return{id:i,hard:q.d===2,cat:q.c,text:(q.d===2?'🔥 ':'')+q.q,opts:o.map(k=>q.o[k]),ans:o.indexOf(q.a),explain:q.e}})})};
 }
 function startQuizMaster(){
   const lvOk=qmOk;
