@@ -222,7 +222,7 @@
       <button class="big g2" data-g="dquiz">📝 Today's Quiz<small>Your daily set — new questions every day</small></button>
       <button class="big g1" data-g="sprint">⚡ Math Sprint<small>How many sums can you solve in 60 seconds?</small></button>
       <button class="big g2" data-g="world">🌍 World Explorer<small>Flags, capitals and continents</small></button>
-      <button class="big g5" data-g="wtest">📋 Weekly Olympiad Test<small>Saturday &amp; Sunday · 60 minutes · just like the real exam</small></button>
+      <button class="big g5" data-g="wtest">📋 Weekly Olympiad Test<small>Saturday &amp; Sunday · Olympiad-style paper with a timer</small></button>
       <button class="big g3" data-g="oly">🏅 Quiz Master — free practice<small>Pick any topic: India, History, Space, Physics, Spirituality and more</small></button>
       <button class="big g4" data-g="mem">🧩 Memory Grid<small>Remember the glowing squares</small></button>
       <button class="big g5" data-g="match">🃏 Flag Match<small>Flip cards to match each flag with its country</small></button>
@@ -1377,7 +1377,7 @@ function buildPlan(){
   plan.push({k:'wisdom',n:1,e:'🪔',t:'Today\'s mantra & Gita verse'});
   plan.push({k:'robofact',n:1,e:'💡',t:'Robo fact of the day'});
   plan.push({k:'robomaze',n:1,e:'🧭',t:'Today\'s robot maze'});
-  if(WT_OPEN()&&!wtDone())plan.unshift({k:'wtest',n:1,e:'📋',t:'Weekly Olympiad test (60 min)'});
+  if(WT_OPEN()&&!wtDone())plan.unshift({k:'wtest',n:1,e:'📋',t:'Weekly Olympiad test ('+WT_MINS+' min)'});
   return plan;
 }
 function todaysMissions(){ensureDayBase();if(!prog.day.plan){prog.day.plan=buildPlan();prog.day.claimed={};prog.day.chest=false}
@@ -1571,7 +1571,7 @@ function renderHome(){
   $('quick').innerHTML='';
   const di=dailyIdx(),dSub=PUZZLES[di].title.replace(/^\d+\.\s*/,'')+(prog.day.c.daily?' — solved today ✅':' — double XP today!');
   const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);
-  if(WT_OPEN()||(prog.wtCur&&prog.wtCur.wk===weekKey()))quickBtn('g5','📋 Weekly Olympiad Test',wtDone()?'Done this week ✅ '+wtDone().p+'% — see explanations':prog.wtCur&&prog.wtCur.wk===weekKey()?'In progress — tap to carry on':'Open today · 60 minutes',()=>openWeeklyTest());
+  if(WT_OPEN()||(prog.wtCur&&prog.wtCur.wk===weekKey()))quickBtn('g5','📋 Weekly Olympiad Test',wtDone()?'Done this week ✅ '+wtDone().p+'% — see explanations':prog.wtCur&&prog.wtCur.wk===weekKey()?'In progress — tap to carry on':'Open today · '+WT_MINS+' minutes',()=>openWeeklyTest());
   quickBtn('g2','📝 Today\'s Quiz',(prog.day.dqPos||0)>=DQ_SIZE()?'Done for today ✅':(prog.day.dqPos||0)+'/'+DQ_SIZE()+' done — new set every day',()=>openDailyQuiz());
   if(WHO==='aaranya'){
     quickBtn('g1','✨ Chess Puzzle of the Day',dSub,()=>openTask('puzzle',di));
@@ -1975,11 +1975,12 @@ function openDailyQuiz(){
 const fmtD=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
 function weekKey(d){const x=d?new Date(d+'T00:00:00'):new Date();x.setDate(x.getDate()-(x.getDay()+6)%7);return fmtD(x)} // Monday of the week
 function weekDays(wk){const x=new Date(wk+'T00:00:00');return [0,1,2,3,4,5,6].map(i=>{const y=new Date(x);y.setDate(x.getDate()+i);return fmtD(y)})}
+const WT_MINS=45; // test length in minutes (raise to 60 later)
 const WT_OPEN=()=>[0,6].includes(new Date().getDay()); // Saturday & Sunday
 const wtDone=()=>(prog.wt||{})[weekKey()];
 function WT_SPEC(){return WHO==='aaranya'?
-  {mins:60,secs:[{k:'lr',n:'Logical Reasoning',q:10,m:1},{k:'mr',n:'Mathematical Reasoning',q:10,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers — think harder!',q:5,m:2}]}:
-  {mins:60,secs:[{k:'lr',n:'Logical Reasoning',q:15,m:1},{k:'mr',n:'Mathematical Reasoning',q:20,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers',q:5,m:3}]}}
+  {mins:WT_MINS,secs:[{k:'lr',n:'Logical Reasoning',q:10,m:1},{k:'mr',n:'Mathematical Reasoning',q:10,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers — think harder!',q:5,m:2}]}:
+  {mins:WT_MINS,secs:[{k:'lr',n:'Logical Reasoning',q:15,m:1},{k:'mr',n:'Mathematical Reasoning',q:20,m:1},{k:'wk',n:'This week\'s topics',q:10,m:1},{k:'ach',n:'Achievers',q:5,m:3}]}}
 
 // --- question builders ---
 function mcqNum(text,ans,steps,explain){ans=Number(ans);const ds=shuffle([1,-1,2,-2,10,-10,5,-5,3,-3,ans>=20?Math.round(ans/10):4,ans>=300?100:6,ans>=300?-100:-6]);const o=[ans];
@@ -2078,7 +2079,7 @@ function renderTestHome(){
   if(done)h+='<p class="tip">✅ Done this week: <b>'+done.s+' / '+done.m+'</b> ('+done.p+'%). A new test opens next Saturday.</p><button class="btn" id="wtRev" style="width:100%">🔎 See my answers & explanations</button>';
   else if(cur)h+='<p class="tip">You have a test in progress: '+cur.a.filter(x=>x>=0).length+' of '+cur.qs.length+' answered, '+Math.max(0,Math.ceil((S.mins*60-cur.el)/60))+' minutes left.</p><button class="btn" id="wtGo" style="width:100%">▶ Carry on</button>';
   else if(!WT_OPEN())h+='<p class="tip">🗓️ The test opens on <b>Saturday and Sunday</b>. During the week, your daily quizzes get you ready — the test wraps up the week.</p>';
-  else h+='<p>Just like the real Olympiad: <b>'+tq+' questions · '+tm+' marks · '+S.mins+' minutes</b>. No hints during the test — you can go back, change answers and 🚩 flag questions to check later. Explanations come at the end.</p><button class="btn" id="wtGo" style="width:100%">▶ Start the test</button>';
+  else h+='<p>Olympiad-style paper: <b>'+tq+' questions · '+tm+' marks · '+S.mins+' minutes</b>. No hints during the test — you can go back, change answers and 🚩 flag questions to check later. Explanations come at the end.</p><button class="btn" id="wtGo" style="width:100%">▶ Start the test</button>';
   h+='<h3>Sections</h3>'+S.secs.map((s,i)=>'<div class="mission"><span class="ic">'+(i+1)+'</span><div class="tx">'+s.n+'<span style="float:right">'+s.q+' Q × '+s.m+' mark'+(s.m>1?'s':'')+'</span></div></div>').join('');
   if(hist.length)h+='<h3>📈 My results</h3>'+hist.map(k=>{const r=prog.wt[k];return '<div class="mission"><span class="ic">'+(r.p>=80?'🏆':r.p>=60?'🌟':'💪')+'</span><div class="tx">Week of '+shortDay(k)+'<span style="float:right">'+r.s+'/'+r.m+' · '+r.p+'%</span><div class="mb"><i style="width:'+r.p+'%;background:'+(r.p>=80?'#2fbf71':r.p>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>'}).join('');
   h+='<button class="btn alt" data-back="brain" style="width:100%;margin-top:10px">⬅ Back</button></div>';
