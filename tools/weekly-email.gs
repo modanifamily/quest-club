@@ -105,6 +105,26 @@ function kidSection_(kid, rec) {
   h += row('Quiz questions answered', qW[1], qP[1], '');
   h += '</table>';
 
+  // Weekly Olympiad test
+  const wtK = Object.keys(p.wt || {}).filter(k => wk.includes(k))[0], wtP = Object.keys(p.wt || {}).filter(k => pw.includes(k))[0];
+  h += '<h3 style="margin:14px 0 6px;color:#2d2a4a">📋 Weekly Olympiad test</h3>';
+  if (!wtK) h += '<p style="margin:0 0 8px;color:#d64545">Not taken this week (it opens on Saturday and Sunday).</p>';
+  else {
+    const T = p.wt[wtK], TP = wtP ? p.wt[wtP] : null;
+    h += '<p style="margin:0 0 6px">Score <b>' + T.s + ' / ' + T.m + ' (' + T.p + '%)</b> in ' + T.mins + ' min' + (TP ? ' · last week ' + TP.p + '% ' + arrow(T.p, TP.p) : ' · first test') + '</p>';
+    h += '<table style="border-collapse:collapse;width:100%;font-size:13px"><tr style="background:#f4f1ff"><th align="left" style="padding:5px 6px">Section</th><th align="right" style="padding:5px 6px">Right</th><th align="right" style="padding:5px 6px">Marks</th><th align="right" style="padding:5px 6px">%</th><th align="right" style="padding:5px 6px">last wk</th></tr>';
+    T.sec.forEach(x => { const pc = Math.round(x.r / x.t * 100), px = TP ? (TP.sec.find(y => y.k === x.k) || null) : null, ppc = px ? Math.round(px.r / px.t * 100) : null;
+      h += '<tr><td style="padding:5px 6px;border-bottom:1px solid #eee">' + x.n + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee">' + x.r + '/' + x.t + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee">' + x.s + '/' + x.m + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee;color:' + (pc >= 80 ? '#1d9a5b' : pc >= 50 ? '#b07400' : '#d64545') + '"><b>' + pc + '%</b></td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee;color:#777">' + (ppc === null ? '—' : ppc + '%') + '</td></tr>'; });
+    h += '</table>';
+    if (T.wq && T.wq.length) h += '<p style="margin:6px 0 0;font-size:13px"><b>From the test, worth talking through:</b></p><ul style="margin:2px 0 0;padding-left:20px;font-size:13px;line-height:1.5">' + T.wq.slice(0, 5).map(q => '<li>' + esc_(q.q) + ' → <span style="color:#1d7a49">' + esc_(q.a) + '</span></li>').join('') + '</ul>';
+  }
+
+  // Day by day
+  h += '<h3 style="margin:14px 0 6px;color:#2d2a4a">🗓️ Day by day</h3><table style="border-collapse:collapse;width:100%;font-size:13px"><tr style="background:#f4f1ff"><th align="left" style="padding:5px 6px">Day</th><th align="right" style="padding:5px 6px">Plan done</th><th align="right" style="padding:5px 6px">Daily quiz</th><th align="right" style="padding:5px 6px">Time</th></tr>';
+  wk.forEach(d => { const L = (p.planLog || {})[d], q = (p.dq || {})[d], m = (p.mins || {})[d] || 0, pc = L ? Math.round((L._all || 0) * 100) : null;
+    h += '<tr><td style="padding:5px 6px;border-bottom:1px solid #eee">' + Utilities.formatDate(new Date(d + 'T12:00:00'), TZ, 'EEE d MMM') + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee;color:' + (pc === null ? '#999' : pc >= 100 ? '#1d9a5b' : pc >= 50 ? '#b07400' : '#d64545') + '"><b>' + (pc === null ? '—' : pc + '%') + '</b></td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee">' + (q && q[1] ? q[0] + '/' + q[1] + ' (' + Math.round(q[0] / q[1] * 100) + '%)' : '—') + '</td><td align="right" style="padding:5px 6px;border-bottom:1px solid #eee">' + (m ? m + ' min' : '—') + '</td></tr>'; });
+  h += '</table><p style="margin:4px 0 0;font-size:12px;color:#888">"Daily quiz" counts every quiz question answered that day (Today\'s Quiz plus free practice).</p>';
+
   // Time and score by subject: this week vs last week
   const SUBJ = ['Maths & Logic', 'Science', 'General Knowledge', 'Geography', 'Memory', 'Chess', 'Coding & AI', 'Spirituality'];
   const agg = (days, k) => { let m = 0, r = 0, t = 0; days.forEach(d => { m += ((p.dm || {})[d] || {})[k] || 0; const v = ((p.ds || {})[d] || {})[k]; if (v) { r += v[0]; t += v[1]; } }); return { m: m, s: t >= 3 ? Math.round(r / t * 100) : null }; };
@@ -135,7 +155,7 @@ function kidSection_(kid, rec) {
   const pl = wk.map(d => (p.planLog || {})[d]).filter(Boolean);
   const plFull = pl.filter(x => x._all >= 1).length, plAvg = Math.round(pl.reduce((a, x) => a + (x._all || 0), 0) / 7 * 100);
   tips.unshift('📋 <b>Daily plan:</b> fully completed on ' + plFull + ' of 7 days; on average ' + plAvg + '% of each day\'s plan was done.' + (plFull >= 5 ? ' Great routine!' : plFull <= 2 ? ' A fixed daily slot could help.' : ''));
-  const cats = ['Chess', 'Maths', 'Quiz', 'Geography', 'Memory', 'Wisdom', 'Robo Lab'];
+  const cats = ['Weekly test', 'Chess', 'Maths', 'Quiz', 'Geography', 'Memory', 'Wisdom', 'Robo Lab'];
   const catRows = cats.map(c => { const v = wk.map(d => ((p.planLog || {})[d] || {})[c]).filter(x => x !== undefined); if (!v.length) return ''; const pc = Math.round(v.reduce((a, x) => a + x, 0) / v.length * 100);
     return '<tr><td style="padding:4px 6px">' + c + '</td><td style="padding:4px 6px;width:55%"><div style="background:#eee;border-radius:6px;height:10px"><div style="background:' + (pc >= 80 ? '#1d9a5b' : pc >= 50 ? '#d98c00' : '#d64545') + ';height:10px;border-radius:6px;width:' + pc + '%"></div></div></td><td align="right" style="padding:4px 6px"><b>' + pc + '%</b></td></tr>'; }).join('');
   if (catRows) h += '<h3 style="margin:14px 0 6px;color:#2d2a4a">📋 Daily plan completion by category (this week)</h3><table style="border-collapse:collapse;width:100%;font-size:13px">' + catRows + '</table>';
