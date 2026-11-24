@@ -1334,7 +1334,7 @@ const BADGES=[
 ];
 const MISSIONS={
  aaranya:[
-  {k:'puzzles',n:2,e:'🧩',t:'Solve 2 chess puzzles'},{k:'lessons',n:1,e:'📚',t:'Finish (or replay) a chess lesson'},
+  {k:'puzzles',n:2,e:'🧩',t:'Solve 2 chess puzzles'},{k:'lessons',n:1,e:'📚',t:'Finish a new chess lesson'},
   {k:'games',n:1,e:'🤖',t:'Finish a game against Robo-Knight'},{k:'hunts',n:2,e:'⭐',t:'Complete 2 Star Hunts'},
   {k:'checks',n:3,e:'⚡',t:'Give 3 checks in chess games'},{k:'daily',n:1,e:'✨',t:'Solve the chess Puzzle of the Day'},
   {k:'sprints',n:1,e:'➕',t:'Finish a Math Sprint'},{k:'match',n:1,e:'🃏',t:'Finish a Flag Match'},
@@ -1402,7 +1402,7 @@ function buildPlan(){
   const n=dayNum(today()),alt=n%2===0,roboDay=[2,5].includes(n%7),A=WHO==='aaranya';
   const plan=[];
   if(A&&Object.keys(prog.lessons||{}).length<LESSONS.length)plan.push({k:'lessons',n:1,e:'📚',t:'1 chess lesson'});
-  else plan.push(alt||A?{k:'puzzles',n:2,e:'🧩',t:'2 chess puzzles'}:{k:'games',n:1,e:'♞',t:'1 chess game vs Robo-Knight'});
+  else plan.push((alt||A)&&PUZZLES.filter((_,i)=>!prog.puzzles[i]).length>=2?{k:'puzzles',n:2,e:'🧩',t:'2 new chess puzzles'}:{k:'games',n:1,e:'♞',t:'1 chess game vs Robo-Knight'});
   plan.push({k:'sprints',n:1,e:'⚡',t:'1 Math Sprint ('+(A?'Class 3':'Champion')+')'});
   plan.push({k:'dquiz',n:DQ_SIZE(),e:'📝',t:'Today\'s Quiz ('+DQ_SIZE()+' questions)'});
   if(A)plan.push(alt?{k:'world',n:1,e:'🌍',t:'1 World Explorer round'}:{k:'match',n:1,e:'🃏',t:'1 Flag Match game'});
@@ -1417,7 +1417,7 @@ function todaysMissions(){ensureDayBase();if(!prog.day.plan){prog.day.plan=build
   if(!prog.day.plan.some(m=>m.k==='robofact')){prog.day.plan=prog.day.plan.filter(m=>m.k!=='robo').concat([{k:'robofact',n:1,e:'💡',t:'Robo fact of the day'},{k:'robomaze',n:1,e:'🧭',t:'Today\'s robot maze'}]);const cl={};prog.day.plan.forEach((m,i)=>{if((prog.day.c[m.k]||0)>=m.n)cl[i]=1});prog.day.claimed=cl;prog.day.chest=false}
   const dq=prog.day.plan.find(m=>m.k==='dquiz');if(dq&&dq.n!==DQ_SIZE()){dq.n=DQ_SIZE();dq.t='Today\'s Quiz ('+DQ_SIZE()+' questions)';const cl={};prog.day.plan.forEach((m,i)=>{if((prog.day.c[m.k]||0)>=m.n)cl[i]=1});prog.day.claimed=cl;prog.day.chest=false}
   return prog.day.plan}
-function planGo(k){({lessons:()=>{const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);openTask('lesson',nl<0?0:nl)},puzzles:()=>tab('puzzle'),games:()=>tab('play'),sprints:()=>openSprint(),dquiz:()=>openDailyQuiz(),robofact:()=>openRoboFact(),robomaze:()=>openDailyMaze(),wtest:()=>openWeeklyTest(),
+function planGo(k){({lessons:()=>{const nl=LESSONS.findIndex((_,i)=>!prog.lessons[i]);openTask('lesson',nl<0?0:nl)},puzzles:()=>{const np=PUZZLES.findIndex((_,i)=>!prog.puzzles[i]);np<0?tab('puzzle'):openTask('puzzle',np)},games:()=>tab('play'),sprints:()=>openSprint(),dquiz:()=>openDailyQuiz(),robofact:()=>openRoboFact(),robomaze:()=>openDailyMaze(),wtest:()=>openWeeklyTest(),
   world:()=>openWorldSetup(),match:()=>openMatch(),mem:()=>openMem(),wisdom:()=>openWisdom(),robo:()=>tab('robo')}[k]||(()=>tab('brain')))()}
 function planFrac(){const pl=todaysMissions();return pl.reduce((a,m)=>a+Math.min(1,(prog.day.c[m.k]||0)/m.n),0)/pl.length}
 function logPlan(){const t=today(),pl=todaysMissions(),lg=prog.planLog||(prog.planLog={});const o={};
@@ -1681,7 +1681,7 @@ function renderBoard(el,s,opts){
 function buildLists(){
   const lg=$('lessonGrid');lg.innerHTML='';
   LESSONS.forEach((L,i)=>{const b=document.createElement('button');b.className='tile'+(prog.lessons[i]?' done':'');
-    b.innerHTML='<span class="badge">'+(prog.lessons[i]?'⭐':'○')+'</span><b>'+L.title+'</b>'+(prog.lessons[i]?'Replay +5 XP':'+50 XP');
+    b.innerHTML='<span class="badge">'+(prog.lessons[i]?'⭐':'○')+'</span><b>'+L.title+'</b>'+(prog.lessons[i]?'Done ✅ · practice only':'+50 XP');
     b.onclick=()=>openTask('lesson',i);lg.appendChild(b)});
   const pg=$('puzzleGrid');pg.innerHTML='';const di=dailyIdx();
   PUZZLES.forEach((P,i)=>{const b=document.createElement('button');b.className='tile'+(i===di?' today':prog.puzzles[i]?' done':'');
@@ -1769,10 +1769,10 @@ function taskWin(extra){
   setMsg('taskMsg','ok',praise()+' '+(extra||''));
   if(T.kind==='puzzle')addScore('Chess',(T.fails===0&&!T.hinted)?1:0,1);
   if(T.kind==='puzzle'&&first){prog.pz.s++;if(T.fails===0&&!T.hinted)prog.pz.f++}
-  let xp=first?(T.kind==='lesson'?50:30):5;
+  let xp=first?(T.kind==='lesson'?50:30):0;
   if(first&&T.fails===0&&!T.hinted)xp+=20;
-  addXP(xp,first&&T.fails===0&&!T.hinted?'first try!':'');
-  if(T.kind==='lesson')bump('lessons');else bump('puzzles');
+  if(xp)addXP(xp,first&&T.fails===0&&!T.hinted?'first try!':'');else setMsg('taskMsg','ok',praise()+' (Practice round — new ones earn XP and count for today\'s plan.)');
+  if(first){if(T.kind==='lesson')bump('lessons');else bump('puzzles')}
   if(T.kind==='puzzle'&&T.i===dailyIdx()&&!(prog.day.c.daily)){bump('daily');addXP(60,'Puzzle of the Day');}
   checkBadges();
   const list=T.kind==='lesson'?LESSONS:PUZZLES;
@@ -1780,7 +1780,7 @@ function taskWin(extra){
 }
 $('taskBack').onclick=()=>tab(T.kind==='lesson'?'learn':T.kind==='hunt'?'chess':'puzzle');
 $('taskReset').onclick=()=>T.kind==='hunt'?openHunt():openTask(T.kind,T.i);
-$('taskNext').onclick=()=>T.kind==='hunt'?openHunt():openTask(T.kind,T.i+1);
+$('taskNext').onclick=()=>{if(T.kind==='hunt')return openHunt();const done=T.kind==='lesson'?prog.lessons:prog.puzzles,list=T.kind==='lesson'?LESSONS:PUZZLES;let n=list.findIndex((_,i)=>i>T.i&&!done[i]);if(n<0)n=list.findIndex((_,i)=>!done[i]);openTask(T.kind,n<0?Math.min(T.i+1,list.length-1):n)};
 $('taskHint').onclick=()=>{if(!T||T.done||!T.D.hint)return;T.hinted=true;T.hint=sqIdx(T.D.hint);T.sel=-1;drawTask();setMsg('taskMsg','info','Try moving the piece with the green border.')};
 
 const START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -1952,11 +1952,12 @@ function answerQ(k,btn){
   if(Q.kind==='dquiz'){prog.day.dqPos=(prog.day.dqPos||0)+1;bump('dquiz')}
   if(ok&&it.id!==undefined)prog.qok[it.id]=1;
   if(ok&&it.cn)prog.wc[it.cn]=1;
+  if(it.cn&&Q.kind==='world'){const W=prog.wok||(prog.wok={}),m=W[WX.mode]||(W[WX.mode]={});if(ok)m[it.cn]=1;else if(!m[it.cn])m[it.cn]=0;save()}
   if(ok){Q.score++;SND.ok();addXP(it.hard?5:3);prog.correctTotal=(prog.correctTotal||0)+1;bump('correct')}else{btn.classList.add('wrong');SND.bad()}
   if(it.cat){const s=prog.qstats[it.cat]||(prog.qstats[it.cat]={r:0,t:0});s.t++;if(ok)s.r++;if(it.id!==undefined)prog.seen[it.id]=1;
     const td=today(),d=prog.dq[td]||(prog.dq[td]=[0,0]);d[1]++;if(ok)d[0]++;
     if(it.hard){prog.hst.t++;if(ok)prog.hst.r++}
-    if(it.id!==undefined){prog.wrong=prog.wrong.filter(x=>x!==it.id);if(!ok){prog.wrong.push(it.id);if(prog.wrong.length>20)prog.wrong.shift()}}
+    if(it.id!==undefined){prog.wrong=prog.wrong.filter(x=>x!==it.id);if(!ok){prog.wrong.push(it.id);if(prog.wrong.length>300)prog.wrong.shift()}}
     save()}
   if(it.cat)addScore(TOPIC2S[it.cat]||'General Knowledge',ok?1:0,1);
   if(Q.kind==='world')addScore('Geography',ok?1:0,1);
@@ -1981,26 +1982,37 @@ function finishQuiz(){roundDone(Q.kind==='dquiz'?'quiz':Q.kind);
 
 
 // ---------- TODAY'S QUIZ (fixed daily set) ----------
+// A question answered correctly is "mastered" and retires; a wrongly answered one keeps coming back until it is answered correctly.
+const qLive=i=>!(prog.qok||{})[i];
+const qPend=i=>!!prog.seen[i]&&!(prog.qok||{})[i];
+function liveOrder(ids,k,sh){const L=ids.filter(qLive),pend=sh(L.filter(i=>prog.seen[i])),fresh=sh(L.filter(i=>!prog.seen[i])),nP=Math.min(pend.length,Math.ceil(k*0.3));return pend.slice(0,nP).concat(fresh,pend.slice(nP))}
+function genFill(k,A){const out=[];for(let j=0;j<k;j++){const r=j%3,g=r===0?genLR(!A):r===1?genWord(!A):genMR(!A);g.cat=r===0?'Reasoning':'Maths';g.gen=1;out.push(g)}return out}
 function dailyQuizIds(){
-  ensureDayBase();if(prog.day.dqIds&&prog.day.dqIds.length>=DQ_SIZE())return prog.day.dqIds;
-  const prev=prog.day.dqIds||null,prevPos=prog.day.dqPos||0;
+  ensureDayBase();
   const rnd=seeded(dayNum(today())*31+(WHO==='avanya'?7:13));const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   const pool=quizPool(),N=DQ_SIZE(),A=WHO==='aaranya';
+  if(prog.day.dqIds){ // keep what's answered; drop not-yet-answered questions that have since been mastered; top up
+    const pos=prog.day.dqPos||0,old=prog.day.dqIds;
+    let list=old.slice(0,pos).concat(old.slice(pos).filter(x=>typeof x!=='number'||qLive(x)));
+    if(list.length<N){const have=new Set(list.filter(x=>typeof x==='number'));list=list.concat(liveOrder(pool.filter(i=>!have.has(i)),N-list.length,sh).slice(0,N-list.length));if(list.length<N)list=list.concat(genFill(N-list.length,A))}
+    if(list.length!==old.length||list.some((x,j)=>x!==old[j])){prog.day.dqIds=list;recDQ();save()}
+    return prog.day.dqIds}
   const want=A?{std:N}:{hard:Math.round(N*0.6),std:N-Math.round(N*0.6)};
-  const pickFrom=(ids,k)=>{const fresh=sh(ids.filter(i=>!prog.seen[i])),old=sh(ids.filter(i=>prog.seen[i]));const order=fresh.concat(old);
+  const pickFrom=(ids,k)=>{const order=liveOrder(ids,k,sh);
     const byCat={};order.forEach(i=>{(byCat[OLY[i].c]=byCat[OLY[i].c]||[]).push(i)});const cats=sh(Object.keys(byCat));const out=[];
     while(out.length<k&&cats.some(c=>byCat[c].length)){for(const c of cats){if(out.length>=k)break;if(byCat[c].length)out.push(byCat[c].shift())}}return out};
   let ids=[];
   if(want.hard)ids=ids.concat(pickFrom(pool.filter(i=>OLY[i].d===2),want.hard));
   ids=ids.concat(pickFrom(pool.filter(i=>!OLY[i].d&&!ids.includes(i)),N-ids.length));
-  if(prev){const extra=sh(pool.filter(i=>!prev.includes(i))).sort((x,y)=>(prog.seen[x]?1:0)-(prog.seen[y]?1:0)).slice(0,N-prev.length);prog.day.dqIds=prev.concat(extra);prog.day.dqPos=prevPos;recDQ();save();return prog.day.dqIds}
-  prog.day.dqIds=sh(ids);prog.day.dqPos=0;recDQ();save();return prog.day.dqIds;
+  if(ids.length<N)ids=ids.concat(pickFrom(pool.filter(i=>!ids.includes(i)),N-ids.length)); // e.g. Challenge all mastered → use Standard
+  ids=sh(ids);if(ids.length<N)ids=ids.concat(genFill(N-ids.length,A)); // bank used up → freshly generated maths & reasoning (never repeats)
+  prog.day.dqIds=ids;prog.day.dqPos=0;recDQ();save();return prog.day.dqIds;
 }
-function recDQ(){const h=prog.dqh||(prog.dqh={});h[today()]=prog.day.dqIds.slice();const ks=Object.keys(h).sort();while(ks.length>14)delete h[ks.shift()]}
+function recDQ(){const h=prog.dqh||(prog.dqh={});h[today()]=prog.day.dqIds.filter(x=>typeof x==='number');const ks=Object.keys(h).sort();while(ks.length>14)delete h[ks.shift()]}
 function openDailyQuiz(){
   const ids=dailyQuizIds(),pos=prog.day.dqPos||0;
   if(pos>=ids.length){modal('✅','Today\'s Quiz is done!','Great work! A new set of questions comes tomorrow. Want more? Try free practice in Quiz Master.');openQuizSetup();return}
-  const qs=ids.slice(pos).map(i=>{const q=OLY[i];const order=shuffle([0,1,2,3]);return{id:i,hard:q.d===2,cat:q.c,text:(q.d===2?'🔥 ':'')+q.q,opts:order.map(k=>q.o[k]),ans:order.indexOf(q.a),explain:q.e}});
+  const qs=ids.slice(pos).map(i=>{if(typeof i!=='number')return Object.assign({},i);const q=OLY[i];const order=shuffle([0,1,2,3]);return{id:i,hard:q.d===2,cat:q.c,text:(q.d===2?'🔥 ':'')+q.q,opts:order.map(k=>q.o[k]),ans:order.indexOf(q.a),explain:q.e}});
   runQuiz({kind:'dquiz',title:'📝 Today ('+pos+'/'+ids.length+' done)',qs,offset:pos,total:ids.length});
 }
 
@@ -2091,7 +2103,7 @@ function buildWeeklyTest(){
   const S=WT_SPEC(),A=WHO==='aaranya',used=new Set(),pool=quizPool(),wkDays=weekDays(weekKey());
   const wrongSet=new Set(prog.wrong||[]),weekIds=new Set();wkDays.forEach(d=>((prog.dqh||{})[d]||[]).forEach(i=>weekIds.add(i)));
   const rank=i=>(wrongSet.has(i)?0:weekIds.has(i)?1:!prog.seen[i]?2:3)+Math.random()*.5;
-  const take=(ids,k)=>{const out=ids.filter(i=>!used.has(i)).sort((a,b)=>rank(a)-rank(b)).slice(0,k);out.forEach(i=>used.add(i));return out.map(olyItem)};
+  const take=(ids,k)=>{const lv=ids.filter(i=>!used.has(i)&&qLive(i));if(lv.length>=k)ids=lv;const out=ids.filter(i=>!used.has(i)).sort((a,b)=>rank(a)-rank(b)).slice(0,k);out.forEach(i=>used.add(i));return out.map(olyItem)};
   const fill=(arr,k,gen)=>{let g=0;while(arr.length<k&&g++<200){const x=gen();if(!arr.some(y=>y.text===x.text))arr.push(x)}return arr};
   const out=[];
   S.secs.forEach(sec=>{let qs=[];
@@ -2196,7 +2208,10 @@ function openWorldSetup(){
 function wFact(c){return c.n+' '+c.f+' is in '+c.cont+(c.cap?' and its capital is '+c.cap:'')+'. Memory tip: picture the flag and say "'+(c.cap?c.cap+', '+c.n:c.n+', '+c.cont)+'" out loud three times.'}
 function startWorld(){
   let pool=wPool();if(WX.mode==='capital'||WX.mode==='rcap')pool=pool.filter(c=>c.cap);
-  const chosen=shuffle(pool).slice(0,10);
+  const M=(prog.wok||{})[WX.mode]||{},live=pool.filter(c=>M[c.n]!==1);
+  if(!live.length){modal('🏆','You know them all!','Every one in this round type is answered correctly. Try another mode or switch to all countries.');return}
+  const pend=shuffle(live.filter(c=>M[c.n]===0)),fresh=shuffle(live.filter(c=>M[c.n]===undefined)),nP=Math.min(pend.length,3);
+  const chosen=shuffle(pend.slice(0,nP).concat(fresh,pend.slice(nP)).slice(0,10));
   const qs=chosen.map(c=>{
     const same=COUNTRIES.filter(x=>x!==c&&x.cont===c.cont&&(WX.mode==='flag'||WX.mode==='cont'||x.cap));
     const others=COUNTRIES.filter(x=>x!==c&&(WX.mode==='flag'||WX.mode==='cont'||x.cap));
@@ -2235,23 +2250,26 @@ function openQuizSetup(){
   if(played.length){report='<h3>📊 Your topic report</h3>'+rep.filter(r=>r.t).map(r=>'<div class="mission"><span class="ic">'+QICON[r.c]+'</span><div class="tx">'+r.c+' <span style="float:right">'+r.pct+'% · '+r.t+' Qs</span><div class="mb"><i style="width:'+r.pct+'%;background:'+(r.pct>=80?'#2fbf71':r.pct>=50?'#ffb020':'#ff5d5d')+'"></i></div></div></div>').join('')+
     (played.length>=2?'<p class="tip">💪 Strongest: <b>'+played[0].c+'</b> · 🎯 Practise more: <b>'+played[played.length-1].c+'</b></p>':'');}
   if(!QM.lvl)QM.lvl=WHO==='avanya'?'hard':'std';
-  const unseen=OLY.filter((q,i)=>!prog.seen[i]&&qmOk(q)).length;
-  $('quizSetup').innerHTML='<h2>🏅 Quiz Master</h2><p>10 questions per round, with an explanation after every answer. New questions come first — '+unseen+' of '+OLY.length+' still new for you!</p>'+
+  const inCat=i=>(QM.cat==='Mixed'||OLY[i].c===QM.cat)&&qmOk(OLY[i]),all=OLY.map((q,i)=>i).filter(inCat);
+  const nNew=all.filter(i=>!prog.seen[i]).length,nRe=all.filter(qPend).length,nDone=all.length-nNew-nRe;
+  const catLeft=c=>OLY.some((q,i)=>(c==='Mixed'||q.c===c)&&qmOk(q)&&qLive(i));
+  $('quizSetup').innerHTML='<h2>🏅 Quiz Master</h2><p>10 questions per round, with an explanation after every answer. Questions you get right are done for good; ones you miss come back until you get them.</p><p class="tip">'+(QM.cat==='Mixed'?'All topics':QM.cat)+': <b>'+nNew+'</b> new · <b>'+nRe+'</b> to try again · <b>'+nDone+'</b> mastered ✅</p>'+
     '<h3>Level</h3><div class="lv" id="qmLvl"><button data-v="std" class="'+(QM.lvl==='std'?'on':'')+'">⭐ Standard</button><button data-v="hard" class="'+(QM.lvl==='hard'?'on':'')+'">🔥 Challenge</button><button data-v="mix" class="'+(QM.lvl==='mix'?'on':'')+'">🎲 Both</button></div>'+
-    '<h3>Pick a topic</h3><div class="lv" id="qmCats">'+cats.map(c=>'<button data-c="'+c+'" class="'+(QM.cat===c?'on':'')+'">'+(QICON[c]||'🎲')+' '+c+'</button>').join('')+'</div>'+
-    '<div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="qmGo">▶ Start</button></div>'+((prog.wrong||[]).length?'<button class="btn alt" id="qmMis" style="width:100%;margin-top:8px">🔁 Practise my mistakes ('+prog.wrong.length+')</button>':'')+report;
+    '<h3>Pick a topic</h3><div class="lv" id="qmCats">'+cats.map(c=>'<button data-c="'+c+'" class="'+(QM.cat===c?'on':'')+'">'+(QICON[c]||'🎲')+' '+c+(catLeft(c)?'':' ✅')+'</button>').join('')+'</div>'+
+    '<div class="row"><button class="btn alt" data-back="brain">⬅ Back</button><button class="btn" id="qmGo">▶ Start</button></div>'+(OLY.some((q,i)=>qPend(i))?'<button class="btn alt" id="qmMis" style="width:100%;margin-top:8px">🔁 Practise my mistakes ('+OLY.filter((q,i)=>qPend(i)).length+')</button>':'')+report;
   document.querySelectorAll('#qmCats button').forEach(b=>b.onclick=()=>{QM.cat=b.dataset.c;openQuizSetup()});
   document.querySelectorAll('#qmLvl button').forEach(b=>b.onclick=()=>{QM.lvl=b.dataset.v;openQuizSetup()});
   $('qmGo').onclick=startQuizMaster;
-  if($('qmMis'))$('qmMis').onclick=()=>{const ids=shuffle(prog.wrong.slice()).slice(0,10);
+  if($('qmMis'))$('qmMis').onclick=()=>{const ids=shuffle(OLY.map((q,i)=>i).filter(qPend)).slice(0,10);
     runQuiz({kind:'quiz',title:'🔁 My mistakes',qs:ids.map(i=>{const q=OLY[i];const o=shuffle([0,1,2,3]);return{id:i,hard:q.d===2,cat:q.c,text:(q.d===2?'🔥 ':'')+q.q,opts:o.map(k=>q.o[k]),ans:o.indexOf(q.a),explain:q.e}})})};
 }
 function startQuizMaster(){
   const lvOk=qmOk;
-  let idx=OLY.map((q,i)=>i).filter(i=>(QM.cat==='Mixed'||OLY[i].c===QM.cat)&&lvOk(OLY[i]));
-  if(idx.length<10)idx=idx.concat(shuffle(OLY.map((q,i)=>i).filter(i=>(QM.cat==='Mixed'||OLY[i].c===QM.cat)&&!lvOk(OLY[i]))).slice(0,10-idx.length));
-  const fresh=shuffle(idx.filter(i=>!prog.seen[i])),old=shuffle(idx.filter(i=>prog.seen[i]));
-  const chosen=fresh.concat(old).slice(0,10);
+  const inPool=new Set(quizPool());
+  let idx=OLY.map((q,i)=>i).filter(i=>(QM.cat==='Mixed'||OLY[i].c===QM.cat)&&lvOk(OLY[i])&&qLive(i));
+  if(idx.length<10)idx=idx.concat(shuffle(OLY.map((q,i)=>i).filter(i=>(QM.cat==='Mixed'||OLY[i].c===QM.cat)&&!lvOk(OLY[i])&&inPool.has(i)&&qLive(i))).slice(0,10-idx.length));
+  if(!idx.length){modal('🏆','Topic mastered!','You have answered every '+QM.cat+' question correctly! New questions arrive every Saturday — pick another topic for now.');return}
+  const chosen=shuffle(liveOrder(idx,10,shuffle).slice(0,10));
   const qs=chosen.map(i=>{const q=OLY[i];const order=shuffle([0,1,2,3]);return{id:i,hard:q.d===2,cat:q.c,text:(q.d===2?'🔥 ':'')+q.q,opts:order.map(k=>q.o[k]),ans:order.indexOf(q.a),explain:q.e}});
   runQuiz({kind:'quiz',title:(QICON[QM.cat]||'🎲')+' '+QM.cat+(QM.lvl==='hard'?' 🔥':''),qs});
 }
